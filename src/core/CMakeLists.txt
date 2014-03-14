@@ -61,10 +61,6 @@ QT5_ADD_RESOURCES(${PROJEC_NAME}_QRC_SOURCES ${${PROJEC_NAME}_RESOURCES})
 ## --------------------------------------------------------------
 include_directories(${INTERFACES_DIR}/${MODULE_NAME})
 
-# QTXDG
-find_package(QT5XDG REQUIRED QUIET)
-include(${QTXDG_USE_FILE})
-
 #CppMicroServices
 find_package(CppMicroServices NO_MODULE REQUIRED)
 include_directories(${CppMicroServices_INCLUDE_DIRS})
@@ -99,7 +95,7 @@ qt5_use_modules(${PROJECT_NAME} Gui)
 qt5_use_modules(${PROJECT_NAME} Widgets)
 
 # Link the CppMicroServices library
-target_link_libraries(${PROJECT_NAME} CppMicroServices ${XDGQT_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} CppMicroServices)
 
 ## --------------------------------------------------------------
 ## Install
