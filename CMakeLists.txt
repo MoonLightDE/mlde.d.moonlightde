@@ -18,9 +18,13 @@
 #
 
 ## --------------------------------------------------------------
-## Config Build Environment
+## Configure Build
 ## --------------------------------------------------------------
 cmake_minimum_required(VERSION 2.8)
+set(INTERFACES_DIR ${CMAKE_SOURCE_DIR}/include)
+
+set(MOONLIGHTDE_PREFIX MoonLightDE)
+set(MODULES_OUTPUT_DIR ${CMAKE_INSTALL_PREFIX}/lib/${MOONLIGHTDE_PREFIX}/modules )
 
 ## --------------------------------------------------------------
 ## Modules
@@ -29,4 +33,3 @@ add_subdirectory(src/core)
 ## --------------------------------------------------------------
 ## Third Parthy
 ## --------------------------------------------------------------
-
