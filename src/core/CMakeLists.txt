@@ -95,7 +95,7 @@ qt5_use_modules(${PROJECT_NAME} Gui)
 qt5_use_modules(${PROJECT_NAME} Widgets)
 
 # Link the CppMicroServices library
-target_link_libraries(${PROJECT_NAME} CppMicroServices)
+target_link_libraries(${PROJECT_NAME} ${CppMicroServices_LIBRARIES})
 
 ## --------------------------------------------------------------
 ## Install
