@@ -1,0 +1,14 @@
+/* 
+ * File:   MoonLightDECoreConfig.h.in
+ * Author: alexis
+ *
+ * Created on 22 de febrero de 2014, 17:33
+ */
+
+#ifndef MOONLIGHTDECORECONFIG_H_IN
+#define	MOONLIGHTDECORECONFIG_H_IN
+
+#define MODULES_OUTPUT_DIR "@MODULES_OUTPUT_DIR@"
+
+#endif	/* MOONLIGHTDECORECONFIG_H_IN */
+
