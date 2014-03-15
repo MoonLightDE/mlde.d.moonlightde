@@ -21,15 +21,14 @@
 #ifndef IQWIDGET_H
 #define	IQWIDGET_H
 
+#include <usServiceInterface.h>
 #include <QWidget>
 
-struct IQWidget : public QWidget {
-public:
+struct US_ABI_EXPORT IQWidget {
     virtual ~IQWidget();
-private:
-
+    QWidget* getWidget();
 };
-US_DECLARE_SERVICE_INTERFACE(IQWidget, "org.moonlightde.IQWidget")
+US_DECLARE_SERVICE_INTERFACE(IQWidget, "org.moonlightde.IQWidget/1.0")
         
 #endif	/* IQWIDGET_H */
 
