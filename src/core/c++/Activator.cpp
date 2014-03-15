@@ -21,7 +21,7 @@
 //! [Activator]
 
 #include "CoreContext.h"
-#include "IQWidget.h"
+#include "core/IQWidget.h"
 
 #include <usModuleActivator.h>
 #include <usModuleContext.h>
@@ -65,16 +65,16 @@ class Activator : public ModuleActivator {
 
 
                 std::vector<us::ServiceReference<IQWidget> > refs =
-                        context->GetServiceReferences<IQWidget>(us::LDAPProp("org.moonlightde.IQWidget.name") == widgetName.toStdString());
+                        context->GetServiceReferences<IQWidget>(us::LDAPProp("org.moonlightde.IQWidget.Class") == widgetName.toStdString());
                 if (refs.empty()) {
                     qDebug() << "ERROR: There aren't widgets registred under the name: " << widgetName <<
                             "\n\tMake shure you include the module in the profile.";
-                   
+
                 } else {
                     us::ServiceObjects<IQWidget> widgetObjects = context->GetServiceObjects(refs[0]);
                     // create a new instance
                     IQWidget* qWidget = widgetObjects.GetService();
-                    qWidget->show();
+                    qWidget->getWidget()->show();
                 }
             }
             settings.endArray();

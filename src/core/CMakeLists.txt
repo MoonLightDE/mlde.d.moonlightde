@@ -59,7 +59,7 @@ QT5_ADD_RESOURCES(${PROJEC_NAME}_QRC_SOURCES ${${PROJEC_NAME}_RESOURCES})
 ## --------------------------------------------------------------
 ## Dependencies - internal
 ## --------------------------------------------------------------
-include_directories(${INTERFACES_DIR}/${MODULE_NAME})
+include_directories(${INTERFACES_DIR})
 
 # QTXDG
 find_package(QT5XDG REQUIRED QUIET)

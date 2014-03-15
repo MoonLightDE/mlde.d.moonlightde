@@ -31,7 +31,7 @@
 #include <string>
 #include <algorithm>
 
-#include "IModuleManager.h"
+#include "core/IModuleManager.h"
 
 US_USE_NAMESPACE
 
