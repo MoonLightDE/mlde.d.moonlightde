@@ -64,6 +64,7 @@ m_pluginsDirSTD(pluginsDir.toStdString()), m_pluginsDir(pluginsDir) {
     } else {
         qDebug() << "ERROR: Sorry there are no configured modules at " << settings.fileName() << endl;
     }
+    qDebug() << "[DONE] Loading registered modules" << endl;
 
 }
 
@@ -71,7 +72,7 @@ ModuleManager::~ModuleManager() {
 }
 
 void ModuleManager::loadModule(const QString &name, const bool &persistent) {
-    
+    qDebug() << "Loading " << name;
     SharedLibrary sharedLib(m_pluginsDirSTD, "");
     Module* module = ModuleRegistry::GetModule(name.toStdString());
     if (!module) {
