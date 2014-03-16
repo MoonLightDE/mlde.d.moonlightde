@@ -24,11 +24,7 @@
 #include <usServiceInterface.h>
 #include <QWidget>
 
-struct US_ABI_EXPORT IQWidget {
-    virtual ~IQWidget();
-    QWidget* getWidget();
-};
-US_DECLARE_SERVICE_INTERFACE(IQWidget, "org.moonlightde.IQWidget/1.0")
+US_DECLARE_SERVICE_INTERFACE(QWidget, "org.qt-project.Qt.QWidget")
         
 #endif	/* IQWIDGET_H */
 
