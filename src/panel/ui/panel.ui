@@ -1,0 +1,578 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Panel</class>
+ <widget class="QWidget" name="Panel">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1366</width>
+    <height>38</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>800</width>
+    <height>38</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>16777215</width>
+    <height>38</height>
+   </size>
+  </property>
+  <property name="sizeIncrement">
+   <size>
+    <width>0</width>
+    <height>38</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Panel</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget#Launcher{
+background-color:#373737;
+}</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QPushButton" name="startButton">
+     <property name="minimumSize">
+      <size>
+       <width>105</width>
+       <height>38</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>38</height>
+      </size>
+     </property>
+     <property name="sizeIncrement">
+      <size>
+       <width>29</width>
+       <height>38</height>
+      </size>
+     </property>
+     <property name="acceptDrops">
+      <bool>false</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton#startButton{
+	
+    image: url(/home/ale/Launcher/img/MoonLight Logo.png);
+    background-color: #0784c5; 
+    border: 1px solid #0784c5;
+    /*background-color: #333; 
+    border: 1px solid #333;*/
+    padding: 0;
+    padding: 5px 12px 7px 15px;
+}
+QPushButton#startButton:hover{
+    background-color: #07689a;
+	border: 1px solid #07689a;
+}
+QPushButton#startButton:pressed{
+    background-color: #07689a;
+	border: 1px solid #07689a;
+}</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="quickBar" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>120</horstretch>
+       <verstretch>38</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>120</width>
+       <height>38</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>0</width>
+       <height>38</height>
+      </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QWidget#quickBar{
+	border-bottom: 1px solid;
+	background-color:#333;
+	border-bottom-color:#272727;
+	/*border-right: 1px solid #474747;*/
+	padding: 3px;
+}
+</string>
+     </property>
+     <widget class="QPushButton" name="pushButton_5">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>8</y>
+        <width>25</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>FontAwesome</family>
+        <pointsize>-1</pointsize>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton{
+    background-color: #333;
+    /*margin: 10px 0 0;*/
+    padding: 0;
+    font-family: FontAwesome;
+    font-size: 16px;
+    color: #AAA;
+	padding: 0;
+	list-style-type: none;
+	border: 1px solid #333;
+    line-height: 24px;
+}
+QPushButton:hover{
+    color: white;
+}
+QPushButton:pressed{
+    color: #AAA;
+}</string>
+      </property>
+      <property name="text">
+       <string></string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_6">
+      <property name="geometry">
+       <rect>
+        <x>35</x>
+        <y>8</y>
+        <width>25</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>FontAwesome</family>
+        <pointsize>-1</pointsize>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton{
+    background-color: #333;
+    /*margin: 10px 0 0;*/
+    padding: 0;
+    font-family: FontAwesome;
+    font-size: 16px;
+    color: #AAA;
+	padding: 0;
+	list-style-type: none;
+	border: 1px solid #333;
+    line-height: 24px;
+}
+QPushButton:hover{
+    color: white;
+}
+QPushButton:pressed{
+    color: #AAA;
+}</string>
+      </property>
+      <property name="text">
+       <string></string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_7">
+      <property name="geometry">
+       <rect>
+        <x>60</x>
+        <y>8</y>
+        <width>25</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>FontAwesome</family>
+        <pointsize>-1</pointsize>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton{
+    background-color: #333;
+    /*margin: 10px 0 0;*/
+    padding: 0;
+    font-family: FontAwesome;
+    font-size: 16px;
+    color: #AAA;
+	padding: 0;
+	list-style-type: none;
+	border: 1px solid #333;
+    line-height: 24px;
+}
+QPushButton:hover{
+    color: white;
+}
+QPushButton:pressed{
+    color: #AAA;
+}</string>
+      </property>
+      <property name="text">
+       <string></string>
+      </property>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="windowsBar" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>38</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>38</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>38</height>
+      </size>
+     </property>
+     <property name="sizeIncrement">
+      <size>
+       <width>0</width>
+       <height>38</height>
+      </size>
+     </property>
+     <property name="baseSize">
+      <size>
+       <width>0</width>
+       <height>38</height>
+      </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QWidget{
+border-bottom: 1px solid;
+background-color:#333;
+border-bottom-color:#272727;
+/*border-left: 1px solid #272727;*/
+}</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="systrayBar" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <horstretch>10</horstretch>
+       <verstretch>38</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>130</width>
+       <height>38</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>38</height>
+      </size>
+     </property>
+     <property name="sizeIncrement">
+      <size>
+       <width>0</width>
+       <height>38</height>
+      </size>
+     </property>
+     <property name="baseSize">
+      <size>
+       <width>0</width>
+       <height>38</height>
+      </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QWidget{
+border-bottom: 1px solid;
+background-color:#333;
+border-bottom-color:#272727;
+/*border-left: 1px solid #272727;*/
+}</string>
+     </property>
+     <widget class="QPushButton" name="pushButton">
+      <property name="geometry">
+       <rect>
+        <x>55</x>
+        <y>8</y>
+        <width>25</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>FontAwesome</family>
+        <pointsize>-1</pointsize>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton{
+    background-color: #3c3c3c;
+    /*margin: 10px 0 0;*/
+    padding: 0;
+    font-family: FontAwesome;
+    font-size: 16px;
+    color: #AAA;
+	padding: 0;
+	list-style-type: none;
+	border: 1px solid #3c3c3c;
+    line-height: 24px;
+}
+QPushButton:hover{
+    color: white;
+}
+QPushButton:pressed{
+    color: #AAA;
+}</string>
+      </property>
+      <property name="text">
+       <string></string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_2">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>8</y>
+        <width>25</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>FontAwesome</family>
+        <pointsize>-1</pointsize>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton{
+    background-color: #3c3c3c;
+    /*margin: 10px 0 0;*/
+    padding: 0;
+    font-family: FontAwesome;
+    font-size: 16px;
+    color: #AAA;
+	padding: 0;
+	list-style-type: none;
+	border: 1px solid #3c3c3c;
+    line-height: 24px;
+}
+QPushButton:hover{
+    color: white;
+}
+QPushButton:pressed{
+    color: #AAA;
+}</string>
+      </property>
+      <property name="text">
+       <string></string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_3">
+      <property name="geometry">
+       <rect>
+        <x>5</x>
+        <y>8</y>
+        <width>25</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>FontAwesome</family>
+        <pointsize>-1</pointsize>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton{
+    background-color: #3c3c3c;
+    /*margin: 10px 0 0;*/
+    padding: 0;
+    font-family: FontAwesome;
+    font-size: 16px;
+    color: #AAA;
+	padding: 0;
+	list-style-type: none;
+	border: 1px solid #3c3c3c;
+    line-height: 24px;
+}
+QPushButton:hover{
+    color: white;
+}
+QPushButton:pressed{
+    color: #AAA;
+}</string>
+      </property>
+      <property name="text">
+       <string></string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_4">
+      <property name="geometry">
+       <rect>
+        <x>80</x>
+        <y>8</y>
+        <width>25</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>FontAwesome</family>
+        <pointsize>-1</pointsize>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton{
+    background-color: #3c3c3c;
+    /*margin: 10px 0 0;*/
+    padding: 0;
+    font-family: FontAwesome;
+    font-size: 16px;
+    color: #AAA;
+	padding: 0;
+	list-style-type: none;
+	border: 1px solid #3c3c3c;
+    line-height: 24px;
+}
+QPushButton:hover{
+    color: white;
+}
+QPushButton:pressed{
+    color: #AAA;
+}</string>
+      </property>
+      <property name="text">
+       <string></string>
+      </property>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="clockBar" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>20</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>90</width>
+       <height>38</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>38</height>
+      </size>
+     </property>
+     <property name="sizeIncrement">
+      <size>
+       <width>0</width>
+       <height>38</height>
+      </size>
+     </property>
+     <property name="baseSize">
+      <size>
+       <width>0</width>
+       <height>38</height>
+      </size>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QWidget{
+border-bottom: 1px solid;
+background-color:#333;
+border-bottom-color:#272727;
+/*border-left: 1px solid #272727;*/
+}</string>
+     </property>
+     <widget class="QLabel" name="label">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>8</y>
+        <width>50</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QLabel{
+	color:white;
+	border: 0px solid;
+}</string>
+      </property>
+      <property name="text">
+       <string>12:00</string>
+      </property>
+      <property name="textFormat">
+       <enum>Qt::AutoText</enum>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="wordWrap">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+  <zorder>windowsBar</zorder>
+  <zorder>startButton</zorder>
+  <zorder>clockBar</zorder>
+  <zorder>quickBar</zorder>
+  <zorder>systrayBar</zorder>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>
