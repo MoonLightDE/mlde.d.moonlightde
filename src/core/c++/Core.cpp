@@ -65,8 +65,6 @@ void Core::start() {
     // Loading modules
     QSettings * profile = settingsProfile->getSettingsOf();
     moduleManager->loadFromProfile(profile);
-    qDebug() << "Aviable modules: " << moduleManager->listAviableModules();
-    qDebug() << "Active modules: " << moduleManager->listActiveModules();
 
     emit(started());
 }
