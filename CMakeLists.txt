@@ -25,6 +25,7 @@ set(INTERFACES_DIR ${CMAKE_SOURCE_DIR}/include)
 
 set(MOONLIGHTDE_PREFIX MoonLightDE)
 set(MODULES_OUTPUT_DIR ${CMAKE_INSTALL_PREFIX}/lib/${MOONLIGHTDE_PREFIX}/modules )
+set(INTERFACES_OUTPUT_DIR ${CMAKE_INSTALL_PREFIX}/include/${MOONLIGHTDE_PREFIX})
 
 ## --------------------------------------------------------------
 ## Modules
