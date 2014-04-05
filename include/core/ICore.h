@@ -30,13 +30,14 @@
 
 namespace CoreContext {
 
-    class ICore : public QObject {
+    class IController : public QObject {
     public:
         virtual void start() = 0;
         virtual void finish() = 0;
 
-    signals:
+signals:
         void started();
+        void finishing();
     };
 
     class IEnvironment : public QObject {
@@ -46,10 +47,11 @@ namespace CoreContext {
         virtual void remove(QString key) = 0;
         virtual bool contains(QString key) = 0;
 
-    signals:
+signals:
         virtual void environmentUpdated(QString key, QString value) = 0;
 
     };
+
     class IModuleManager {
     public:
         virtual bool load(const QString &name) = 0;
@@ -63,14 +65,14 @@ namespace CoreContext {
     /*Public interface for the "SettingsProfile" class.*/
     class ISettingsProfile {
     public:
-        virtual QSettings * getSettingsOf (QObject * object = 0) = 0;
-        virtual QSettings * getSettingsOf (const QString & objectPath) = 0;
+        virtual QSettings * getSettingsOf(QObject * object = 0) = 0;
+        virtual QSettings * getSettingsOf(const QString & objectPath) = 0;
 
     };
 
 
 }
-US_DECLARE_SERVICE_INTERFACE(CoreContext::ICore, "org.moonlightde.core.ICore/1.0")
+US_DECLARE_SERVICE_INTERFACE(CoreContext::IController, "org.moonlightde.core.IController/1.0")
 US_DECLARE_SERVICE_INTERFACE(CoreContext::IEnvironment, "org.moonlightde.core.IEnvironment/1.0")
 US_DECLARE_SERVICE_INTERFACE(CoreContext::IModuleManager, "org.moonlightde.core.IModuleManager/1.0")
 US_DECLARE_SERVICE_INTERFACE(CoreContext::ISettingsProfile, "org.moonlightde.core.ISettingsProfile/1.0")

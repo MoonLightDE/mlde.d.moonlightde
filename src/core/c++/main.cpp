@@ -21,7 +21,7 @@
 
 
 #include "ModuleManager.h"
-#include "Core.h"
+#include "Controller.h"
 #include "core/ICore.h"
 
 #include <QDebug>
@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
         aditionalLibsPath = parser.value(pluginsdDirOption);
     }
 
-    CoreContext::ICore * core = new Core(profile, aditionalLibsPath);
+    CoreContext::IController * core = new Controller(profile, aditionalLibsPath);
     core->start();
     return app.exec();
 }

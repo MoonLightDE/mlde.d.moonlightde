@@ -26,17 +26,18 @@
 
 #include <QString>
 
-
-class Core : public CoreContext::ICore {
+class Controller : public CoreContext::IController {
     Q_OBJECT
 public:
-    Core(QString profile, QString aditionalLibsPath);
+    Controller(QString profile, QString aditionalLibsPath);
     void start();
     void finish();
-    virtual ~Core();
-    
+    virtual ~Controller();
+
 signals:
     void started();
+    void finishing();
+
 private:
     CoreContext::IModuleManager * moduleManager;
     CoreContext::IEnvironment * environment;

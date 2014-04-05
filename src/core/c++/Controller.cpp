@@ -19,7 +19,7 @@
  */
 
 
-#include "Core.h"
+#include "Controller.h"
 #include "SettingsProfile.h"
 #include "ModuleManager.h"
 #include "Environment.h"
@@ -32,7 +32,7 @@
 
 using namespace us;
 
-Core::Core(QString profile, QString aditionalLibsPath) {
+Controller::Controller(QString profile, QString aditionalLibsPath) {
     qDebug() << "Constructing core.";
     ModuleContext * context  = GetModuleContext();
 
@@ -56,11 +56,11 @@ Core::Core(QString profile, QString aditionalLibsPath) {
 
     {
         ServiceProperties props;
-        context->RegisterService<CoreContext::ICore>(this, props);
+        context->RegisterService<CoreContext::IController>(this, props);
     }
 }
 
-void Core::start() {
+void Controller::start() {
     qDebug() << "Starting core.";
     // Loading modules
     QSettings * profile = settingsProfile->getSettingsOf();
@@ -69,10 +69,10 @@ void Core::start() {
     emit(started());
 }
 
-void Core::finish() {
-    qDebug() << "Destroing core.";
+void Controller::finish() {
+    qDebug() << "Destroying core.";
 }
 
-Core::~Core() {
+Controller::~Controller() {
 }
 

@@ -19,7 +19,7 @@
  */
 
 #include "ModuleManager.h"
-#include "core/IModuleManager.h"
+//#include "core/IModuleManager.h"
 #include "MoonLightDECoreConfig.h"
 
 #include <usModule.h>

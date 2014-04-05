@@ -23,7 +23,7 @@ project(moonlightDE${MODULE_NAME})
 ## Sources
 ## --------------------------------------------------------------
 set(${PROJECT_NAME}_HEADERS
-    c++/Core.h
+    c++/Controller.h
     c++/SettingsProfile.h
     c++/ModuleManager.h
     c++/Environment.h
@@ -34,7 +34,7 @@ set(${PROJECT_NAME}_PUBLIC_HEADERS
 )
 
 set(${PROJECT_NAME}_SOURCES
-    c++/Core.cpp
+    c++/Controller.cpp
     c++/SettingsProfile.cpp
     c++/ModuleManager.cpp
     c++/Environment.cpp
