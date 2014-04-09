@@ -14,12 +14,12 @@ using namespace us;
 Environment::Environment() {
     ModuleContext * context  = GetModuleContext();
 
-    std::vector<ServiceReference<CoreContext::ISettingsProfile> > refs =
-            context->GetServiceReferences<CoreContext::ISettingsProfile>("");
+    std::vector<ServiceReference<Core::ISettingsProfile> > refs =
+            context->GetServiceReferences<Core::ISettingsProfile>("");
     if (refs.empty()) {
         qWarning() << "Unable to find the SettingsProfile service.";
     } else {
-        CoreContext::ISettingsProfile * settingsProfile = context->GetService(refs.front());
+        Core::ISettingsProfile * settingsProfile = context->GetService(refs.front());
         settings = settingsProfile->getSettingsOf("Environment");
     }
 }

@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
         aditionalLibsPath = parser.value(pluginsdDirOption);
     }
 
-    CoreContext::IController * core = new Controller(profile, aditionalLibsPath);
+    Core::IController * core = new Controller(profile, aditionalLibsPath);
     core->start();
     return app.exec();
 }

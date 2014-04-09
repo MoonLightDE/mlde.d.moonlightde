@@ -28,7 +28,7 @@
 #include <QSettings>
 #include <QProcessEnvironment>
 
-namespace CoreContext {
+namespace Core {
 
     class IController : public QObject {
     public:
@@ -72,10 +72,10 @@ signals:
 
 
 }
-US_DECLARE_SERVICE_INTERFACE(CoreContext::IController, "org.moonlightde.core.IController/1.0")
-US_DECLARE_SERVICE_INTERFACE(CoreContext::IEnvironment, "org.moonlightde.core.IEnvironment/1.0")
-US_DECLARE_SERVICE_INTERFACE(CoreContext::IModuleManager, "org.moonlightde.core.IModuleManager/1.0")
-US_DECLARE_SERVICE_INTERFACE(CoreContext::ISettingsProfile, "org.moonlightde.core.ISettingsProfile/1.0")
+US_DECLARE_SERVICE_INTERFACE(Core::IController, "org.moonlightde.core.IController/1.0")
+US_DECLARE_SERVICE_INTERFACE(Core::IEnvironment, "org.moonlightde.core.IEnvironment/1.0")
+US_DECLARE_SERVICE_INTERFACE(Core::IModuleManager, "org.moonlightde.core.IModuleManager/1.0")
+US_DECLARE_SERVICE_INTERFACE(Core::ISettingsProfile, "org.moonlightde.core.ISettingsProfile/1.0")
 
 #endif	/* ICORE_H */
 

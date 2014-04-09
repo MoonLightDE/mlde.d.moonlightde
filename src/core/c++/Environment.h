@@ -6,7 +6,7 @@
 #include <QObject>
 #include <QSettings>
 
-class Environment : public CoreContext::IEnvironment {
+class Environment : public Core::IEnvironment {
     Q_OBJECT
 public:
     explicit Environment();

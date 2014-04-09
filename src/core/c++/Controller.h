@@ -26,7 +26,7 @@
 
 #include <QString>
 
-class Controller : public CoreContext::IController {
+class Controller : public Core::IController {
     Q_OBJECT
 public:
     Controller(QString profile, QString aditionalLibsPath);
@@ -39,9 +39,9 @@ signals:
     void finishing();
 
 private:
-    CoreContext::IModuleManager * moduleManager;
-    CoreContext::IEnvironment * environment;
-    CoreContext::ISettingsProfile * settingsProfile;
+    Core::IModuleManager * moduleManager;
+    Core::IEnvironment * environment;
+    Core::ISettingsProfile * settingsProfile;
 
 };
 

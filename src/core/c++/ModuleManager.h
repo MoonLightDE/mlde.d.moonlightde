@@ -36,7 +36,7 @@
 US_USE_NAMESPACE
 
 
-class ModuleManager : public CoreContext::IModuleManager {
+class ModuleManager : public Core::IModuleManager {
 public:
     ModuleManager(const QString &aditionalLibsPath);
 

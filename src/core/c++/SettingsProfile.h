@@ -26,7 +26,7 @@
 #include <QSettings>
 #include <QString>
 
-class SettingsProfile : public CoreContext::ISettingsProfile {
+class SettingsProfile : public Core::ISettingsProfile {
 public:
     SettingsProfile(QString profileName);
 

@@ -40,23 +40,23 @@ Controller::Controller(QString profile, QString aditionalLibsPath) {
     settingsProfile = new SettingsProfile(profile);
     {
         ServiceProperties props;
-        context->RegisterService<CoreContext::ISettingsProfile>(settingsProfile, props);
+        context->RegisterService<Core::ISettingsProfile>(settingsProfile, props);
     }
     moduleManager = new ModuleManager(aditionalLibsPath);
     {
         ServiceProperties props;
-        context->RegisterService<CoreContext::IModuleManager>(moduleManager, props);
+        context->RegisterService<Core::IModuleManager>(moduleManager, props);
     }
 
     environment = new Environment();
     {
         ServiceProperties props;
-        context->RegisterService<CoreContext::IEnvironment>(environment, props);
+        context->RegisterService<Core::IEnvironment>(environment, props);
     }
 
     {
         ServiceProperties props;
-        context->RegisterService<CoreContext::IController>(this, props);
+        context->RegisterService<Core::IController>(this, props);
     }
 }
 
