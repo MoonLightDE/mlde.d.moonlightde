@@ -30,6 +30,7 @@ set(${PROJECT_NAME}_HEADERS
 )
 set(${PROJECT_NAME}_PUBLIC_HEADERS
     ${INTERFACES_DIR}/core/ICore.h
+    ${INTERFACES_DIR}/core/IQt5.h
 
 )
 
