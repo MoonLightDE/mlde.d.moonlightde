@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Moonlight Desktop Environment Team
+ * Copyright (C) 2014 Moonlight Desktop Environment Team
  * Authors:
  * Alexis López Zubieta
  * This file is part of Moonlight Desktop Environment.
@@ -25,32 +25,32 @@
 #include <usModuleContext.h>
 
 #include <QString>
+#include <QHash>
 #include <QStringList>
 
-#include <map>
 #include <string>
 #include <algorithm>
 
-#include "core/IModuleManager.h"
+#include "core/ICore.h"
 
 US_USE_NAMESPACE
 
 
-class ModuleManager : public IModuleManager {
+class ModuleManager : public Core::IModuleManager {
 public:
-    ModuleManager(const QString &profile, const QString &pluginsDir);
+    ModuleManager(const QString &aditionalLibsPath);
+
+    bool load (const QString &name);
+    bool unload (const QString &name);
+    void loadFromProfile (QSettings * profile);
+    QList<QString> listAviableModules ();
+    QList<QString> listActiveModules ();
+
+
     virtual ~ModuleManager();
     
-    void loadModule(const QString &name, const bool &persistent = false);
-    void unloadModule(const QString &name, const bool &persistent = false);
-
 private:
-    /* module path -> lib handle */
-    std::map<std::string, SharedLibrary> libraryHandles;
-    std::string m_pluginsDirSTD;
-    QString m_pluginsDir;
-
-
+    QStringList paths;
 };
 
 #endif	/* MODULEMANAGER_H */

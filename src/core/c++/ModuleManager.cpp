@@ -19,13 +19,14 @@
  */
 
 #include "ModuleManager.h"
-#include "core/IModuleManager.h"
+//#include "core/IModuleManager.h"
 #include "MoonLightDECoreConfig.h"
 
 #include <usModule.h>
+#include <usSharedLibrary.h>
 #include <usModuleContext.h>
 #include <usModuleRegistry.h>
-#include <usSharedLibrary.h>
+#include <usGetModuleContext.h>
 #include <usServiceProperties.h>
 
 #include <set>
@@ -38,102 +39,107 @@
 
 US_USE_NAMESPACE
 
-ModuleManager::ModuleManager(const QString &profile, const QString &pluginsDir) :
-m_pluginsDirSTD(pluginsDir.toStdString()), m_pluginsDir(pluginsDir) {
-
-    qDebug() << "NOTICE: Using prifile " << profile;
-
-    QSettings settings(QApplication::applicationName(), profile);
-    if (!QFile::exists(settings.fileName())) {
-        qDebug() << "WARNING: The specified profile doesn't exist:\n\t" <<
-                settings.fileName() <<
-                "\n\tLoading core configuration UI.";
-        //showCoreSettingsManager(profile);
-        return;
-    }
-
-    qDebug() << "[    ] Loading registered modules" << endl;
-    int nmodules = settings.beginReadArray("Modules");
-    if (nmodules > 0) {
-        for (int i = 0; i < nmodules; i++) {
-            settings.setArrayIndex(i);
-            QString moduleName = settings.value("Name").toString();
-            loadModule(moduleName);
-        }
-        settings.endArray();
-    } else {
-        qDebug() << "ERROR: Sorry there are no configured modules at " << settings.fileName() << endl;
-    }
-    qDebug() << "[DONE] Loading registered modules" << endl;
-
+ModuleManager::ModuleManager(const QString &aditionalLibsPath) {
+    paths.append(MODULES_OUTPUT_DIR);
+    paths.append(aditionalLibsPath);
 }
 
 ModuleManager::~ModuleManager() {
 }
 
-void ModuleManager::loadModule(const QString &name, const bool &persistent) {
+bool ModuleManager::load (const QString &name) {
     qDebug() << "Loading " << name;
-    SharedLibrary sharedLib(m_pluginsDirSTD, "");
-    Module* module = ModuleRegistry::GetModule(name.toStdString());
-    if (!module) {
-        try {
-            std::map<std::string, SharedLibrary>::iterator libIter =
-                    libraryHandles.find(sharedLib.GetFilePath(name.toStdString()));
-            if (libIter != libraryHandles.end()) {
-                libIter->second.Load();
-            } else {
-                QDir dir(m_pluginsDir);
-                if (!dir.exists("lib" + name + ".so")) {
-                    qDebug() << "ERROR: Unknown module: " << name << ".\n"
-                            << "\tPlease check that is installed in this path: " << m_pluginsDir;
-                } else {
-                    SharedLibrary libHandle(m_pluginsDirSTD, name.toStdString());
-                    libHandle.Load();
-                    libraryHandles.insert(std::make_pair(libHandle.GetFilePath(), libHandle));
-                }
-            }
 
-        } catch (const std::exception& e) {
-            qDebug() << e.what() << endl;
-        }
-    } else if (!module->IsLoaded()) {
-        try {
-            const std::string modulePath = module->GetLocation();
-            std::map<std::string, SharedLibrary>::iterator libIter =
-                    libraryHandles.find(modulePath);
-            if (libIter != libraryHandles.end()) {
-                libIter->second.Load();
-            } else {
-                SharedLibrary libHandle(m_pluginsDirSTD, name.toStdString());
+    Module* module = ModuleRegistry::GetModule(name.toStdString());
+    if (module) { // Check if the module was loaded previously
+        if (module->IsLoaded()) {
+            qDebug() << "Module " << name << " already loaded.";
+        } else {  // Reload module
+            try {
+                QString modulePath = QString::fromStdString(module->GetLocation());
+
+                SharedLibrary libHandle(modulePath.toStdString());
                 libHandle.Load();
-                libraryHandles.insert(std::make_pair(libHandle.GetFilePath(), libHandle));
+                return true;
+            } catch (const std::exception& e) {
+                qDebug() << e.what() << endl;
             }
-        } catch (const std::exception& e) {
-            qDebug() << e.what() << endl;
         }
-    } else if (module) {
-        qDebug() << "NOTICE: module " << name << " already loaded" << endl;
+    } else { // Load module from scratch
+        foreach (QString path, paths) {
+            try {
+                qDebug() << "loading " << name << " from " << path;
+                SharedLibrary libHandle(path.toStdString(), name.toStdString());
+                libHandle.Load();
+                return true;
+            }catch (const std::exception& e) {
+                qWarning() << e.what() << endl;
+            }
+        }
+
     }
+    return false;
 }
 
-void ModuleManager::unloadModule(const QString &name, const bool &persistent) {
+bool ModuleManager::unload (const QString &name) {
+    qDebug() << "Unloading: " << name;
     Module * const module = ModuleRegistry::GetModule(name.toStdString());
     if (module) {
-        std::map<std::string, SharedLibrary>::iterator libIter =
-                libraryHandles.find(module->GetLocation());
-        if (libIter == libraryHandles.end()) {
-            std::cout << "Info: Unloading not possible. The module was loaded by a dependent module." << std::endl;
-        } else {
-            try {
-                libIter->second.Unload();
+        try {
+            SharedLibrary libHandle(module->GetLocation());
+            libHandle.Unload();
 
-                // Check if it has really been unloaded
-                if (module->IsLoaded()) {
-                    std::cout << "Info: The module is still referenced by another loaded module. It will be unloaded when all dependent modules are unloaded." << std::endl;
-                }
-            } catch (const std::exception& e) {
-                std::cout << e.what() << std::endl;
-            }
+            // Check if it has really been unloaded
+            if (module->IsLoaded()) {
+                std::cout << "Info: The module is still referenced by another loaded module. It will be unloaded when all dependent modules are unloaded." << std::endl;
+                return false;
+            } else
+                return true;
+        } catch (const std::exception& e) {
+            std::cout << e.what() << std::endl;
         }
     }
+    return false;
+}
+
+void ModuleManager::loadFromProfile (QSettings * profile) {
+    qDebug() << "Loading list: " << profile->fileName();
+
+    int nmodules = profile->beginReadArray("Modules");
+    if (nmodules > 0) {
+        for (int i = 0; i < nmodules; i++) {
+            profile->setArrayIndex(i);
+            QString moduleName = profile->value("Name").toString();
+            load(moduleName);
+        }
+        profile->endArray();
+    } else {
+        qWarning() << "Sorry, there are no modules names.";
+    }
+    qDebug() << "Loading list finished.";
+}
+QList<QString> ModuleManager::listAviableModules () {
+    QList<QString> list;
+    QStringList nameFilters;
+    nameFilters << "*.so";
+    foreach(QString path, paths) {
+        QDir dir(path);
+        dir.setFilter(QDir::Files | QDir::NoDotAndDotDot);
+        dir.setNameFilters(nameFilters);
+        QStringList filesList = dir.entryList();
+        foreach( QString fileName, filesList ) {
+            fileName.chop(3);
+            fileName.remove(0,3);
+            list.append(fileName);
+        }
+    }
+    return list;
+}
+
+QList<QString> ModuleManager::listActiveModules () {
+    QList<QString> list;
+    foreach (Module * module, ModuleRegistry::GetLoadedModules())  {
+        list.append(QString::fromStdString(module->GetName()));
+    }
+    return list;
 }

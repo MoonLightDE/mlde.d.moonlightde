@@ -1,7 +1,8 @@
 /*
- * Copyright (C) 2013 Moonlight Desktop Environment Team
+ * Copyright (C) 2014 Moonlight Desktop Environment Team
  * Authors:
  * Alexis López Zubieta
+ *
  * This file is part of Moonlight Desktop Environment.
  *
  * Moonlight Desktop Environment is free software: you can redistribute it and/or modify
@@ -20,8 +21,8 @@
 
 
 #include "ModuleManager.h"
-#include "MoonLightDECoreConfig.h"
-#include "CoreContext.h"
+#include "Controller.h"
+#include "core/ICore.h"
 
 #include <QDebug>
 #include <QStringList>
@@ -38,24 +39,21 @@ using namespace std;
 int main(int argc, char** argv) {
     QApplication app(argc, argv);
     app.setApplicationName("MoonLightDE");
-    app.setApplicationVersion("0.2.0.development1");
+    app.setApplicationVersion("0.2.1.development1");
 
     app.setOrganizationName("MoonLight Desktop Environment");
     app.setOrganizationDomain("moonlightde.org");
 
     // Parse arguments
     QString profile;
-    QString pluginsDir;
-    bool config;
+    QString aditionalLibsPath;
+//    TODO: Add a an option to open configuration dialog before start.
+//    bool config;
     { // Scope used to force varibles release 
         QCommandLineParser parser;
         parser.setApplicationDescription("A modular desktop environment for low performance devices.");
         parser.addHelpOption();
         parser.addVersionOption();
-
-
-        QCommandLineOption configOption(QStringList() << "c" << "config", "Opens the configuration window before start.");
-        parser.addOption(configOption);
 
         // Profile option
         QCommandLineOption profileOption(QStringList() << "p" << "profile",
@@ -68,7 +66,7 @@ int main(int argc, char** argv) {
         QCommandLineOption pluginsdDirOption(QStringList() << "d" << "modulesDir",
                 QCoreApplication::translate("Modules location", "Defines the location of the modules to be loaded."),
                 QCoreApplication::translate("modulesDir", "modulesDir"),
-                MODULES_OUTPUT_DIR);
+                ".");
         parser.addOption(pluginsdDirOption);
 
         // Process the actual command line arguments given by the user
@@ -77,14 +75,12 @@ int main(int argc, char** argv) {
         const QStringList args = parser.positionalArguments();
         // source is args.at(0), destination is args.at(1)
 
-        config = parser.isSet(configOption);
         profile = parser.value(profileOption);
-        pluginsDir = parser.value(pluginsdDirOption);
+        aditionalLibsPath = parser.value(pluginsdDirOption);
     }
-    if (0)
-        qDebug() << "test";
 
-    CoreContext::init(profile, pluginsDir);
+    Core::IController * core = new Controller(profile, aditionalLibsPath);
+    core->start();
     return app.exec();
 }
 

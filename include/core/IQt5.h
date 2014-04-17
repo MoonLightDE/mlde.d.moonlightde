@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2013 Moonlight Desktop Environment Team
+ * Copyright (C) 2014 Moonlight Desktop Environment Team
  * Authors:
- * Alexis López Zubieta
+ *      Alexis López Zubieta
  * This file is part of Moonlight Desktop Environment.
  *
  * Moonlight Desktop Environment is free software: you can redistribute it and/or modify
@@ -18,22 +18,9 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IMODULEMANAGER_H
-#define	IMODULEMANAGER_H
+#include <QObject>
+#include <QWidget>
 
-#include <usModule.h>
-#include <QString>
-
-class IModuleManager {
-public:
-    virtual void loadModule(const QString &name, const bool &persistent = false) = 0;
-    virtual void unloadModule(const QString &name, const bool &persistent = false) = 0;
-
-private:
-
-};
-
-US_DECLARE_SERVICE_INTERFACE(IModuleManager, "org.moonlightDE.IModuleManager")
-
-#endif	/* IMODULEMANAGER_H */
+US_DECLARE_SERVICE_INTERFACE(QObject, "org.qt-project.Qt.QObject")
+US_DECLARE_SERVICE_INTERFACE(QWidget, "org.qt-project.Qt.QWidget")
 

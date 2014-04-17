@@ -19,10 +19,37 @@
  */
 
 
-#ifndef MOONLIGHTDECORECONFIG_H_IN
-#define	MOONLIGHTDECORECONFIG_H_IN
+#include "SettingsProfile.h"
 
-#define MODULES_OUTPUT_DIR "@MODULES_OUTPUT_DIR@"
+#include <QApplication>
+#include <QStringList>
+#include <QUuid>
 
-#endif	/* MOONLIGHTDECORECONFIG_H_IN */
+
+SettingsProfile::SettingsProfile(QString profileName):profileName(profileName) {
+
+}
+QSettings * SettingsProfile::getSettingsOf(QObject * object) {
+    QStringList path;
+    QObject * itr = object;
+    while (itr != NULL) {
+        if (! itr->objectName().isEmpty())
+            path.push_front(itr->objectName());
+        itr = itr->parent();
+    }
+
+    path.push_front(profileName);
+    return new QSettings(qApp->applicationName(), path.join("/"));
+}
+
+QSettings * SettingsProfile::getSettingsOf(const QString & objectPath) {
+    QStringList path;
+    path.push_front(profileName);
+    path.push_back(objectPath);
+    return new QSettings(qApp->applicationName(), path.join("/"));
+}
+
+
+SettingsProfile::~SettingsProfile() {
+}
 

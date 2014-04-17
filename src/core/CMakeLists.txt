@@ -23,17 +23,22 @@ project(moonlightDE${MODULE_NAME})
 ## Sources
 ## --------------------------------------------------------------
 set(${PROJECT_NAME}_HEADERS
+    c++/Controller.h
+    c++/SettingsProfile.h
     c++/ModuleManager.h
-    c++/CoreContext.h
+    c++/Environment.h
 )
 set(${PROJECT_NAME}_PUBLIC_HEADERS
-    ${INTERFACES_DIR}/${MODULE_NAME}/IQWidget.h
-    ${INTERFACES_DIR}/${MODULE_NAME}/IModuleManager.h
+    ${INTERFACES_DIR}/core/ICore.h
+    ${INTERFACES_DIR}/core/IQt5.h
+
 )
 
-set(${PROJECT_NAME}_SOURCES 
+set(${PROJECT_NAME}_SOURCES
+    c++/Controller.cpp
+    c++/SettingsProfile.cpp
     c++/ModuleManager.cpp
-    c++/CoreContext.cpp
+    c++/Environment.cpp
     c++/main.cpp
 )
 
@@ -99,7 +104,7 @@ qt5_use_modules(${PROJECT_NAME} Gui)
 qt5_use_modules(${PROJECT_NAME} Widgets)
 
 # Link the CppMicroServices library
-target_link_libraries(${PROJECT_NAME} CppMicroServices ${XDGQT_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} CppMicroServices )
 
 ## --------------------------------------------------------------
 ## Install
@@ -110,4 +115,5 @@ INSTALL(TARGETS ${PROJECT_NAME}
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION MODULES_OUTPUT_DIR
     ARCHIVE DESTINATION lib/static)
-INSTALL(FILES ${${PROJECT_NAME}_PUBLIC_HEADERS} DESTINATION include/${MoonLightDEPrefix} )
+
+INSTALL(FILES ${${PROJECT_NAME}_PUBLIC_HEADERS} DESTINATION ${INTERFACES_OUTPUT_DIR}/${MODULE_NAME} )

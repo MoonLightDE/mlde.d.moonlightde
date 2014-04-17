@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Moonlight Desktop Environment Team
+ * Copyright (C) 2014 Moonlight Desktop Environment Team
  * Authors:
  * Alexis López Zubieta
  * This file is part of Moonlight Desktop Environment.
@@ -18,13 +18,25 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IQWIDGET_H
-#define	IQWIDGET_H
+#ifndef SETTINGSPROFILE_H
+#define	SETTINGSPROFILE_H
 
-#include <usServiceInterface.h>
-#include <QWidget>
+#include "core/ICore.h"
 
-US_DECLARE_SERVICE_INTERFACE(QWidget, "org.qt-project.Qt.QWidget")
-        
-#endif	/* IQWIDGET_H */
+#include <QSettings>
+#include <QString>
+
+class SettingsProfile : public Core::ISettingsProfile {
+public:
+    SettingsProfile(QString profileName);
+
+    QSettings * getSettingsOf (QObject * object = 0);
+    QSettings * getSettingsOf (const QString & objectPath);
+
+    virtual ~SettingsProfile();
+private:
+    QString profileName;
+};
+
+#endif	/* SETTINGSPROFILE_H */
 

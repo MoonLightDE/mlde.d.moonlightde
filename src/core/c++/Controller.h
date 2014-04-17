@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Moonlight Desktop Environment Team
+ * Copyright (C) 2014 Moonlight Desktop Environment Team
  * Authors:
  * Alexis López Zubieta
  * This file is part of Moonlight Desktop Environment.
@@ -18,35 +18,32 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORECONTEXT_H
-#define	CORECONTEXT_H
 
-#include "ModuleManager.h"
+#ifndef CORE_H
+#define	CORE_H
+
+#include "core/ICore.h"
 
 #include <QString>
-#include <QVariant>
 
-class CoreContext {
+class Controller : public Core::IController {
+    Q_OBJECT
 public:
-    static void init(const QString &profile, const QString &pluginsDir);
-    static CoreContext * getCoreContext();
+    Controller(QString profile, QString aditionalLibsPath);
+    void start();
+    void finish();
+    virtual ~Controller();
 
-    QVariant getProperty(const QString &name);
-    void setProperty(const QString &name, const QVariant &value);
-
+signals:
+    void started();
+    void finishing();
 
 private:
-    static CoreContext * m_coreContext;
-    ModuleManager *m_moduleManager;
-
-    CoreContext(const QString &profile, const QString &pluginsDir);
-    virtual ~CoreContext();
-
-    QVariantHash m_settings;
-
-
+    Core::IModuleManager * moduleManager;
+    Core::IEnvironment * environment;
+    Core::ISettingsProfile * settingsProfile;
 
 };
 
-#endif	/* CORECONTEXT_H */
+#endif	/* CORE_H */
 
