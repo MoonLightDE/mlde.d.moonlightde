@@ -18,43 +18,11 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Panel.h"
-#include "panel/IPanel.h" 
 
-#include <usModuleActivator.h>
-#include <usModuleContext.h>
-#include <usServiceProperties.h>
+#ifndef MOONLIGHTDECORECONFIG_H_IN
+#define	MOONLIGHTDECORECONFIG_H_IN
 
-#include <QDebug>
-#include <QPointer>
+#define MODULES_OUTPUT_DIR "@MODULES_OUTPUT_DIR@"
 
-US_USE_NAMESPACE
-/**
- */
-class Activator : public ModuleActivator {
-private:
+#endif	/* MOONLIGHTDECORECONFIG_H_IN */
 
-    /**
-     * Implements ModuleActivator::Load().
-     *
-     * @param context the framework context for the module.
-     */
-    void Load(ModuleContext* context) {
-        m_panel = new Panel();
-        m_panel.data()->show();
-
-        //ServiceProperties props;
-        //context->RegisterService<IPanel>(m_panel, props);
-    }
-
-    /**
-     * Implements ModuleActivator::Unload().
-     *
-     * @param context the framework context for the module.
-     */
-    void Unload(ModuleContext* context) {
-    }
-
-    QPointer<Panel> m_panel;
-};
-US_EXPORT_MODULE_ACTIVATOR(Panel, Activator)

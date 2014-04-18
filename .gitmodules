@@ -1,0 +1,3 @@
+[submodule "thirdParty/CppMicroServices"]
+	path = thirdParty/CppMicroServices
+	url = https://github.com/saschazelzer/CppMicroServices.git

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1366</width>
+    <width>800</width>
     <height>38</height>
    </rect>
   </property>
@@ -29,11 +29,12 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Panel</string>
+   <string>Launcher</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QWidget#Launcher{
-background-color:#373737;
+	background-color:#373737;
+	width: 100%;
 }</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">

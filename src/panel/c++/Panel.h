@@ -1,7 +1,8 @@
 /*
  * Copyright (C) 2014 Moonlight Desktop Environment Team
  * Authors:
- * Alexis López Zubieta
+ *      Alexis López Zubieta
+ * 
  * This file is part of Moonlight Desktop Environment.
  *
  * Moonlight Desktop Environment is free software: you can redistribute it and/or modify
@@ -18,43 +19,47 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Panel.h"
-#include "panel/IPanel.h" 
+#ifndef LAUNCHER_H
+#define LAUNCHER_H
 
-#include <usModuleActivator.h>
+#include "panel/IPanel.h"
+
+#include <usModule.h>
 #include <usModuleContext.h>
-#include <usServiceProperties.h>
+#include <usGetModuleContext.h>
+#include <usServiceReference.h>
+#include <usServiceException.h>
 
+#include <QWidget>
+#include <QRect>
 #include <QDebug>
-#include <QPointer>
 
-US_USE_NAMESPACE
-/**
- */
-class Activator : public ModuleActivator {
+
+namespace Ui {
+    class Panel;
+}
+
+class Panel : public QWidget, public IPanel {
+    Q_OBJECT
+
+public:
+    explicit Panel(QWidget *parent = 0);
+
+    void moveEvent(QMoveEvent * event);
+    void resizeEvent(QResizeEvent * event);
+
+    ~Panel();
 private:
+    void reserveScreenArea(const QRect &area);
 
-    /**
-     * Implements ModuleActivator::Load().
-     *
-     * @param context the framework context for the module.
-     */
-    void Load(ModuleContext* context) {
-        m_panel = new Panel();
-        m_panel.data()->show();
+    template<class Interface> inline QWidget *getPanelWidget(us::ModuleContext * context); 
 
-        //ServiceProperties props;
-        //context->RegisterService<IPanel>(m_panel, props);
-    }
-
-    /**
-     * Implements ModuleActivator::Unload().
-     *
-     * @param context the framework context for the module.
-     */
-    void Unload(ModuleContext* context) {
-    }
-
-    QPointer<Panel> m_panel;
+    Ui::Panel *ui;
+    QWidget *launcher;
+    QWidget *quicklauncher;
+    QWidget *taskBar;
+    QWidget *systemTry;
+    QWidget *clock;
 };
-US_EXPORT_MODULE_ACTIVATOR(Panel, Activator)
+
+#endif // LAUNCHER_H

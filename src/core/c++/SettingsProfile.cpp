@@ -18,43 +18,38 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Panel.h"
-#include "panel/IPanel.h" 
 
-#include <usModuleActivator.h>
-#include <usModuleContext.h>
-#include <usServiceProperties.h>
+#include "SettingsProfile.h"
 
-#include <QDebug>
-#include <QPointer>
+#include <QApplication>
+#include <QStringList>
+#include <QUuid>
 
-US_USE_NAMESPACE
-/**
- */
-class Activator : public ModuleActivator {
-private:
 
-    /**
-     * Implements ModuleActivator::Load().
-     *
-     * @param context the framework context for the module.
-     */
-    void Load(ModuleContext* context) {
-        m_panel = new Panel();
-        m_panel.data()->show();
+SettingsProfile::SettingsProfile(QString profileName):profileName(profileName) {
 
-        //ServiceProperties props;
-        //context->RegisterService<IPanel>(m_panel, props);
+}
+QSettings * SettingsProfile::getSettingsOf(QObject * object) {
+    QStringList path;
+    QObject * itr = object;
+    while (itr != NULL) {
+        if (! itr->objectName().isEmpty())
+            path.push_front(itr->objectName());
+        itr = itr->parent();
     }
 
-    /**
-     * Implements ModuleActivator::Unload().
-     *
-     * @param context the framework context for the module.
-     */
-    void Unload(ModuleContext* context) {
-    }
+    path.push_front(profileName);
+    return new QSettings(qApp->applicationName(), path.join("/"));
+}
 
-    QPointer<Panel> m_panel;
-};
-US_EXPORT_MODULE_ACTIVATOR(Panel, Activator)
+QSettings * SettingsProfile::getSettingsOf(const QString & objectPath) {
+    QStringList path;
+    path.push_front(profileName);
+    path.push_back(objectPath);
+    return new QSettings(qApp->applicationName(), path.join("/"));
+}
+
+
+SettingsProfile::~SettingsProfile() {
+}
+

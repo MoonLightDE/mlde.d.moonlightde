@@ -18,43 +18,40 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Panel.h"
-#include "panel/IPanel.h" 
+#ifndef MODULEMANAGER_H
+#define	MODULEMANAGER_H
 
-#include <usModuleActivator.h>
+#include <usSharedLibrary.h>
 #include <usModuleContext.h>
-#include <usServiceProperties.h>
 
-#include <QDebug>
-#include <QPointer>
+#include <QString>
+#include <QHash>
+#include <QStringList>
+
+#include <string>
+#include <algorithm>
+
+#include "core/ICore.h"
 
 US_USE_NAMESPACE
-/**
- */
-class Activator : public ModuleActivator {
+
+
+class ModuleManager : public Core::IModuleManager {
+public:
+    ModuleManager(const QString &aditionalLibsPath);
+
+    bool load (const QString &name);
+    bool unload (const QString &name);
+    void loadFromProfile (QSettings * profile);
+    QList<QString> listAviableModules ();
+    QList<QString> listActiveModules ();
+
+
+    virtual ~ModuleManager();
+    
 private:
-
-    /**
-     * Implements ModuleActivator::Load().
-     *
-     * @param context the framework context for the module.
-     */
-    void Load(ModuleContext* context) {
-        m_panel = new Panel();
-        m_panel.data()->show();
-
-        //ServiceProperties props;
-        //context->RegisterService<IPanel>(m_panel, props);
-    }
-
-    /**
-     * Implements ModuleActivator::Unload().
-     *
-     * @param context the framework context for the module.
-     */
-    void Unload(ModuleContext* context) {
-    }
-
-    QPointer<Panel> m_panel;
+    QStringList paths;
 };
-US_EXPORT_MODULE_ACTIVATOR(Panel, Activator)
+
+#endif	/* MODULEMANAGER_H */
+
