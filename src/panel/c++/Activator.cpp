@@ -43,8 +43,8 @@ private:
         m_panel = new Panel();
         m_panel.data()->show();
 
-        //ServiceProperties props;
-        //context->RegisterService<IPanel>(m_panel, props);
+        ServiceProperties props;
+        context->RegisterService<IPanel>(m_panel, props);
     }
 
     /**
