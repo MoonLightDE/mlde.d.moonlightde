@@ -1,7 +1,8 @@
 /*
  * Copyright (C) 2014 Moonlight Desktop Environment Team
  * Authors:
- * Alexis López Zubieta
+ *      Alexis López Zubieta
+ * 
  * This file is part of Moonlight Desktop Environment.
  *
  * Moonlight Desktop Environment is free software: you can redistribute it and/or modify
@@ -21,23 +22,44 @@
 #ifndef LAUNCHER_H
 #define LAUNCHER_H
 
-#include "core/IQWidget.h"
+#include "panel/IPanel.h"
+
+#include <usModule.h>
+#include <usModuleContext.h>
+#include <usGetModuleContext.h>
+#include <usServiceReference.h>
+#include <usServiceException.h>
 
 #include <QWidget>
+#include <QRect>
+#include <QDebug>
+
 
 namespace Ui {
     class Panel;
 }
 
-class Panel : public QWidget, public IQWidget {
+class Panel : public QWidget, public IPanel {
     Q_OBJECT
 
 public:
     explicit Panel(QWidget *parent = 0);
+
+    void moveEvent(QMoveEvent * event);
+    void resizeEvent(QResizeEvent * event);
+
     ~Panel();
-    QWidget * getWidget();
 private:
+    void reserveScreenArea(const QRect &area);
+
+    template<class Interface> inline QWidget *getPanelWidget(us::ModuleContext * context); 
+
     Ui::Panel *ui;
+    QWidget *launcher;
+    QWidget *quicklauncher;
+    QWidget *taskBar;
+    QWidget *systemTry;
+    QWidget *clock;
 };
 
 #endif // LAUNCHER_H

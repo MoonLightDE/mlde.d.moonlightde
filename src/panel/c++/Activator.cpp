@@ -18,15 +18,14 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "panel.h"
-#include "core/IQWidget.h"
-
-#include <QDebug>
+#include "Panel.h"
+#include "panel/IPanel.h" 
 
 #include <usModuleActivator.h>
 #include <usModuleContext.h>
 #include <usServiceProperties.h>
 
+#include <QDebug>
 #include <QPointer>
 
 US_USE_NAMESPACE
@@ -42,9 +41,10 @@ private:
      */
     void Load(ModuleContext* context) {
         m_panel = new Panel();
-        ServiceProperties props;
-        props["Class"] = std::string("Panel");
-        context->RegisterService<IQWidget>(m_panel, props);
+        m_panel.data()->show();
+
+        //ServiceProperties props;
+        //context->RegisterService<IPanel>(m_panel, props);
     }
 
     /**
@@ -53,9 +53,8 @@ private:
      * @param context the framework context for the module.
      */
     void Unload(ModuleContext* context) {
-        delete m_panel;
     }
 
     QPointer<Panel> m_panel;
 };
-US_EXPORT_MODULE_ACTIVATOR(panel, Activator)
+US_EXPORT_MODULE_ACTIVATOR(Panel, Activator)
