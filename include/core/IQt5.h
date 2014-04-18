@@ -18,9 +18,21 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef IQT5_H
+#define IQT5_H
+
+#include <usServiceInterface.h>
 #include <QObject>
 #include <QWidget>
 
-US_DECLARE_SERVICE_INTERFACE(QObject, "org.qt-project.Qt.QObject")
-US_DECLARE_SERVICE_INTERFACE(QWidget, "org.qt-project.Qt.QWidget")
+template<> inline const char* us_service_interface_iid<QObject>() {
+    return "org.qt-project.Qt.QObject";
+}
 
+template<> inline const char* us_service_interface_iid<QWidget>() {
+    return "org.qt-project.Qt.QWidget";
+}
+
+
+
+#endif // IQT5_H
