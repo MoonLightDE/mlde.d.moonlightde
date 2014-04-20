@@ -46,7 +46,7 @@ QWidget(parent), ui(new Ui::Panel) {
     taskBar = getPanelWidget<ITaskBar>(context);
     systemTry = getPanelWidget<ISystemTry>(context);
     clock = getPanelWidget<IClock>(context);
-    
+
     // Connect widgets
     if (launcher)
         connect(ui->startButton, SIGNAL(ui->startButton->released()), launcher, SLOT(launcher->show()));
@@ -56,8 +56,12 @@ QWidget(parent), ui(new Ui::Panel) {
         ui->windowsBar = taskBar;
     if (systemTry)
         ui->systrayBar = systemTry;
-    if (clock)
-        ui->clockBar = clock;
+    if (clock) {
+        QHBoxLayout * layout = new QHBoxLayout();
+        layout->addWidget(clock);
+        ui->clockBar->setLayout(layout);
+        clock->show();
+    }
 }
 
 Panel::~Panel() {
