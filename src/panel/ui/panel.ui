@@ -531,39 +531,12 @@ border-bottom: 1px solid;
 background-color:#333;
 border-bottom-color:#272727;
 /*border-left: 1px solid #272727;*/
-}</string>
-     </property>
-     <widget class="QLabel" name="label">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>8</y>
-        <width>50</width>
-        <height>23</height>
-       </rect>
-      </property>
-      <property name="autoFillBackground">
-       <bool>false</bool>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">QLabel{
+}
+QLabel{
 	color:white;
 	border: 0px solid;
 }</string>
-      </property>
-      <property name="text">
-       <string>12:00</string>
-      </property>
-      <property name="textFormat">
-       <enum>Qt::AutoText</enum>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-      <property name="wordWrap">
-       <bool>false</bool>
-      </property>
-     </widget>
+     </property>
     </widget>
    </item>
   </layout>
