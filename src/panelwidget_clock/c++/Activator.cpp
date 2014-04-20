@@ -41,9 +41,8 @@ private:
      */
     void Load(ModuleContext* context) {
         m_clock = new LxQtClock();
-        IClock * widget = dynamic_cast<IClock*>(m_clock->widget());
         ServiceProperties props;
-        context->RegisterService<IClock>(widget, props);
+        context->RegisterService<IClock>(m_clock, props);
     }
 
     /**

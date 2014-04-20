@@ -34,16 +34,19 @@
 
 #include "lxqtclockconfiguration.h"
 
+#include "panel/IPanel.h"
+
 #include <lxqt/lxqtrotatedwidget.h>
 
-#include <QtCore/QString>
+#include <QWidget>
+#include <QString>
 #include <QSettings>
 
 class QLabel;
 class QDialog;
 class QTimer;
 
-class LxQtClock : public QObject {
+class LxQtClock : public QWidget, public IClock {
     Q_OBJECT
 public:
     LxQtClock();
@@ -53,9 +56,6 @@ public:
         return "Clock";
     }
 
-    QWidget *widget() {
-        return mMainWidget;
-    }
     QDialog *configureDialog();
     void settingsChanged();
 
@@ -67,6 +67,10 @@ public:
 
     void realign();
 
+    virtual void mouseReleaseEvent(QMouseEvent * event) {
+        activated();
+    }
+
 public slots:
     void updateTime();
 
@@ -75,7 +79,6 @@ protected:
 
 private:
     QTimer* mClockTimer;
-    QWidget *mMainWidget;
     QWidget *mContent;
     LxQt::RotatedWidget* mRotatedWidget;
     QLabel* mTimeLabel;

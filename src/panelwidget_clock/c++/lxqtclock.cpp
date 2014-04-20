@@ -59,15 +59,6 @@
 
 using namespace us;
 
-struct ClockWidget : public QWidget, public IClock {
-    
-    ClockWidget(QWidget *parent = 0) : QWidget(parent) {
-    }
-
-    virtual ~ClockWidget() {
-    };
-};
-
 /**
  * @file lxqtclock.cpp
  * @brief implements LxQtclock and LxQtclockgui
@@ -79,7 +70,7 @@ struct ClockWidget : public QWidget, public IClock {
  * @brief constructor
  */
 LxQtClock::LxQtClock() :
-QObject(),
+QWidget(),
 mCalendarDialog(0),
 mAutoRotate(true) {
     // Lookup for settings services
@@ -95,13 +86,12 @@ mAutoRotate(true) {
     }
 
 
-    mMainWidget = new ClockWidget();
-    mRotatedWidget = new LxQt::RotatedWidget(*(new QWidget()), mMainWidget);
+    mRotatedWidget = new LxQt::RotatedWidget(*(new QWidget()), this);
     mContent = mRotatedWidget->content();
     mTimeLabel = new QLabel(mContent);
     mDateLabel = new QLabel(mContent);
 
-    QVBoxLayout *borderLayout = new QVBoxLayout(mMainWidget);
+    QVBoxLayout *borderLayout = new QVBoxLayout(this);
     borderLayout->setContentsMargins(0, 0, 0, 0);
     borderLayout->setSpacing(0);
     borderLayout->addWidget(mRotatedWidget, 0, Qt::AlignCenter);
@@ -123,7 +113,7 @@ mAutoRotate(true) {
     mDateLabel->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
     mContent->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
     mRotatedWidget->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
-    mMainWidget->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
+    this->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
 
     mClockTimer = new QTimer(this);
     connect(mClockTimer, SIGNAL(timeout()), SLOT(updateTime()));
@@ -132,7 +122,7 @@ mAutoRotate(true) {
 
     mFirstDayOfWeek = firstDayOfWeek();
 
-    mMainWidget->installEventFilter(this);
+    this->installEventFilter(this);
     settingsChanged();
 }
 
@@ -140,7 +130,6 @@ mAutoRotate(true) {
  * @brief destructor
  */
 LxQtClock::~LxQtClock() {
-    delete mMainWidget;
 }
 
 QDateTime LxQtClock::currentDateTime() {
@@ -334,9 +323,9 @@ void LxQtClock::activated() {
         cal->setFirstDayOfWeek(mFirstDayOfWeek);
         mCalendarDialog->layout()->addWidget(cal);
         mCalendarDialog->adjustSize();
-        QRect pos = mCalendarDialog->geometry();
-        pos.moveTop(mCalendarDialog->geometry().y());
-        mCalendarDialog->move(pos.topLeft());
+        //QRect pos = ;
+    
+        mCalendarDialog->move(mCalendarDialog->mapToGlobal(QPoint(0, 0)));
         mCalendarDialog->show();
     } else {
         delete mCalendarDialog;
@@ -349,9 +338,9 @@ QDialog * LxQtClock::configureDialog() {
 }
 
 bool LxQtClock::eventFilter(QObject *watched, QEvent *event) {
-    if (watched == mMainWidget) {
+    if (watched == this) {
         if (event->type() == QEvent::ToolTip) {
-            mMainWidget->setToolTip(QDateTime::currentDateTime().toString(Qt::DefaultLocaleLongDate));
+            this->setToolTip(QDateTime::currentDateTime().toString(Qt::DefaultLocaleLongDate));
         }
 
         return false;
