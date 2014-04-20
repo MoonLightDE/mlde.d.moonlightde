@@ -331,6 +331,8 @@ void Dialog::setFilter(const QString &text, bool onlyHistory) {
     mCommandItemModel->showOnlyHistory(onlyHistory);
     mCommandItemModel->setFilterWildcard(text);
     mCommandItemModel->sort(0);
+    // FIXME: this is a dirty hack, because dataChanged is not been 
+    //          executed.
     if (mCommandItemModel->rowCount()) {
         ui->commandList->show();
     } else
