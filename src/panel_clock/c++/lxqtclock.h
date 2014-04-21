@@ -40,6 +40,7 @@
 
 #include <QWidget>
 #include <QString>
+#include <QPointer>
 #include <QSettings>
 
 class QLabel;
@@ -78,6 +79,7 @@ protected:
     bool eventFilter(QObject *watched, QEvent *event);
 
 private:
+    QPointer<QWidget> m_panel;
     QTimer* mClockTimer;
     QWidget *mContent;
     LxQt::RotatedWidget* mRotatedWidget;
@@ -85,7 +87,7 @@ private:
     QLabel* mDateLabel;
     QString mClockFormat;
     QString mToolTipFormat;
-    QDialog* mCalendarDialog;
+    QPointer<QDialog> mCalendarDialog;
     QString mTimeFormat;
     QString mDateFormat;
     bool mDateOnNewLine;

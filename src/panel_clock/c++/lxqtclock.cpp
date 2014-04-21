@@ -310,11 +310,19 @@ void LxQtClock::updateMinWidth() {
 }
 
 void LxQtClock::activated() {
+    if (m_panel.isNull()) {
+        ModuleContext * context = GetModuleContext();
+        ServiceReference<IPanel> ref =
+                context->GetServiceReference<IPanel>();
+        if (!ref) {
+            qWarning() << "Unable to find the IPanel service.";
+        } else {
+            m_panel = dynamic_cast<QWidget*> (context->GetService(ref));
+        }
+    }
 
-
-    if (!mCalendarDialog) {
+    if (mCalendarDialog.isNull()) {
         mCalendarDialog = new QDialog(mContent);
-        //mCalendarDialog->setAttribute(Qt::WA_DeleteOnClose, true);
         mCalendarDialog->setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog | Qt::X11BypassWindowManagerHint);
         mCalendarDialog->setLayout(new QHBoxLayout(mCalendarDialog));
         mCalendarDialog->layout()->setMargin(1);
@@ -323,9 +331,15 @@ void LxQtClock::activated() {
         cal->setFirstDayOfWeek(mFirstDayOfWeek);
         mCalendarDialog->layout()->addWidget(cal);
         mCalendarDialog->adjustSize();
-        //QRect pos = ;
-    
-        mCalendarDialog->move(mCalendarDialog->mapToGlobal(QPoint(0, 0)));
+
+
+        int x = 0, y = 0;
+        
+        x = mapToGlobal(geometry().topLeft()).x() - mCalendarDialog->sizeHint().width() + this->sizeHint().width() ;
+        y = m_panel->mapToGlobal(QPoint(0, 0)).y() - mCalendarDialog->sizeHint().height();
+        qDebug() << "X: " << x << "Y: " << y;
+
+        mCalendarDialog->move(x, y);
         mCalendarDialog->show();
     } else {
         delete mCalendarDialog;
