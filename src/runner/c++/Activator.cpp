@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2014 Moonlight Desktop Environment Team
  * Authors:
- *      Alexis López Zubieta
+ * Alexis López Zubieta
  * This file is part of Moonlight Desktop Environment.
  *
  * Moonlight Desktop Environment is free software: you can redistribute it and/or modify
@@ -18,21 +18,42 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IQT5_H
-#define IQT5_H
 
-#include <usServiceInterface.h>
-#include <QObject>
+#include "dialog.h"
+
+#include <usModuleActivator.h>
+#include <usModuleContext.h>
+#include <usServiceProperties.h>
+
+#include <QDebug>
 #include <QWidget>
+#include <QPointer>
 
-template<> inline const char* us_service_interface_iid<QObject>() {
-    return "org.qt-project.Qt.QObject";
-}
+US_USE_NAMESPACE
+/**
+ */
+class Activator : public ModuleActivator {
+private:
 
-template<> inline const char* us_service_interface_iid<QWidget>() {
-    return "org.qt-project.Qt.QWidget";
-}
+    /**
+     * Implements ModuleActivator::Load().
+     *
+     * @param context the framework context for the module.
+     */
+    void Load(ModuleContext* context) {
+        QWidget *hiddenPreviewParent = new QWidget(0, Qt::Tool);
+        d = new Dialog(hiddenPreviewParent);
+        d->show();
+    }
 
-
-
-#endif // IQT5_H
+    /**
+     * Implements ModuleActivator::Unload().
+     *
+     * @param context the framework context for the module.
+     */
+    void Unload(ModuleContext* context) {
+        delete d;
+    }
+    Dialog *d;
+};
+US_EXPORT_MODULE_ACTIVATOR(Runner, Activator)
