@@ -32,6 +32,8 @@ set(INTERFACES_OUTPUT_DIR ${CMAKE_INSTALL_PREFIX}/include/${MOONLIGHTDE_PREFIX})
 ## --------------------------------------------------------------
 add_subdirectory(src/core)
 add_subdirectory(src/runner)
+#add_subdirectory(src/panel)
+
 ## --------------------------------------------------------------
 ## Third Parthy
 ## --------------------------------------------------------------
