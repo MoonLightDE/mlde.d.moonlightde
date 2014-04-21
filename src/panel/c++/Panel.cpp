@@ -57,8 +57,6 @@ QWidget(parent), ui(new Ui::Panel) {
     if (systemTry)
         ui->systrayBar = systemTry;
     if (clock) {
-        //QHBoxLayout * layout = new QHBoxLayout();
-        //layout->addWidget(clock);
         ui->clockBar->layout()->addWidget(clock);
         clock->show();
     }
