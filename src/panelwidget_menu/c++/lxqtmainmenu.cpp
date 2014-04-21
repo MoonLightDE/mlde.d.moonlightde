@@ -73,17 +73,7 @@ mMenu(0),
 //TODO: uncoment wen lxqt-globalkeys became available for QT5
 //    mShortcut(0),
 mLockCascadeChanges(false) {
-    // Services find
     ModuleContext * context = GetModuleContext();
-    { // Find Panel
-        ServiceReference<IPanel> ref =
-                context->GetServiceReference<IPanel>();
-        if (!ref) {
-            qWarning() << "Unable to find the IPanel service.";
-        } else {
-            m_panel = qobject_cast<QWidget>(context->GetService(ref));
-        }
-    }
     { // Find settings
         ServiceReference<Core::ISettingsProfile> ref =
                 context->GetServiceReference<Core::ISettingsProfile>();
@@ -99,9 +89,9 @@ mLockCascadeChanges(false) {
     mMenuCacheNotify = 0;
 
 
-    mButton.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 
-    connect(&mButton, SIGNAL(clicked()), this, SLOT(showMenu()));
+    connect(this, SIGNAL(clicked()), this, SLOT(showMenu()));
 
     mPowerManager = new LxQt::PowerManager(this);
     mScreenSaver = new LxQt::ScreenSaver(this);
@@ -142,8 +132,8 @@ void LxQtMainMenu::shortcutChanged(const QString &/*oldShortcut*/, const QString
     if (!newShortcut.isEmpty()) {
         mLockCascadeChanges = true;
 
-        settings()->setValue("dialog/shortcut", newShortcut);
-        settings()->sync();
+        m_settings->setValue("dialog/shortcut", newShortcut);
+        m_settings->sync();
 
         mLockCascadeChanges = false;
     }
@@ -153,14 +143,24 @@ void LxQtMainMenu::shortcutChanged(const QString &/*oldShortcut*/, const QString
 
  ************************************************/
 void LxQtMainMenu::showMenu() {
+    if (!m_panel) {
+        ModuleContext * context = GetModuleContext();
+        ServiceReference<IPanel> ref =
+                context->GetServiceReference<IPanel>();
+        if (!ref) {
+            qWarning() << "Unable to find the IPanel service.";
+        } else {
+            m_panel = dynamic_cast<QWidget*> (context->GetService(ref));
+        }
+    }
     if (!mMenu)
         return;
 
     int x = 0, y = 0;
 
 
-    x = mButton.mapToGlobal(QPoint(0, 0)).x();
-    y = panel()->globalGometry().top() - mMenu->sizeHint().height();
+    x = mapToGlobal(QPoint(0, 0)).x();
+    y = m_panel->mapToGlobal(QPoint(0, 0)).y() - mMenu->sizeHint().height();
 
 
     // Just using Qt`s activateWindow() won't work on some WMs like Kwin.
@@ -168,7 +168,7 @@ void LxQtMainMenu::showMenu() {
     //  activate window with Qt call and then execute menu 1ms later using timer,
     //  or use native X11 API calls:
     //xfitMan().raiseWindow(mButton.effectiveWinId());
-    mButton.activateWindow();
+    activateWindow();
     mMenu->exec(QPoint(x, y));
 }
 
@@ -187,17 +187,17 @@ void LxQtMainMenu::settingsChanged() {
     if (mLockCascadeChanges)
         return;
 
-    if (settings()->value("showText", false).toBool()) {
-        mButton.setText(settings()->value("text", "Start").toString());
-        mButton.setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    if (m_settings->value("showText", false).toBool()) {
+        setText(m_settings->value("text", "Start").toString());
+        setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     } else {
-        mButton.setText("");
-        mButton.setToolButtonStyle(Qt::ToolButtonIconOnly);
+        setText("");
+        setToolButtonStyle(Qt::ToolButtonIconOnly);
     }
 
-    mLogDir = settings()->value("log_dir", "").toString();
+    mLogDir = m_settings->value("log_dir", "").toString();
 
-    QString mMenuFile = settings()->value("menu_file", "").toString();
+    QString mMenuFile = m_settings->value("menu_file", "").toString();
     if (mMenuFile.isEmpty())
         mMenuFile = XdgMenu::getMenuFileName();
 
@@ -223,7 +223,7 @@ void LxQtMainMenu::settingsChanged() {
     }
 #endif
 
-    QString shortcut = settings()->value("shortcut", DEFAULT_SHORTCUT).toString();
+    QString shortcut = m_settings->value("shortcut", DEFAULT_SHORTCUT).toString();
     if (shortcut.isEmpty())
         shortcut = DEFAULT_SHORTCUT;
 
@@ -235,7 +235,7 @@ void LxQtMainMenu::settingsChanged() {
     //        mShortcut->changeShortcut(shortcut);
     //    }
 
-    realign();
+    //realign();
 }
 
 /************************************************
@@ -244,7 +244,7 @@ void LxQtMainMenu::settingsChanged() {
 void LxQtMainMenu::buildMenu() {
     qDebug() << "BUILD_MENU";
 #ifdef HAVE_MENU_CACHE
-    XdgCachedMenu* menu = new XdgCachedMenu(mMenuCache, &mButton);
+    XdgCachedMenu* menu = new XdgCachedMenu(mMenuCache, this);
 #else
     XdgMenuWidget *menu = new XdgMenuWidget(mXdgMenu, "", &mButton);
 #endif
@@ -266,7 +266,7 @@ void LxQtMainMenu::buildMenu() {
 
  ************************************************/
 QDialog *LxQtMainMenu::configureDialog() {
-    return new LxQtMainMenuConfiguration(*settings(), DEFAULT_SHORTCUT);
+    return new LxQtMainMenuConfiguration(*m_settings, DEFAULT_SHORTCUT);
 }
 
 

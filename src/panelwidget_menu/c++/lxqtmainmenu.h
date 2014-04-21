@@ -56,7 +56,7 @@ namespace GlobalKeyShortcut {
     class Action;
 }
 
-class LxQtMainMenu : public QObject {
+class LxQtMainMenu : public QToolButton, public ILauncher {
     Q_OBJECT
 public:
     LxQtMainMenu();
@@ -66,9 +66,6 @@ public:
         return "MainMenu";
     }
 
-    QWidget *widget() {
-        return &mButton;
-    }
     QDialog *configureDialog();
 
     bool isSeparate() const {
@@ -79,7 +76,7 @@ private:
     QPointer<QSettings> m_settings;
     QPointer<QWidget> m_panel;
 
-    QToolButton mButton;
+    //QToolButton mButton;
     QString mLogDir;
     QMenu* mMenu;
     //    GlobalKeyShortcut::Action *mShortcut;
