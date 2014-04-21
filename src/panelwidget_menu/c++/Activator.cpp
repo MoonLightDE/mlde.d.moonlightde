@@ -18,7 +18,8 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "panel/IPanel.h" 
+#include "panel/IPanel.h"
+#include "lxqtmainmenu.h" 
 
 #include <usModuleActivator.h>
 #include <usModuleContext.h>
@@ -39,11 +40,11 @@ private:
      * @param context the framework context for the module.
      */
     void Load(ModuleContext* context) {
-//        m_panel = new Panel();
-//        m_panel.data()->show();
-//
-//        ServiceProperties props;
-//        context->RegisterService<IPanel>(m_panel, props);
+        m_menu = new LxQtMainMenu();
+        m_menu.data()->show();
+
+        ServiceProperties props;
+        context->RegisterService<ILauncher>(m_menu, props);
     }
 
     /**
@@ -54,6 +55,6 @@ private:
     void Unload(ModuleContext* context) {
     }
 
-//    QPointer<Panel> m_panel;
+    QPointer<LxQtMainMenu> m_menu;
 };
 US_EXPORT_MODULE_ACTIVATOR(PanelWidget_Menu, Activator)

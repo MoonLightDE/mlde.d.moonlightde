@@ -54,32 +54,21 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QPushButton" name="startButton">
+    <widget class="QWidget" name="startButtonArea" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="minimumSize">
       <size>
        <width>105</width>
-       <height>38</height>
+       <height>0</height>
       </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>38</height>
-      </size>
-     </property>
-     <property name="sizeIncrement">
-      <size>
-       <width>29</width>
-       <height>38</height>
-      </size>
-     </property>
-     <property name="acceptDrops">
-      <bool>false</bool>
      </property>
      <property name="styleSheet">
-      <string notr="true">QPushButton#startButton{
-	
-    image: url(/home/ale/Launcher/img/MoonLight Logo.png);
+      <string notr="true">QToolButton#startButton{
     background-color: #0784c5; 
     border: 1px solid #0784c5;
     /*background-color: #333; 
@@ -87,17 +76,14 @@
     padding: 0;
     padding: 5px 12px 7px 15px;
 }
-QPushButton#startButton:hover{
+QToolButton#startButton:hover{
     background-color: #07689a;
 	border: 1px solid #07689a;
 }
-QPushButton#startButton:pressed{
+QToolButton#startButton:pressed{
     background-color: #07689a;
 	border: 1px solid #07689a;
 }</string>
-     </property>
-     <property name="text">
-      <string/>
      </property>
     </widget>
    </item>
@@ -541,10 +527,10 @@ QLabel{
    </item>
   </layout>
   <zorder>windowsBar</zorder>
-  <zorder>startButton</zorder>
   <zorder>clockBar</zorder>
   <zorder>quickBar</zorder>
   <zorder>systrayBar</zorder>
+  <zorder>startButtonArea</zorder>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
