@@ -41,7 +41,6 @@ private:
      */
     void Load(ModuleContext* context) {
         m_sidePanel = new SidePanel();
-        m_sidePanel.data()->show();
 
         ServiceProperties props;
         context->RegisterService<ISidePanel>(m_sidePanel, props);
