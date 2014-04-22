@@ -16,8 +16,6 @@ public:
     explicit SidePanel(QWidget *parent = 0);
     void showWidget(QWidget *widget, const bool autohide);
     ~SidePanel();
-protected:
-    void focusOutEvent(QFocusEvent * event);
 
 private:
     void clearWidget();
