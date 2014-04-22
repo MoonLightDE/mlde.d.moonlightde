@@ -29,24 +29,28 @@
 #ifndef LXQTCLOCKCONFIGURATION_H
 #define LXQTCLOCKCONFIGURATION_H
 
-#include <QDialog>
+#include "lxqtclock.h"
+
+#include <lxqt/lxqtsettings.h>
+
+#include <QWidget>
 #include <QAbstractButton>
 #include <QButtonGroup>
 #include <QLocale>
 #include <QDateTime>
 
-#include <lxqt/lxqtsettings.h>
+
 
 namespace Ui {
     class LxQtClockConfiguration;
 }
 
-class LxQtClockConfiguration : public QDialog
+class LxQtClockConfiguration : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit LxQtClockConfiguration(QSettings &settings, QWidget *parent = 0);
+    explicit LxQtClockConfiguration(LxQtClock * clock, QSettings &settings, QWidget *parent = 0);
     ~LxQtClockConfiguration();
 
 private:
@@ -75,6 +79,7 @@ private slots:
 private:
     int mOldIndex;
     QString mCustomDateFormat;
+    LxQtClock * m_clock;
 
     void addDateFormat(const QString &format);
 };
