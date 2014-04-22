@@ -48,8 +48,15 @@ QWidget(parent), ui(new Ui::Panel) {
     clock = getPanelWidget<IClock>(context);
 
     // Connect widgets
-    if (launcher)
-        connect(ui->startButton, SIGNAL(ui->startButton->released()), launcher, SLOT(launcher->show()));
+    if (launcher) {
+        launcher->setObjectName("startButton");
+        QHBoxLayout * layout = new QHBoxLayout();
+        layout->setSpacing(0);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->addWidget(launcher);
+        ui->startButtonArea->setLayout(layout);
+        //connect(ui->startButton, SIGNAL(ui->startButton->released()), launcher, SLOT(launcher->show()));
+    }
     if (quicklauncher)
         ui->quickBar = quicklauncher;
     if (taskBar)
