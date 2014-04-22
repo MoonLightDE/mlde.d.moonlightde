@@ -16,15 +16,14 @@ public:
     explicit SidePanel(QWidget *parent = 0);
     void showWidget(QWidget *widget, const bool autohide);
     ~SidePanel();
+
 protected:
-    void focusOutEvent(QFocusEvent * event);
+    void hideEvent(QHideEvent * event);
 
 private:
-    void clearWidget();
-
-    bool m_autohide;
     QPointer<QWidget> m_widget;
-    Ui::SidePanel *ui;
+    QPointer<QWidget> panel;
+    Ui::SidePanel * ui;
 };
 
 #endif // SIDEPANEL_H

@@ -1,45 +1,70 @@
 #include "SidePanel.h"
 #include "ui_SidePanel.h"
 
+#include "panel/IPanel.h"
+
+#include <usModuleContext.h>
+#include <usGetModuleContext.h>
+#include <usServiceReference.h>
+#include <usServiceProperties.h>
+
+#include <QDebug>
 #include <QRect>
+#include <QWindow>
 #include <QLayout>
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QVBoxLayout>
 
 SidePanel::SidePanel(QWidget *parent) :
-QWidget(parent),
-ui(new Ui::SidePanel) {
+QWidget(parent), ui(new Ui::SidePanel()) {
     ui->setupUi(this);
-    setWindowFlags(Qt::FramelessWindowHint);
-    setAttribute(Qt::WA_X11NetWmWindowTypeDock);
-    setAttribute(Qt::WA_AlwaysShowToolTips);
 
-    setFocusPolicy(Qt::ClickFocus);
+    us::ModuleContext * context = us::GetModuleContext();
+    us::ServiceReference<IPanel> ref =
+            context->GetServiceReference<IPanel>();
+
+    if (!ref) {
+        qWarning() << "Unable to find the IPanel service.";
+    } else {
+        panel = dynamic_cast<QWidget*> (context->GetService(ref));
+    }
 
 
-    // Set position and size
-    const QRect screen = QApplication::desktop()->screenGeometry();
-    setGeometry(QRect(screen.width() - width(), 0, width(), maximumHeight()));
 }
 
 void SidePanel::showWidget(QWidget *widget, const bool autohide) {
-    m_autohide = autohide;
+    // Hide to delete old widgets
+    hide();
+    setGeometry(0,0,0,0);
 
-    layout()->addWidget(widget);
+    ui->verticalLayout->addWidget(widget);
     m_widget = widget;
+
+    if (autohide)
+        setWindowFlags(Qt::FramelessWindowHint | Qt::Popup);
+    else
+        setWindowFlags(Qt::FramelessWindowHint);
+
+    // Correct position
+    adjustSize();
+    const QRect screen = QApplication::desktop()->screenGeometry();
+    if (panel)
+        setGeometry(QRect(screen.width() - m_widget->width() - ui->verticalLayout->margin(), 0,
+            m_widget->width(), QApplication::desktop()->screenGeometry().height() - panel->height()));
+    else
+        setGeometry(QRect(screen.width() - m_widget->width(), 0,
+            m_widget->width(), QApplication::desktop()->screenGeometry().height()));
+    widget->adjustSize();
+
     show();
+    raise();
+    activateWindow();
 }
 
-void SidePanel::clearWidget() {
-    if (!m_widget.isNull())
-        layout()->removeWidget(m_widget);
-}
-
-void SidePanel::focusOutEvent(QFocusEvent * event) {
-    if (m_autohide) {
-        clearWidget();
-        hide();
-    }
+void SidePanel::hideEvent(QHideEvent * event) {
+    ui->verticalLayout->removeWidget(m_widget);
+    delete m_widget;
 }
 
 SidePanel::~SidePanel() {
