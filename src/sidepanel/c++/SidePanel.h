@@ -17,12 +17,13 @@ public:
     void showWidget(QWidget *widget, const bool autohide);
     ~SidePanel();
 
-private:
-    void clearWidget();
+protected:
+    void hideEvent(QHideEvent * event);
 
-    bool m_autohide;
+private:
     QPointer<QWidget> m_widget;
-    Ui::SidePanel *ui;
+    QPointer<QWidget> panel;
+    Ui::SidePanel * ui;
 };
 
 #endif // SIDEPANEL_H

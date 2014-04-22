@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>407</width>
-    <height>454</height>
+    <width>208</width>
+    <height>393</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,10 +19,14 @@
   <property name="windowTitle">
    <string>SidePanel</string>
   </property>
+  <property name="autoFillBackground">
+   <bool>false</bool>
+  </property>
   <property name="styleSheet">
    <string notr="true">#SidePanel{
-	background-color:#373737;
-}</string>
+	background-color:#333;
+}
+</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="sizeConstraint">
