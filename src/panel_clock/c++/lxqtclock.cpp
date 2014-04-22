@@ -30,10 +30,13 @@
 
 
 #include "lxqtclock.h"
+#include "lxqtclockconfiguration.h"
+
 #include "calendar_utils.h"
 
 #include "core/ICore.h"
 #include "panel/IPanel.h"
+#include "sidepanel/ISidePanel.h"
 
 #include <usModuleContext.h>
 #include <usGetModuleContext.h>
@@ -42,12 +45,15 @@
 
 
 #include <QCalendarWidget>
+#include <QApplication>
+#include <QDesktopWidget>
 #include <QDialog>
 #include <QLabel>
-#include <QHBoxLayout>
+#include <QSpacerItem>
 #include <QVBoxLayout>
 #include <QMouseEvent>
 #include <QWidget>
+#include <QToolButton>
 
 #include <QDateTime>
 #include <QTimer>
@@ -71,8 +77,7 @@ using namespace us;
  */
 LxQtClock::LxQtClock() :
 QWidget(),
-mCalendarDialog(0),
-mAutoRotate(true) {
+mCalendarWidget(0) {
     // Lookup for settings services
     ModuleContext * context = GetModuleContext();
 
@@ -188,11 +193,6 @@ void LxQtClock::settingsChanged() {
     bool dateAfterTime = (m_settings->value("showDate", "no").toString().toLower() == "after");
     mDateOnNewLine = (m_settings->value("showDate", "no").toString().toLower() == "below");
 
-    bool autoRotate = m_settings->value("autoRotate", true).toBool();
-    if (autoRotate != mAutoRotate) {
-        mAutoRotate = autoRotate;
-        realign();
-    }
 
 
     if (dateBeforeTime)
@@ -218,10 +218,6 @@ void LxQtClock::settingsChanged() {
 
         restartTimer(now);
     }
-}
-
-void LxQtClock::realign() {
-    mRotatedWidget->setOrigin(Qt::TopLeftCorner);
 }
 
 static QDate getMaxDate(const QFontMetrics &metrics, const QString &format) {
@@ -309,46 +305,72 @@ void LxQtClock::updateMinWidth() {
     mContent->setMinimumSize(width, height);
 }
 
-void LxQtClock::activated() {
-    if (m_panel.isNull()) {
-        ModuleContext * context = GetModuleContext();
-        ServiceReference<IPanel> ref =
-                context->GetServiceReference<IPanel>();
-        if (!ref) {
-            qWarning() << "Unable to find the IPanel service.";
-        } else {
-            m_panel = dynamic_cast<QWidget*> (context->GetService(ref));
-        }
+void LxQtClock::mousePressEvent(QMouseEvent * event) {
+    if (event->button() == Qt::LeftButton) {
+        showCalendar();
+        return;
+    }
+    if (event->button() == Qt::RightButton) {
+        showSettings();
+        return;
     }
 
-    if (mCalendarDialog.isNull()) {
-        mCalendarDialog = new QDialog(mContent);
-        mCalendarDialog->setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog | Qt::X11BypassWindowManagerHint);
-        mCalendarDialog->setLayout(new QHBoxLayout(mCalendarDialog));
-        mCalendarDialog->layout()->setMargin(1);
-
-        QCalendarWidget* cal = new QCalendarWidget(mCalendarDialog);
-        cal->setFirstDayOfWeek(mFirstDayOfWeek);
-        mCalendarDialog->layout()->addWidget(cal);
-        mCalendarDialog->adjustSize();
-
-
-        int x = 0, y = 0;
-        
-        x = mapToGlobal(geometry().topLeft()).x() - mCalendarDialog->sizeHint().width() + this->sizeHint().width() ;
-        y = m_panel->mapToGlobal(QPoint(0, 0)).y() - mCalendarDialog->sizeHint().height();
-        qDebug() << "X: " << x << "Y: " << y;
-
-        mCalendarDialog->move(x, y);
-        mCalendarDialog->show();
-    } else {
-        delete mCalendarDialog;
-        mCalendarDialog = 0;
-    }
 }
 
-QDialog * LxQtClock::configureDialog() {
-    return new LxQtClockConfiguration(*m_settings);
+void LxQtClock::showCalendar() {
+    ModuleContext * context = GetModuleContext();
+    ServiceReference<ISidePanel> ref =
+            context->GetServiceReference<ISidePanel>();
+    ISidePanel* sidePanel;
+    if (!ref) {
+        qWarning() << "Unable to find the ISidePanel service.";
+    } else {
+        sidePanel = dynamic_cast<ISidePanel*> (context->GetService(ref));
+    }
+
+    if (mCalendarWidget.isNull()) {
+        mCalendarWidget = new QWidget(mContent);
+        QVBoxLayout* layout = new QVBoxLayout(mCalendarWidget);
+        mCalendarWidget->setLayout(layout);
+        layout->setContentsMargins(0, 0, 0, 0);
+
+        QCalendarWidget* cal = new QCalendarWidget(mCalendarWidget);
+        cal->setFirstDayOfWeek(mFirstDayOfWeek);
+        layout->addWidget(cal, 0, Qt::AlignCenter);
+
+        QToolButton * settings_buttons = new QToolButton(mCalendarWidget);
+        settings_buttons->setText("Settings");
+        layout->addWidget(settings_buttons, 0, Qt::AlignCenter);
+        connect(settings_buttons, SIGNAL(pressed()) , this, SLOT(showSettings()));
+
+        layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Fixed, QSizePolicy::Expanding));
+
+
+        sidePanel->showWidget(mCalendarWidget);
+
+    } else {
+        if (sidePanel) {
+            (dynamic_cast<QWidget*> (sidePanel))->hide();
+        }
+        delete mCalendarWidget;
+        mCalendarWidget = 0;
+    }
+    context->UngetService(ref);
+}
+
+void LxQtClock::showSettings() {
+    ModuleContext * context = GetModuleContext();
+    ServiceReference<ISidePanel> ref =
+            context->GetServiceReference<ISidePanel>();
+    ISidePanel* sidePanel;
+    if (!ref) {
+        qWarning() << "Unable to find the ISidePanel service.";
+    } else {
+        sidePanel = dynamic_cast<ISidePanel*> (context->GetService(ref));
+        sidePanel->showWidget(new LxQtClockConfiguration(this, *m_settings));
+    }
+
+
 }
 
 bool LxQtClock::eventFilter(QObject *watched, QEvent *event) {

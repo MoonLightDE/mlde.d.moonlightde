@@ -32,7 +32,7 @@
 #define LXQTCLOCK_H
 
 
-#include "lxqtclockconfiguration.h"
+
 
 #include "panel/IPanel.h"
 
@@ -47,33 +47,22 @@ class QLabel;
 class QDialog;
 class QTimer;
 
+class LxQtClockConfiguration;
+
 class LxQtClock : public QWidget, public IClock {
     Q_OBJECT
 public:
     LxQtClock();
     ~LxQtClock();
 
-    QString themeId() const {
-        return "Clock";
-    }
-
-    QDialog *configureDialog();
-    void settingsChanged();
-
-    void activated();
-
-    bool isSeparate() const {
-        return true;
-    }
-
-    void realign();
-
-    virtual void mouseReleaseEvent(QMouseEvent * event) {
-        activated();
-    }
+    virtual void mousePressEvent(QMouseEvent * event);
 
 public slots:
     void updateTime();
+    void settingsChanged();
+
+    void showCalendar();
+    void showSettings();
 
 protected:
     bool eventFilter(QObject *watched, QEvent *event);
@@ -87,13 +76,12 @@ private:
     QLabel* mDateLabel;
     QString mClockFormat;
     QString mToolTipFormat;
-    QPointer<QDialog> mCalendarDialog;
+    QPointer<QWidget> mCalendarWidget;
     QString mTimeFormat;
     QString mDateFormat;
     bool mDateOnNewLine;
     bool mUseUTC;
     Qt::DayOfWeek mFirstDayOfWeek;
-    bool mAutoRotate;
 
     QDateTime currentDateTime();
     void showTime(const QDateTime &);

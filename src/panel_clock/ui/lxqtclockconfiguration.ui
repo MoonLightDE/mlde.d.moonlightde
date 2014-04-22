@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>LxQtClockConfiguration</class>
- <widget class="QDialog" name="LxQtClockConfiguration">
+ <widget class="QWidget" name="LxQtClockConfiguration">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>330</width>
+    <width>274</width>
     <height>433</height>
    </rect>
   </property>
@@ -105,25 +105,6 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="orientationGB">
-     <property name="title">
-      <string>Orientation</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
-      <item>
-       <widget class="QCheckBox" name="autorotateCB">
-        <property name="text">
-         <string>Auto&amp;rotate when the panel is vertical</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -142,7 +123,7 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Close|QDialogButtonBox::Reset</set>
+      <set>QDialogButtonBox::Reset</set>
      </property>
     </widget>
    </item>
@@ -150,38 +131,6 @@
  </widget>
  <resources/>
  <connections>
-  <connection>
-   <sender>buttons</sender>
-   <signal>accepted()</signal>
-   <receiver>LxQtClockConfiguration</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>214</x>
-     <y>350</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttons</sender>
-   <signal>rejected()</signal>
-   <receiver>LxQtClockConfiguration</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>214</x>
-     <y>350</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>196</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>dontShowDateRB</sender>
    <signal>toggled(bool)</signal>
@@ -193,8 +142,8 @@
      <y>166</y>
     </hint>
     <hint type="destinationlabel">
-     <x>63</x>
-     <y>267</y>
+     <x>84</x>
+     <y>292</y>
     </hint>
    </hints>
   </connection>
