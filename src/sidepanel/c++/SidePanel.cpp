@@ -27,7 +27,7 @@ void SidePanel::showWidget(QWidget *widget, const bool autohide) {
 
     layout()->addWidget(widget);
     m_widget = widget;
-
+    show();
 }
 
 void SidePanel::clearWidget() {
