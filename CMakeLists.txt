@@ -31,7 +31,7 @@ set(INTERFACES_OUTPUT_DIR ${CMAKE_INSTALL_PREFIX}/include/${MOONLIGHTDE_PREFIX})
 ## Modules
 ## --------------------------------------------------------------
 add_subdirectory(src/core)
-
+add_subdirectory(src/sidepanel)
 add_subdirectory(src/panel)
 add_subdirectory(src/panel_clock)
 
