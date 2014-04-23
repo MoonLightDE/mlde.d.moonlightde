@@ -60,7 +60,8 @@ QWidget(parent), ui(new Ui::Panel) {
     if (quicklauncher)
         ui->quickBar = quicklauncher;
     if (taskBar)
-        ui->windowsBar = taskBar;
+        
+        ui->windowsBar->layout()->addWidget(taskBar);
     if (systemTry)
         ui->systrayBar = systemTry;
     if (clock) {
