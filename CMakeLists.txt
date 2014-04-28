@@ -35,8 +35,8 @@ add_subdirectory(src/core)
 add_subdirectory(src/sidepanel)
 
 add_subdirectory(src/panel)
-add_subdirectory(src/panel_clock)
-add_subdirectory(src/panelwidget_menu)
+add_subdirectory(src/panel-clock)
+add_subdirectory(src/panel-menu)
 add_subdirectory(src/panel-taskbar)
 
 add_subdirectory(src/actions_registry)
