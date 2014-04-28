@@ -34,10 +34,7 @@
 #include <QProxyStyle>
 
 extern "C" {
-    #include <X11/X.h>
-    #include <X11/Xlib.h>
-    #undef Bool
-    #undef None
+#include <xcb/xcb.h>
 }
 
 
@@ -45,19 +42,18 @@ class QPainter;
 class QPalette;
 class QMimeData;
 
-class ElidedButtonStyle: public QProxyStyle
-{
+class ElidedButtonStyle : public QProxyStyle {
 public:
-    ElidedButtonStyle(QStyle* style=0): QProxyStyle(style) {}
+
+    ElidedButtonStyle(QStyle* style = 0) : QProxyStyle(style) {
+    }
 
     void drawItemText(QPainter* painter, const QRect& rect, int flags,
-                      const QPalette & pal, bool enabled, const QString & text,
-                      QPalette::ColorRole textRole = QPalette::NoRole ) const;
+            const QPalette & pal, bool enabled, const QString & text,
+            QPalette::ColorRole textRole = QPalette::NoRole) const;
 };
 
-
-class LxQtTaskButton : public QToolButton
-{
+class LxQtTaskButton : public QToolButton {
     Q_OBJECT
 public:
     explicit LxQtTaskButton(const Window window, QWidget *parent = 0);
@@ -65,7 +61,10 @@ public:
 
     bool isAppHidden() const;
     bool isApplicationActive() const;
-    Window windowId() const { return mWindow; }
+
+    Window windowId() const {
+        return mWindow;
+    }
 
     static void unCheckAll();
     int desktopNum() const;
@@ -87,7 +86,7 @@ public slots:
     void moveApplicationToDesktop();
     void setApplicationLayer();
 
-    void handlePropertyNotify(XPropertyEvent* event);
+    void handlePropertyNotify(xcb_property_notify_event_t* event);
 
 protected:
     virtual void dragEnterEvent(QDragEnterEvent *event);
@@ -95,7 +94,7 @@ protected:
     void mousePressEvent(QMouseEvent *event);
 
     void nextCheckState();
-    void contextMenuEvent( QContextMenuEvent* event);
+    void contextMenuEvent(QContextMenuEvent* event);
 
 private:
     Window mWindow;
@@ -111,6 +110,6 @@ private slots:
     void activateWithDraggable();
 };
 
-typedef QHash<Window,LxQtTaskButton*> LxQtTaskButtonHash;
+typedef QHash<Window, LxQtTaskButton*> LxQtTaskButtonHash;
 
 #endif // LXQTTASKBUTTON_H

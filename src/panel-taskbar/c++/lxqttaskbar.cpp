@@ -49,10 +49,6 @@
 #include <QWheelEvent>
 #include <QX11Info>
 
-#include <X11/Xlib.h>
-#include <X11/Xatom.h>
-#include <X11/Xutil.h>
-
 using namespace LxQt;
 
 /************************************************
@@ -76,6 +72,9 @@ mPlaceHolder(new LxQtTaskButton(0, this)) {
         Core::ISettingsProfile * settingsProfile = context->GetService(ref);
         m_settings = settingsProfile->getSettingsOf("Panel/Clock");
     }
+
+    // Install event filter
+    qApp->installNativeEventFilter(this);
 
     mLayout = new LxQt::GridLayout(this);
     setLayout(mLayout);
@@ -214,36 +213,36 @@ void LxQtTaskBar::activeWindowChanged() {
 
  ************************************************/
 
-void LxQtTaskBar::x11EventFilter(XEvent* event) {
-    switch (event->type) {
-        case PropertyNotify:
-            handlePropertyNotify(&event->xproperty);
-            break;
-        case ConfigureNotify:
-            // if the size or position of our window is changed, update icon geometry
-            if (event->xconfigure.window == effectiveWinId()) {
-                // qDebug() << "configure event";
-                refreshIconGeometry();
+bool LxQtTaskBar::nativeEventFilter(const QByteArray &eventType, void *message, long *) Q_DECL_OVERRIDE {
+    if (eventType == "xcb_generic_event_t") {
+
+        xcb_generic_event_t* ev = static_cast<xcb_generic_event_t *> (message);
+        switch (ev->response_type) {
+            case XCB_CONFIGURE_NOTIFY:
+            {
+                xcb_configure_notify_event_t *config = (xcb_configure_notify_event_t *) ev;
+
+                if (config->window == effectiveWinId()) {
+                    refreshIconGeometry();
+                    qDebug() << "Refresh geomerty";
+                }
+
             }
-            break;
-#if 0
-        case MotionNotify:
-            break;
-
-        default:
-        {
-            qDebug() << "** XEvent ************************";
-            qDebug() << "Type:   " << xEventTypeToStr(event);
+            case XCB_PROPERTY_NOTIFY:
+            {
+                xcb_property_notify_event_t *property = (xcb_property_notify_event_t *) ev;
+                handlePropertyNotify(property);
+                break;
+            }
         }
-#endif
-
+        return false;
     }
 }
 
 /************************************************
 
  ************************************************/
-void LxQtTaskBar::handlePropertyNotify(XPropertyEvent* event) {
+void LxQtTaskBar::handlePropertyNotify(xcb_property_notify_event_t * event) {
     if (event->window == mRootWindow) {
         // Windows list changed ...............................
         if (event->atom == XfitMan::atom("_NET_CLIENT_LIST")) {
@@ -269,17 +268,17 @@ void LxQtTaskBar::handlePropertyNotify(XPropertyEvent* event) {
             btn->handlePropertyNotify(event);
     }
 
-    //    char* aname = XGetAtomName(QX11Info::display(), event->atom);
-    //    qDebug() << "** XPropertyEvent ********************";
-    //    qDebug() << "  atom:       0x" << hex << event->atom
-    //            << " (" << (aname ? aname : "Unknown") << ')';
-    //    qDebug() << "  window:    " << XfitMan::debugWindow(event->window);
-    //    qDebug() << "  display:   " << event->display;
-    //    qDebug() << "  send_event:" << event->send_event;
-    //    qDebug() << "  serial:    " << event->serial;
-    //    qDebug() << "  state:     " << event->state;
-    //    qDebug() << "  time:      " << event->time;
-    //    qDebug();
+//        char* aname = XGetAtomName(QX11Info::display(), event->atom);
+//        qDebug() << "** XPropertyEvent ********************";
+//        qDebug() << "  atom:       0x" << hex << event->atom
+//                << " (" << (aname ? aname : "Unknown") << ')';
+//        qDebug() << "  window:    " << XfitMan::debugWindow(event->window);
+//        qDebug() << "  display:   " << event->display;
+//        qDebug() << "  send_event:" << event->send_event;
+//        qDebug() << "  serial:    " << event->serial;
+//        qDebug() << "  state:     " << event->state;
+//        qDebug() << "  time:      " << event->time;
+//        qDebug();
 
 }
 
@@ -367,7 +366,7 @@ void LxQtTaskBar::realign() {
 /************************************************
 
  ************************************************/
-void LxQtTaskBar::wheelEvent(QWheelEvent* event) {
+void LxQtTaskBar::wheelEvent(QWheelEvent * event) {
     XfitMan xf = xfitMan();
     QList<Window> winList = xf.getClientList();
     int current = winList.indexOf(xf.getActiveAppWindow());

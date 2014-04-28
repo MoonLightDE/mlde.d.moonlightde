@@ -77,6 +77,9 @@ include(${QTXDG_USE_FILE})
 ## Xlib
 find_package (X11 REQUIRED)
 
+## XCB
+include(${CMAKE_SOURCE_DIR}/thirdParty/cmake/FindXCB.cmake)
+include( ${LIBXCB_INCLUDE_DIR} )
 ## --------------------------------------------------------------
 ## Preprocessing
 ## --------------------------------------------------------------
@@ -111,6 +114,7 @@ target_link_libraries( ${PROJECT_NAME}
     ${LXQT_LIBRARIES}
     ${QTXDG_LIBRARIES}
     ${X11_LIBRARIES}
+    ${LIBXCB_LIBRARIES}
 
     Qt5::Core
     Qt5::Widgets

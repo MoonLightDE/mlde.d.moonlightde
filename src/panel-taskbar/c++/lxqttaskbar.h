@@ -39,8 +39,11 @@
 #include <QHash>
 #include <QSettings>
 #include <QPointer>
+#include <QAbstractNativeEventFilter>
 
 extern "C" {
+#include <xcb/xcb.h>
+
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -57,13 +60,14 @@ namespace LxQt {
     class GridLayout;
 }
 
-class LxQtTaskBar : public QFrame, public ITaskBar {
+class LxQtTaskBar : public QFrame, public ITaskBar, public QAbstractNativeEventFilter {
     Q_OBJECT
 public:
     explicit LxQtTaskBar(QWidget* parent = 0);
     virtual ~LxQtTaskBar();
 
-    virtual void x11EventFilter(XEvent* event);
+    virtual bool nativeEventFilter(const QByteArray &eventType, void *message, long *) Q_DECL_OVERRIDE;
+
     virtual void settingsChanged();
 
     void realign();
@@ -85,7 +89,7 @@ private:
     void setButtonStyle(Qt::ToolButtonStyle buttonStyle);
     bool mShowOnlyCurrentDesktopTasks;
 
-    void handlePropertyNotify(XPropertyEvent* event);
+    void handlePropertyNotify(xcb_property_notify_event_t* event);
     void wheelEvent(QWheelEvent* event);
     LxQtTaskButton *mPlaceHolder;
     QPointer<QSettings> m_settings;

@@ -550,7 +550,7 @@ void LxQtTaskButton::contextMenuEvent(QContextMenuEvent* event)
 /************************************************
 
  ************************************************/
-void  LxQtTaskButton::handlePropertyNotify(XPropertyEvent* event)
+void  LxQtTaskButton::handlePropertyNotify(xcb_property_notify_event_t* event)
 {
     // I suppose here that only new/update values need to
     // be promoted here. There is no need to update inof
