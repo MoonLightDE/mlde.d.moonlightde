@@ -1,3 +1,10 @@
 [submodule "thirdParty/CppMicroServices"]
 	path = thirdParty/CppMicroServices
 	url = https://github.com/saschazelzer/CppMicroServices.git
+[submodule "thirdParty/liblxqt"]
+	path = thirdParty/liblxqt
+	url = https://github.com/lxde/liblxqt.git
+	branch = qt5
+[submodule "thirdParty/libqtxdg"]
+	path = thirdParty/libqtxdg
+	url = https://github.com/lxde/libqtxdg.git
