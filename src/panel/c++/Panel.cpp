@@ -30,7 +30,7 @@
 Panel::Panel(QWidget *parent) :
 QWidget(parent), ui(new Ui::Panel) {
     ui->setupUi(this);
-    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::SplashScreen );
     setAttribute(Qt::WA_X11NetWmWindowTypeDock);
     setAttribute(Qt::WA_AlwaysShowToolTips);
     setWindowTitle("MoonLightDE Panel");
