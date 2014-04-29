@@ -29,7 +29,7 @@
 
 #include <lxqt/lxqtsettings.h>
 #include <qt5xdg/xdgicon.h>
-#include <qt5/QtCore/qlogging.h>
+#include <qlogging.h>
 
 #include <usGetModuleContext.h>
 #include <usModuleContext.h>
