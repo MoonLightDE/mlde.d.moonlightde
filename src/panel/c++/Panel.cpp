@@ -23,7 +23,7 @@
 #include "ui_panel.h"
 
 #include <QDebug>
-#include <qt5/QtWidgets/qdesktopwidget.h>
+#include <qdesktopwidget.h>
 
 #include <lxqt/lxqtxfitman.h>
 
