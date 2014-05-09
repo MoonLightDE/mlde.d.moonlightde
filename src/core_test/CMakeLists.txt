@@ -25,7 +25,6 @@ project(moonlightDE-${MODULE_NAME})
 ## --------------------------------------------------------------
 set(${PROJECT_NAME}_HEADERS
     c++/TestICore.h    
-    c++/SignalsListener.h    
 )
 set(${PROJECT_NAME}_PUBLIC_HEADERS
 )
@@ -33,7 +32,6 @@ set(${PROJECT_NAME}_PUBLIC_HEADERS
 set(${PROJECT_NAME}_SOURCES 
     c++/Activator.cpp
     c++/TestICore.cpp
-    c++/SignalsListener.cpp
 )
 
 set ( ${PROJEC_NAME}_UIS
