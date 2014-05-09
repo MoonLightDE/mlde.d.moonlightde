@@ -22,10 +22,6 @@ public slots:
         qDebug() << "Signal recieved: Load process ended.";
     }
 
-    void slot() {
-        
-    }
-
     void updateValue(QString arg1, QString arg2) {
         qDebug() << "Signal recieved: Environment update " << arg1 << ":" << arg2;
         values.insert(arg1, arg2);
