@@ -33,6 +33,10 @@
 
 #include "core/ICore.h"
 
+#include <usSharedLibrary.h>
+
+#include <QHash>
+
 US_USE_NAMESPACE
 
 
@@ -40,17 +44,18 @@ class ModuleManager : public Core::IModuleManager {
 public:
     ModuleManager(const QString &aditionalLibsPath);
 
-    bool load (const QString &name);
-    bool unload (const QString &name);
-    void loadFromProfile (QSettings * profile);
-    QList<QString> listAviableModules ();
-    QList<QString> listActiveModules ();
+    bool load(const QString &name);
+    bool unload(const QString &name);
+    void loadFromProfile(QSettings * profile);
+    QList<QString> listAviableModules();
+    QList<QString> listActiveModules();
 
 
     virtual ~ModuleManager();
-    
+
 private:
     QStringList paths;
+    QHash<QString, SharedLibrary*> libs;
 };
 
 #endif	/* MODULEMANAGER_H */

@@ -47,62 +47,89 @@ ModuleManager::ModuleManager(const QString &aditionalLibsPath) {
 ModuleManager::~ModuleManager() {
 }
 
-bool ModuleManager::load (const QString &name) {
-    qDebug() << "Loading " << name;
+bool ModuleManager::load(const QString &name) {
+    QString err_msg;
 
     Module* module = ModuleRegistry::GetModule(name.toStdString());
     if (module) { // Check if the module was loaded previously
         if (module->IsLoaded()) {
             qDebug() << "Module " << name << " already loaded.";
-        } else {  // Reload module
+        } else { // Reload module
             try {
-                QString modulePath = QString::fromStdString(module->GetLocation());
+                SharedLibrary *libHandle;
+                if (libs.contains(name)) {
+                    libHandle = libs.value(name);
+                } else {
+                    QString modulePath = QString::fromStdString(module->GetLocation());
+                    libHandle = new SharedLibrary(modulePath.toStdString());
+                }
 
-                SharedLibrary libHandle(modulePath.toStdString());
-                libHandle.Load();
+                libHandle->Load();
+                libs.insert(name, libHandle);
+
+                qDebug() << "Module loaded: " << name;
                 return true;
             } catch (const std::exception& e) {
-                qDebug() << e.what() << endl;
+                err_msg.append("\n\t");
+                err_msg.append(e.what());
             }
         }
     } else { // Load module from scratch
-        foreach (QString path, paths) {
+
+        foreach(QString path, paths) {
             try {
-                qDebug() << "loading " << name << " from " << path;
-                SharedLibrary libHandle(path.toStdString(), name.toStdString());
-                libHandle.Load();
+                SharedLibrary *libHandle = new SharedLibrary(path.toStdString(), name.toStdString());
+                libHandle->Load();
+
+                libs.insert(name, libHandle);
+                qDebug() << "Module loaded: " << name;
                 return true;
-            }catch (const std::exception& e) {
-                qWarning() << e.what() << endl;
+            } catch (const std::exception& e) {
+                err_msg.append("\n\t");
+                err_msg.append(e.what());
             }
         }
 
     }
+    qWarning() << "Unable to load module: " << name << err_msg;
     return false;
 }
 
-bool ModuleManager::unload (const QString &name) {
-    qDebug() << "Unloading: " << name;
+bool ModuleManager::unload(const QString &name) {
+    QString err_msg;
+
     Module * const module = ModuleRegistry::GetModule(name.toStdString());
     if (module) {
         try {
-            SharedLibrary libHandle(module->GetLocation());
-            libHandle.Unload();
+            SharedLibrary *libHandle;
+            if (libs.contains(name)) {
+                libHandle = libs.value(name);
+            } else {
+                libHandle = new SharedLibrary(module->GetLocation());
+            }
+
+            libHandle->Unload();
 
             // Check if it has really been unloaded
             if (module->IsLoaded()) {
-                std::cout << "Info: The module is still referenced by another loaded module. It will be unloaded when all dependent modules are unloaded." << std::endl;
+                qDebug() << "Fail to unload: " << name;
+                qDebug() << "Info: The module is still referenced by another loaded module. It will be unloaded when all dependent modules are unloaded.";
+
                 return false;
-            } else
+            } else {
+                qDebug() << "Module unloaded: " << name;
                 return true;
+            }
         } catch (const std::exception& e) {
-            std::cout << e.what() << std::endl;
+            qDebug() << "Fail to unload: " << name;
+            qDebug() << "\n\t" << e.what();
         }
     }
-    return false;
+    qDebug() << "Module " << name << " wasn't loaded, nothing to do.";
+    return true;
 }
 
-void ModuleManager::loadFromProfile (QSettings * profile) {
+void ModuleManager::loadFromProfile(QSettings * profile) {
     qDebug() << "Loading list: " << profile->fileName();
 
     int nmodules = profile->beginReadArray("Modules");
@@ -118,27 +145,31 @@ void ModuleManager::loadFromProfile (QSettings * profile) {
     }
     qDebug() << "Loading list finished.";
 }
-QList<QString> ModuleManager::listAviableModules () {
+
+QList<QString> ModuleManager::listAviableModules() {
     QList<QString> list;
     QStringList nameFilters;
     nameFilters << "*.so";
+
     foreach(QString path, paths) {
         QDir dir(path);
         dir.setFilter(QDir::Files | QDir::NoDotAndDotDot);
         dir.setNameFilters(nameFilters);
         QStringList filesList = dir.entryList();
-        foreach( QString fileName, filesList ) {
+
+        foreach(QString fileName, filesList) {
             fileName.chop(3);
-            fileName.remove(0,3);
+            fileName.remove(0, 3);
             list.append(fileName);
         }
     }
     return list;
 }
 
-QList<QString> ModuleManager::listActiveModules () {
+QList<QString> ModuleManager::listActiveModules() {
     QList<QString> list;
-    foreach (Module * module, ModuleRegistry::GetLoadedModules())  {
+
+    foreach(Module * module, ModuleRegistry::GetLoadedModules()) {
         list.append(QString::fromStdString(module->GetName()));
     }
     return list;
