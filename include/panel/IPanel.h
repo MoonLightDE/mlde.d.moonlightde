@@ -40,8 +40,8 @@ struct ITaskBar {
     virtual ~ITaskBar(){};
 };
 
-struct ISystemTry {
-    virtual ~ISystemTry(){};
+struct ISystemTray {
+    virtual ~ISystemTray(){};
 };
 
 struct IClock {
@@ -52,7 +52,7 @@ US_DECLARE_SERVICE_INTERFACE(IPanel, "org.moonlightde.panel.IPanel/1.0")
 US_DECLARE_SERVICE_INTERFACE(ILauncher, "org.moonlightde.panel.ILauncher/1.0")
 US_DECLARE_SERVICE_INTERFACE(IQuickLauncher, "org.moonlightde.panel.IQuickLauncher/1.0")
 US_DECLARE_SERVICE_INTERFACE(ITaskBar, "org.moonlightde.panel.ITaskBar/1.0")
-US_DECLARE_SERVICE_INTERFACE(ISystemTry, "org.moonlightde.panel.ISystemTry/1.0")
+US_DECLARE_SERVICE_INTERFACE(ISystemTray, "org.moonlightde.panel.ISystemTry/1.0")
 US_DECLARE_SERVICE_INTERFACE(IClock, "org.moonlightde.panel.IClock/1.0")
 #endif	/* IPANEL_H */
 
