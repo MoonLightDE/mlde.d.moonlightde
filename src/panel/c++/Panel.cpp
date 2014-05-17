@@ -30,7 +30,7 @@
 Panel::Panel(QWidget *parent) :
 QWidget(parent), ui(new Ui::Panel) {
     ui->setupUi(this);
-    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::SplashScreen );
+    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::SplashScreen);
     setAttribute(Qt::WA_X11NetWmWindowTypeDock);
     setAttribute(Qt::WA_AlwaysShowToolTips);
     setWindowTitle("MoonLightDE Panel");
@@ -44,28 +44,22 @@ QWidget(parent), ui(new Ui::Panel) {
     launcher = getPanelWidget<ILauncher>(context);
     quicklauncher = getPanelWidget<IQuickLauncher>(context);
     taskBar = getPanelWidget<ITaskBar>(context);
-    systemTry = getPanelWidget<ISystemTry>(context);
+    sysTray = getPanelWidget<ISystemTray>(context);
     clock = getPanelWidget<IClock>(context);
 
     // Connect widgets
     if (launcher) {
         launcher->setObjectName("startButton");
-        QHBoxLayout * layout = new QHBoxLayout();
-        layout->setSpacing(0);
-        layout->setContentsMargins(0, 0, 0, 0);
-        layout->addWidget(launcher);
-        ui->startButtonArea->setLayout(layout);
-        //connect(ui->startButton, SIGNAL(ui->startButton->released()), launcher, SLOT(launcher->show()));
+        ui->launcherArea->layout()->addWidget(launcher);
     }
     if (quicklauncher)
-        ui->quickBar = quicklauncher;
+        ui->quickLaunchArea->layout()->addWidget(quicklauncher);
     if (taskBar)
-        
-        ui->windowsBar->layout()->addWidget(taskBar);
-    if (systemTry)
-        ui->systrayBar = systemTry;
+        ui->windowsArea->layout()->addWidget(taskBar);
+    if (sysTray)
+        ui->systrayArea->layout()->addWidget(sysTray);
     if (clock) {
-        ui->clockBar->layout()->addWidget(clock);
+        ui->clockArea->layout()->addWidget(clock);
         clock->show();
     }
 }

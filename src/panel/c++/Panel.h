@@ -58,7 +58,7 @@ private:
     QWidget *launcher;
     QWidget *quicklauncher;
     QWidget *taskBar;
-    QWidget *systemTry;
+    QWidget *sysTray;
     QWidget *clock;
 };
 
