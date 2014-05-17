@@ -1,8 +1,0 @@
-MoonLightDE Panel Widget "Clasic Menu"
-====================================================
-Provides a simple menu for the MoonLight Desktop Environment Panel.
-
-Depends:
-- libqt5xdg
-- liblxqt
-- menu-cache
