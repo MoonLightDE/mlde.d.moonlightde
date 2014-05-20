@@ -1,0 +1,7 @@
+MoonLightDE Panel Widget "Quick Launchers"
+====================================================
+Provides a quick lauchets for the MoonLight Desktop Environment Panel.
+
+Depends:
+- libqt5xdg
+- liblxqt
