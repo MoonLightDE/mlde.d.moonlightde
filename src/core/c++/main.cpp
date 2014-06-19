@@ -24,6 +24,8 @@
 #include "Controller.h"
 #include "core/ICore.h"
 
+#include <LXQt/Application>
+
 #include <QDebug>
 #include <QStringList>
 #include <QApplication>
@@ -37,9 +39,12 @@ using namespace std;
  * 
  */
 int main(int argc, char** argv) {
-    QApplication app(argc, argv);
+
+    LxQt::Application app(argc, argv);
+    app.setQuitOnLastWindowClosed(false);
+    
     app.setApplicationName("MoonLightDE");
-    app.setApplicationVersion("0.2.1.development1");
+    app.setApplicationVersion("0.2.1.development2");
 
     app.setOrganizationName("MoonLight Desktop Environment");
     app.setOrganizationDomain("moonlightde.org");
@@ -47,8 +52,8 @@ int main(int argc, char** argv) {
     // Parse arguments
     QString profile;
     QString aditionalLibsPath;
-//    TODO: Add a an option to open configuration dialog before start.
-//    bool config;
+    //    TODO: Add a an option to open configuration dialog before start.
+    //    bool config;
     { // Scope used to force varibles release 
         QCommandLineParser parser;
         parser.setApplicationDescription("A modular desktop environment for low performance devices.");

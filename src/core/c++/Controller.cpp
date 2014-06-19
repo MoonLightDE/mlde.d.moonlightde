@@ -29,12 +29,12 @@
 #include <usServiceProperties.h>
 
 #include <QDebug>
+#include <QApplication>
 
 using namespace us;
 
 Controller::Controller(QString profile, QString aditionalLibsPath) {
-    qDebug() << "Constructing core.";
-    ModuleContext * context  = GetModuleContext();
+    ModuleContext * context = GetModuleContext();
 
     // Core services creation
     settingsProfile = new SettingsProfile(profile);
@@ -61,7 +61,6 @@ Controller::Controller(QString profile, QString aditionalLibsPath) {
 }
 
 void Controller::start() {
-    qDebug() << "Starting core.";
     // Loading modules
     QSettings * profile = settingsProfile->getSettingsOf();
     moduleManager->loadFromProfile(profile);
@@ -70,7 +69,8 @@ void Controller::start() {
 }
 
 void Controller::finish() {
-    qDebug() << "Destroying core.";
+    qApp->exit();
+    emit(finishing());
 }
 
 Controller::~Controller() {

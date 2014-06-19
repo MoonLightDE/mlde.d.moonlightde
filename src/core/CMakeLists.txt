@@ -16,8 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Moonlight Desktop Environment.  If not, see <http://www.gnu.org/licenses/>.
 #
-set(MODULE_NAME core)
-project(moonlightDE${MODULE_NAME})
+project(moonlightDE)
 
 ## --------------------------------------------------------------
 ## Sources
@@ -48,9 +47,13 @@ set ( ${PROJEC_NAME}_UIS
 set ( ${PROJEC_NAME}_RESOURCES
 )
 
+include_directories(${INTERFACES_DIR})
+
 ## --------------------------------------------------------------
-## Dependencies - Qt
+## Dependencies
 ## --------------------------------------------------------------
+
+## QT 5
 find_package(Qt5Core    REQUIRED)
 find_package(Qt5Gui     REQUIRED)
 find_package(Qt5Widgets REQUIRED)
@@ -61,18 +64,20 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 QT5_WRAP_UI(${PROJEC_NAME}_UI_HEADERS ${${PROJEC_NAME}_UIS})
 QT5_ADD_RESOURCES(${PROJEC_NAME}_QRC_SOURCES ${${PROJEC_NAME}_RESOURCES})
 
-## --------------------------------------------------------------
-## Dependencies - internal
-## --------------------------------------------------------------
-include_directories(${INTERFACES_DIR})
-
-
 #CppMicroServices
 find_package(CppMicroServices NO_MODULE REQUIRED)
 include_directories(${CppMicroServices_INCLUDE_DIRS})
 
 include_directories(${CMAKE_BINARY_DIR})
 include_directories(${CMAKE_BINARY_DIR}/core-module/settings-manager)
+
+## QT5XDG
+find_package(QT5XDG REQUIRED)
+include(${QTXDG_USE_FILE})  
+
+## LXQT -- depends on QT5XDG
+find_package(LXQT-QT5 REQUIRED )
+include(${LXQT_USE_FILE})
 
 ## --------------------------------------------------------------
 ## Build Rules
@@ -101,7 +106,11 @@ qt5_use_modules(${PROJECT_NAME} Gui)
 qt5_use_modules(${PROJECT_NAME} Widgets)
 
 # Link the CppMicroServices library
-target_link_libraries(${PROJECT_NAME} CppMicroServices )
+target_link_libraries(${PROJECT_NAME} 
+    CppMicroServices
+    ${LXQT_LIBRARIES}
+    ${QTXDG_LIBRARIES}
+)
 
 ## --------------------------------------------------------------
 ## Install
