@@ -41,10 +41,11 @@ private:
      */
     void Load(ModuleContext* context) {
         m_panel = new Panel();
-        m_panel.data()->show();
-
+        
         ServiceProperties props;
         context->RegisterService<IPanel>(m_panel, props);
+        
+        m_panel.data()->show();
     }
 
     /**

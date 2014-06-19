@@ -30,10 +30,13 @@
 Panel::Panel(QWidget *parent) :
 QWidget(parent), ui(new Ui::Panel) {
     ui->setupUi(this);
-    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::SplashScreen);
+    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint );
     setAttribute(Qt::WA_X11NetWmWindowTypeDock);
     setAttribute(Qt::WA_AlwaysShowToolTips);
+
     setWindowTitle("MoonLightDE Panel");
+    setFocusPolicy(Qt::NoFocus);
+    
 
     // Set panel at the button of the screen
     const QRect screen = QApplication::desktop()->screenGeometry();
