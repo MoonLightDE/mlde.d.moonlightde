@@ -42,6 +42,7 @@ add_subdirectory(src/panel-systray)
 add_subdirectory(src/panel-quicklauchers)
 
 add_subdirectory(src/actions_registry)
+add_subdirectory(src/shortcuts-service)
 
 add_subdirectory(src/runner)
 
