@@ -34,7 +34,7 @@
 #include <QContextMenuEvent>
 
 #include <qt5xdg/xdgicon.h>
-#include <lxqt/lxqtxfitman.h>
+#include <LXQt/lxqtxfitman.h>
 
 #include "lxqttaskbutton.h"
 

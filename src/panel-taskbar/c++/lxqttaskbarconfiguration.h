@@ -31,7 +31,7 @@
 #include <QDialog>
 #include <QAbstractButton>
 
-#include <lxqt/lxqtsettings.h>
+#include <LXQt/lxqtsettings.h>
 
 namespace Ui {
     class LxQtTaskbarConfiguration;

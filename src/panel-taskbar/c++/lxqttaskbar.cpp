@@ -32,8 +32,8 @@
 #include "core/ICore.h"
 
 #include <qt5xdg/xdgicon.h>
-#include <lxqt/lxqtgridlayout.h>
-#include <lxqt/lxqtxfitman.h>
+#include <LXQt/lxqtgridlayout.h>
+#include <LXQt/lxqtxfitman.h>
 
 #include <usModuleContext.h>
 #include <usGetModuleContext.h>

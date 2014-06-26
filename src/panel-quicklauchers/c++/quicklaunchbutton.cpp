@@ -37,7 +37,7 @@
 #include "quicklaunchbutton.h"
 #include "lxqtquicklaunch.h"
 
-#define MIMETYPE "x-lxqt/quicklaunch-button"
+#define MIMETYPE "x-LXQt/quicklaunch-button"
 
 
 QuickLaunchButton::QuickLaunchButton(QuickLaunchAction * act, QWidget * parent)

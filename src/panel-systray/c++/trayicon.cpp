@@ -36,7 +36,7 @@
 
 #include <QtX11Extras/QX11Info>
 
-#include <lxqt/lxqtxfitman.h>
+#include <LXQt/lxqtxfitman.h>
 #include "trayicon.h"
 
 extern "C" {

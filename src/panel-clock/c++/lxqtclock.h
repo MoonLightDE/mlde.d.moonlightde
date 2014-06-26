@@ -36,7 +36,7 @@
 
 #include "panel/IPanel.h"
 
-#include <lxqt/lxqtrotatedwidget.h>
+#include <LXQt/lxqtrotatedwidget.h>
 
 #include <QWidget>
 #include <QString>

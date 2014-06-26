@@ -32,7 +32,7 @@
 
 #include "core/ICore.h"
 
-#include <lxqt/lxqtgridlayout.h>
+#include <LXQt/lxqtgridlayout.h>
 
 #include <qt5xdg/xdgdesktopfile.h>
 #include <qt5xdg/xdgicon.h>

@@ -34,11 +34,11 @@
 
 #include <QDebug>
 
-#include <lxqt/lxqtpowermanager.h>
-#include <lxqt/lxqtscreensaver.h>
+#include <LXQt/lxqtpowermanager.h>
+#include <LXQt/lxqtscreensaver.h>
 //TODO: uncoment wen lxqt-globalkeys became available for QT5
 //#include <lxqt-globalkeys.h>
-#include <lxqt/lxqtxfitman.h>
+#include <LXQt/lxqtxfitman.h>
 
 #include <qt5xdg/xdgicon.h>
 #include <qt5xdg/xdgdesktopfile.h>

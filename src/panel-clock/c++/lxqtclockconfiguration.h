@@ -31,7 +31,7 @@
 
 #include "lxqtclock.h"
 
-#include <lxqt/lxqtsettings.h>
+#include <LXQt/lxqtsettings.h>
 
 #include <QWidget>
 #include <QAbstractButton>

@@ -44,8 +44,8 @@
 #include <QDir>
 #include <QApplication>
 #include <QAction>
-#include <lxqt/lxqtpowermanager.h>
-#include <lxqt/lxqtscreensaver.h>
+#include <LXQt/lxqtpowermanager.h>
+#include <LXQt/lxqtscreensaver.h>
 #include "providers.h"
 #include <wordexp.h>
 

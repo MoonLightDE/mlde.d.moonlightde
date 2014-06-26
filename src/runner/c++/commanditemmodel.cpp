@@ -27,7 +27,7 @@
 
 #include "commanditemmodel.h"
 
-#include <lxqt/lxqtsettings.h>
+#include <LXQt/lxqtsettings.h>
 #include <qt5xdg/xdgicon.h>
 #include <qlogging.h>
 

@@ -35,8 +35,8 @@
 #include "lxqttray.h"
 #include "trayicon.h"
 
-#include <lxqt/lxqtgridlayout.h>
-#include <lxqt/lxqtxfitman.h>
+#include <LXQt/lxqtgridlayout.h>
+#include <LXQt/lxqtxfitman.h>
 
 
 #include <QtDebug>

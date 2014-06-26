@@ -25,7 +25,7 @@
 #include <QDebug>
 #include <QDesktopWidget>
 
-#include <lxqt/lxqtxfitman.h>
+#include <LXQt/lxqtxfitman.h>
 
 Panel::Panel(QWidget *parent) :
 QWidget(parent), ui(new Ui::Panel) {

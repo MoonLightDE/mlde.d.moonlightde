@@ -32,11 +32,11 @@
 #include "commanditemmodel.h"
 #include "configuredialog.h"
 
-#include <lxqt/lxqtsettings.h>
+#include <LXQt/lxqtsettings.h>
 #include <qt5xdg/xdgicon.h>
 //#include <lxqt-globalkeys.h>
-#include <lxqt/lxqtpowermanager.h>
-#include <lxqt/lxqtscreensaver.h>
+#include <LXQt/lxqtpowermanager.h>
+#include <LXQt/lxqtscreensaver.h>
 
 #include <iostream>
 #include <QDebug>
@@ -52,7 +52,7 @@
 #include <QScrollBar>
 // I hate a X11 heading files. As a result we have such nightmare.
 QEvent::Type QEventKeyPress = QEvent::KeyPress;
-#include <lxqt/lxqtxfitman.h>
+#include <LXQt/lxqtxfitman.h>
 
 #define DEFAULT_SHORTCUT "Alt+F2"
 
