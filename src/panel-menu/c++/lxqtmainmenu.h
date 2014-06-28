@@ -32,6 +32,7 @@
 #include "menustyle.h"
 
 #include "panel/IPanel.h"
+#include "keyboard-shortcuts/IKeyboardShortCutsService.h"
 
 #include <qt5xdg/xdgmenu.h>
 #include <menu-cache/menu-cache.h>
@@ -50,10 +51,6 @@ class LxQtBar;
 namespace LxQt {
     class PowerManager;
     class ScreenSaver;
-}
-
-namespace GlobalKeyShortcut {
-    class Action;
 }
 
 class LxQtMainMenu : public QToolButton, public ILauncher {
@@ -79,7 +76,7 @@ private:
     //QToolButton mButton;
     QString mLogDir;
     QMenu* mMenu;
-    //    GlobalKeyShortcut::Action *mShortcut;
+    GlobalKeyShortcut::ShortCut *mShortcut;
     MenuStyle mTopMenuStyle;
     MenuStyle mMenuStyle;
     LxQt::PowerManager* mPowerManager;

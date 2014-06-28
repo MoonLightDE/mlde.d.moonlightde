@@ -31,13 +31,13 @@
 #include "xdgcachedmenu.h"
 
 #include "core/ICore.h"
+#include "keyboard-shortcuts/IKeyboardShortCutsService.h"
+#include "keyboard-shortcuts/shortcut.h"
 
 #include <QDebug>
 
 #include <LXQt/lxqtpowermanager.h>
 #include <LXQt/lxqtscreensaver.h>
-//TODO: uncoment wen lxqt-globalkeys became available for QT5
-//#include <lxqt-globalkeys.h>
 #include <LXQt/lxqtxfitman.h>
 
 #include <qt5xdg/xdgicon.h>
@@ -86,6 +86,7 @@ mLockCascadeChanges(false) {
     }
 
     mMenuCache = NULL;
+    mShortcut = NULL;
     mMenuCacheNotify = 0;
 
 
@@ -99,8 +100,12 @@ mLockCascadeChanges(false) {
     settingsChanged();
 
     //TODO: uncoment wen lxqt-globalkeys became available for QT5
-    //    connect(mShortcut, SIGNAL(activated()), this, SLOT(showHideMenu()));
-    //    connect(mShortcut, SIGNAL(shortcutChanged(QString,QString)), this, SLOT(shortcutChanged(QString,QString)));
+    if (mShortcut) {
+        connect(mShortcut, SIGNAL(activated()), this, SLOT(showHideMenu()));
+        connect(mShortcut, SIGNAL(shortcutChanged(QString, QString)), this, SLOT(shortcutChanged(QString, QString)));
+    } else {
+        qDebug() << "Shortcut wasn\'t created.";
+    }
 }
 
 /************************************************
@@ -222,18 +227,30 @@ void LxQtMainMenu::settingsChanged() {
         return;
     }
 #endif
-
     QString shortcut = m_settings->value("shortcut", DEFAULT_SHORTCUT).toString();
     if (shortcut.isEmpty())
         shortcut = DEFAULT_SHORTCUT;
 
-    //TODO: uncoment wen lxqt-globalkeys became available for QT5
-    //    if (!mShortcut)
-    //        mShortcut = GlobalKeyShortcut::Client::instance()->addAction(shortcut, QString("/panel/%1/show_hide").arg(settings()->group()), tr("Show/hide main menu"), this);
-    //    else if (mShortcut->shortcut() != shortcut)
-    //    {
-    //        mShortcut->changeShortcut(shortcut);
-    //    }
+    ModuleContext * context = GetModuleContext();
+    if (context) { // Find settings
+        ServiceReference<GlobalKeyShortcut::IKeyboardShortCutsService> ref =
+                context->GetServiceReference<GlobalKeyShortcut::IKeyboardShortCutsService>();
+        if (!ref) {
+            qWarning() << "Unable to find the GlobalKeyShortcut::IKeyboardShortCutsService service.";
+        } else {
+            GlobalKeyShortcut::IKeyboardShortCutsService * keyboardShortCutsService = context->GetService(ref);
+
+            if (mShortcut != NULL)
+                mShortcut = keyboardShortCutsService->addShortCut(shortcut, QString("/panel/%1/show_hide").arg(m_settings->group()), tr("Show/hide main menu"), this);
+
+            if (mShortcut && mShortcut->shortcut() != shortcut)
+                mShortcut->changeShortcut(shortcut);
+
+        }
+    }
+
+
+
 
     //realign();
 }

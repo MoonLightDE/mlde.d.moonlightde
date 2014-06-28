@@ -87,7 +87,7 @@ add_definitions(-DHAVE_MENU_CACHE=1)
 ## --------------------------------------------------------------
 ## Preprocessing
 ## --------------------------------------------------------------
-
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -113,11 +113,15 @@ add_library(${PROJECT_NAME} SHARED
     ${${PROJEC_NAME}_QRC_SOURCES}
 )
 
+#add_dependencies(${PROJECT_NAME} lxqt-globalkeys )
+#
 target_link_libraries( ${PROJECT_NAME} 
     ${CppMicroServices_LIBRARIES}
     ${LXQT_LIBRARIES}
     ${QTXDG_LIBRARIES}
     ${MENU_CACHE_LIBRARIES}
+
+#    lxqt-globalkeys
 
     Qt5::Core
     Qt5::Widgets
