@@ -43,6 +43,7 @@ add_subdirectory(src/panel-quicklauchers)
 
 add_subdirectory(src/actions_registry)
 add_subdirectory(src/keyboard-shortcuts)
+add_subdirectory(src/notifications)
 
 add_subdirectory(src/runner)
 
