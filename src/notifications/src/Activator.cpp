@@ -24,6 +24,8 @@
 #include "notificationsadaptor.h"
 #include "notifyd.h"
 
+#include "notifications/INotificationsService.h"
+
 #include <LXQt/Application>
 
 #include <usModuleActivator.h>
@@ -58,8 +60,8 @@ private:
             qDebug() << "registerObject failed: another object with '/org/freedesktop/Notifications' runs already";
 
 
-//        ServiceProperties props;
-//        context->RegisterService<IPanel>(m_panel, props);
+        ServiceProperties props;
+        context->RegisterService<INotificationsService>(daemon, props);
     }
 
     /**

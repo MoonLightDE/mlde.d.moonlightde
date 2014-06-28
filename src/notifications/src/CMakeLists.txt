@@ -29,6 +29,8 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
     ${QTX_INCLUDE_DIRS}
+
+    ${INTERFACES_DIR}
 )
 
 set(NOTIFICATIONS_SRC
@@ -39,6 +41,7 @@ set(NOTIFICATIONS_SRC
     notificationlayout.cpp
     notificationwidgets.cpp
     notifyd.cpp
+    ${INTERFACES_DIR}/notifications/INotificationsService.h
 )
 
 set(NOTIFICATIONS_UI

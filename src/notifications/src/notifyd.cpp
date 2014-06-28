@@ -30,66 +30,58 @@
 
 #include <QDebug>
 
-
 /*
  * Implementation of class Notifyd
  */
 
-Notifyd::Notifyd(QObject* parent)
-    : QObject(parent),
-      mId(0)
-{
+Notifyd::Notifyd(QObject* parent) : mId(0) {
     m_area = new NotificationArea();
     m_settings = new LxQt::Settings("notifications");
     reloadSettings();
 
-    connect(this, SIGNAL(notificationAdded(uint,QString,QString,QString,QString,int,QStringList,QVariantMap)),
-            m_area->layout(), SLOT(addNotification(uint,QString,QString,QString,QString,int,QStringList,QVariantMap)));
+    connect(this, SIGNAL(notificationAdded(uint, QString, QString, QString, QString, int, QStringList, QVariantMap)),
+            m_area->layout(), SLOT(addNotification(uint, QString, QString, QString, QString, int, QStringList, QVariantMap)));
     connect(this, SIGNAL(notificationClosed(uint, uint)),
             m_area->layout(), SLOT(removeNotification(uint, uint)));
     // feedback for original caller
-    connect(m_area->layout(), SIGNAL(notificationClosed(uint,uint)),
-            this, SIGNAL(NotificationClosed(uint,uint)));
+    connect(m_area->layout(), SIGNAL(notificationClosed(uint, uint)),
+            this, SIGNAL(NotificationClosed(uint, uint)));
     connect(m_area->layout(), SIGNAL(actionInvoked(uint, QString)),
-            this, SIGNAL(ActionInvoked(uint,QString)));
+            this, SIGNAL(ActionInvoked(uint, QString)));
 
     connect(m_settings, SIGNAL(settingsChanged()),
             this, SLOT(reloadSettings()));
 
 }
 
-Notifyd::~Notifyd()
-{
+Notifyd::~Notifyd() {
     m_area->deleteLater();
 }
 
-void Notifyd::CloseNotification(uint id)
-{
+void Notifyd::CloseNotification(uint id) {
     emit notificationClosed(id, 3);
 }
 
-QStringList Notifyd::GetCapabilities()
-{
+QStringList Notifyd::GetCapabilities() {
     QStringList caps;
     caps
-         << "actions"
-      // << "action-icons"
-         << "body"
-         << "body-hyperlinks"
-         << "body-images"
-         << "body-markup"
-      // << "icon-multi"
-      // << "icon-static"
-         << "persistence"
-      // << "sound"
-      ;
+            << "actions"
+            // << "action-icons"
+            << "body"
+            << "body-hyperlinks"
+            << "body-images"
+            << "body-markup"
+            // << "icon-multi"
+            // << "icon-static"
+            << "persistence"
+            // << "sound"
+            ;
     return caps;
 }
 
 QString Notifyd::GetServerInformation(QString& vendor,
-                                      QString& version,
-                                      QString& spec_version)
-{
+        QString& version,
+        QString& spec_version) {
     spec_version = QString("1.2");
     version = QString(LXQT_VERSION);
     vendor = QString("lxde.org");
@@ -97,34 +89,31 @@ QString Notifyd::GetServerInformation(QString& vendor,
 }
 
 uint Notifyd::Notify(const QString& app_name,
-                     uint replaces_id,
-                     const QString& app_icon,
-                     const QString& summary,
-                     const QString& body,
-                     const QStringList& actions,
-                     const QVariantMap& hints,
-                     int expire_timeout
-                     )
-{
+        uint replaces_id,
+        const QString& app_icon,
+        const QString& summary,
+        const QString& body,
+        const QStringList& actions,
+        const QVariantMap& hints,
+        int expire_timeout
+        ) {
     uint ret;
-    if (replaces_id == 0)
-    {
+    if (replaces_id == 0) {
         mId++;
         ret = mId;
-    }
-    else
+    } else
         ret = replaces_id;
 #if 0
     qDebug() << QString("Notify(\n"
-                        "  app_name = %1\n"
-                        "  replaces_id = %2\n"
-                        "  app_icon = %3\n"
-                        "  summary = %4\n"
-                        "  body = %5\n"
-                        ).arg(app_name, QString::number(replaces_id), app_icon, summary, body)
-                     << "  actions =" << actions << endl
-                     << "  hints =" << hints << endl
-             << QString("  expire_timeout = %1\n) => %2").arg(QString::number(expire_timeout), QString::number(mId));
+            "  app_name = %1\n"
+            "  replaces_id = %2\n"
+            "  app_icon = %3\n"
+            "  summary = %4\n"
+            "  body = %5\n"
+            ).arg(app_name, QString::number(replaces_id), app_icon, summary, body)
+            << "  actions =" << actions << endl
+            << "  hints =" << hints << endl
+            << QString("  expire_timeout = %1\n) => %2").arg(QString::number(expire_timeout), QString::number(mId));
 #endif
 
     // handling the "server decides" timeout
@@ -138,8 +127,7 @@ uint Notifyd::Notify(const QString& app_name,
     return ret;
 }
 
-void Notifyd::reloadSettings()
-{
+void Notifyd::reloadSettings() {
     m_serverTimeout = m_settings->value("server_decides", 10).toInt();
     m_area->setSettings(
             m_settings->value("placement", "bottom-right").toString().toLower(),

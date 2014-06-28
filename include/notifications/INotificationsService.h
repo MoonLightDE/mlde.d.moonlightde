@@ -26,44 +26,37 @@
  *
  * END_COMMON_COPYRIGHT_HEADER */
 
-#ifndef NOTIFYD_H
-#define NOTIFYD_H
+#ifndef INOTIFICATIONSSERVICE_H
+#define INOTIFICATIONSSERVICE_H
 
-#include "notifications/INotificationsService.h"
-#include "notificationarea.h"
-
-#include "notificationarea.h"
+#include <usServiceInterface.h>
 
 #include <QString>
 #include <QObject>
 #include <QVariantMap>
 #include <QStringList>
 
-
-#include <LXQt/Settings>
-
 /*
  * Class for interface org.freedesktop.Notifications
  */
-class Notifyd: public QObject, public INotificationsService
+class INotificationsService/*: public QObject*/
 {
-    Q_OBJECT
-    Q_INTERFACES(INotificationsService)
+//    Q_OBJECT
+
 public:
-    explicit Notifyd(QObject* parent = 0);
-    virtual ~Notifyd();
+    virtual ~INotificationsService() {}
 
 public slots:
 
     /*! External application requested to close one notification
      * \param id an id obtained by previous \c Notify() call
      */
-    void CloseNotification(uint id);
+    virtual void CloseNotification(uint id) = 0;
 
     /*! List supported features as required by specification
      * \retval QStringList with features.
      */
-    QStringList GetCapabilities();
+    virtual QStringList GetCapabilities() = 0;
 
     /*! Provide a server/deamon info about version etc.
      * \param vendor outbound string. It's filled with lxde-qt credits
@@ -71,7 +64,7 @@ public slots:
      * \param spec_version outbound string. Currently used specification version.
      * \retval QString daemon binary name
      */
-    QString GetServerInformation(QString& vendor, QString& version, QString& spec_version);
+    virtual QString GetServerInformation(QString& vendor, QString& version, QString& spec_version) = 0;
 
     /*! Daemon is requested to display the notification.
      * \retval uint an unique notification ID. It should be used for tracking action feedback.
@@ -85,14 +78,14 @@ public slots:
      * \param hints Notification hints. See specification for more info.
      * \param expire_timeout how long should be this notification displayed (-1 = server decides; 0 forever; >0timeout in milliseconds)
      */
-    uint Notify(const QString& app_name,
+    virtual uint Notify(const QString& app_name,
                 uint replaces_id,
                 const QString& app_icon,
                 const QString& summary,
                 const QString& body,
                 const QStringList& actions,
                 const QVariantMap& hints,
-                int expire_timeout);
+                int expire_timeout) = 0;
 
 signals:
     // signals for DBUS API specs - going outside
@@ -129,15 +122,10 @@ signals:
                            const QString &description, const QString &icon,
                            int timeout, const QStringList& actions, const QVariantMap& hints);
 
-private:
-    uint mId;
-    NotificationArea *m_area;
-    int m_serverTimeout;
-
-    LxQt::Settings *m_settings;
-
 private slots:
-    void reloadSettings();
+    virtual void reloadSettings() = 0;
 };
 
-#endif // NOTIFYD_H
+Q_DECLARE_INTERFACE(INotificationsService, "org.moonlightde.notifications.INotificationsService/1.0")
+US_DECLARE_SERVICE_INTERFACE(INotificationsService, "org.moonlightde.notifications.INotificationsService/1.0")
+#endif // INOTIFICATIONSSERVICE_H
