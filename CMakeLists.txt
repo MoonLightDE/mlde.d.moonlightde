@@ -32,17 +32,17 @@ set(INTERFACES_OUTPUT_DIR ${CMAKE_INSTALL_PREFIX}/include/${MOONLIGHTDE_PREFIX})
 ## --------------------------------------------------------------
 add_subdirectory(src/core)
 
-#add_subdirectory(src/sidepanel)
+add_subdirectory(src/sidepanel)
 
-#add_subdirectory(src/panel)
-#add_subdirectory(src/panel-clock)
-#add_subdirectory(src/panel-menu)
-#add_subdirectory(src/panel-taskbar)
-#add_subdirectory(src/panel-systray)
-#add_subdirectory(src/panel-quicklauchers)
+add_subdirectory(src/panel)
+add_subdirectory(src/panel-clock)
+add_subdirectory(src/panel-menu)
+add_subdirectory(src/panel-taskbar)
+add_subdirectory(src/panel-systray)
+add_subdirectory(src/panel-quicklauchers)
 
-#add_subdirectory(src/actions_registry)
-#add_subdirectory(src/keyboard-shortcuts)
+add_subdirectory(src/actions_registry)
+add_subdirectory(src/keyboard-shortcuts)
 add_subdirectory(src/notifications)
 
 #add_subdirectory(src/runner)
