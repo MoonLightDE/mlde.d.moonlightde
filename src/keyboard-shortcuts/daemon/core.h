@@ -52,10 +52,10 @@ extern "C" {
 #include <X11/Xproto.h>
 #undef Bool
 }
-
-class KeyboardShortCutsService;
-class ShortCutImpl;
-
+namespace GlobalKeyShortcut {
+    class KeyboardShortCutsService;
+    class ShortCutImpl;
+}
 class QTimer;
 class DaemonAdaptor;
 class NativeAdaptor;
@@ -63,26 +63,26 @@ class DBusProxy;
 class BaseAction;
 
 template<class Key>
-class QOrderedSet : public QMap<Key, Key>
-{
+class QOrderedSet : public QMap<Key, Key> {
 public:
-    typename QMap<Key, Key>::iterator insert(const Key &akey)
-    {
+
+    typename QMap<Key, Key>::iterator insert(const Key &akey) {
         return QMap<Key, Key>::insert(akey, akey);
     }
 };
 
-class Core : public QThread, public LogTarget
-{
+class Core : public QThread, public LogTarget {
     Q_OBJECT
-    
-    friend KeyboardShortCutsService;
-    friend ShortCutImpl;
+
+    friend GlobalKeyShortcut::KeyboardShortCutsService;
+    friend GlobalKeyShortcut::ShortCutImpl;
 public:
     Core(bool useSyslog, bool minLogLevelSet, int minLogLevel, const QStringList &configFiles, bool multipleActionsBehaviourSet, MultipleActionsBehaviour multipleActionsBehaviour, QObject *parent = 0);
     ~Core();
 
-    bool ready() const { return mReady; }
+    bool ready() const {
+        return mReady;
+    }
 
     virtual void log(int level, const char *format, ...) const;
 
@@ -91,7 +91,7 @@ signals:
 
 private:
     Core(const Core &);
-    Core &operator = (const Core &);
+    Core &operator =(const Core &);
 
 private:
     typedef QPair<KeyCode, unsigned int> X11Shortcut;
@@ -113,7 +113,7 @@ private slots:
 
     InnerAction* addInnerAction(QPair<QString, qulonglong> &result, const QString &shortcut, const QString &description);
     void changeInnerActionShortCut(qulonglong &result, InnerAction &action);
-    
+
     void addClientAction(QPair<QString, qulonglong> &result, const QString &shortcut, const QDBusObjectPath &path, const QString &description, const QString &sender);
     void addMethodAction(QPair<QString, qulonglong> &result, const QString &shortcut, const QString &service, const QDBusObjectPath &path, const QString &interface, const QString &method, const QString &description);
     void addCommandAction(QPair<QString, qulonglong> &result, const QString &shortcut, const QString &command, const QStringList &arguments, const QString &description);

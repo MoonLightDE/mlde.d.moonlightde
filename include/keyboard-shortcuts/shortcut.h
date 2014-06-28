@@ -38,16 +38,12 @@ namespace GlobalKeyShortcut {
 
     class IKeyboardShortCutsService;
 
-#ifndef SHARED_EXPORT
-#define SHARED_EXPORT Q_DECL_IMPORT
-#endif
-
-    class SHARED_EXPORT ShortCut : public QObject {
+    class ShortCut : public QObject {
         Q_OBJECT
         friend IKeyboardShortCutsService;
 
     public:
-        virtual ~ShortCut();
+        virtual ~ShortCut() {}
 
         virtual QString changeShortcut(const QString &shortcut) = 0;
         virtual bool changeDescription(const QString &description) = 0;
@@ -62,12 +58,7 @@ namespace GlobalKeyShortcut {
         void activated();
         void shortcutChanged(const QString &oldShortcut, const QString &newShortcut);
 
-    protected:
-
-        ShortCut(QObject *parent = 0) : QObject(parent) {
-        }
     };
 
 }
-
 #endif // GLOBAL_KEY_SHORTCUT_CLIENT__ACTION__INCLUDED

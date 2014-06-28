@@ -43,7 +43,6 @@ set(${PROJECT_NAME}_SOURCES
 )
 
 set(${PROJECT_NAME}_CPP_HEADERS
-        ${INTERFACES_DIR}/keyboard-shortcuts/action.h
         inner_action.h
 	log_target.h
 	pipe_utils.h
@@ -55,6 +54,10 @@ set(${PROJECT_NAME}_CPP_HEADERS
 	meta_types.h
 )
 
+set(${PROJECT_NAME}_PUBLIC_HEADERS
+    ${INTERFACES_DIR}/keyboard-shortcuts/IKeyboardShortCutsService.h
+    ${INTERFACES_DIR}/keyboard-shortcuts/shortcut.h
+)
 set(${PROJECT_NAME}_FORMS
 )
 
@@ -93,6 +96,7 @@ set_source_files_properties(org.lxqt.global_key_shortcuts.client.xml PROPERTIES
 
 set(${PROJECT_NAME}_HEADERS
 	${${PROJECT_NAME}_CPP_HEADERS}
+        ${${PROJECT_NAME}_PUBLIC_HEADERS}
 )
 
 set(${PROJECT_NAME}_TRANSLATABLE
@@ -129,7 +133,7 @@ include_directories(${X11_INCLUDE_DIR})
 ## Preprocessing
 ## --------------------------------------------------------------
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+#set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_AUTOMOC ON)
 
 

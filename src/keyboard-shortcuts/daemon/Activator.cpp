@@ -23,6 +23,7 @@
 #include "core.h"
 
 #include "keyboard-shortcuts/IKeyboardShortCutsService.h"
+#include "keyboard-shortcuts/shortcut.h"
 
 #include <usModuleActivator.h>
 #include <usModuleContext.h>
@@ -31,123 +32,132 @@
 #include <QString>
 #include <QPointer>
 #include <QStringList>
+#include <qt4/QtCore/qobjectdefs.h>
 
 US_USE_NAMESPACE
-        using namespace GlobalKeyShortcut;
+
 #define DEFAULT_CONFIG ".config/LXQt/globalkeyshortcuts.conf"
 
-class ShortCutImpl : public ShortCut {
-    friend KeyboardShortCutsService;
-public:
+        namespace GlobalKeyShortcut {
 
-    ~ShortCutImpl() {
-        delete m_action;
-    }
+    class ShortCutImpl : public ShortCut {
+        friend KeyboardShortCutsService;
+    public:
 
-    QString changeShortcut(const QString &shortcut) {
-        QString result;
-        QString prev = shortcut;
-        m_core->changeShortcut(result, m_id, shortcut);
-        if (result != prev)
-            emit shortcutChanged(prev, result);
-    }
-
-    bool changeDescription(const QString &description) {
-        m_action->setDescription(description);
-    }
-
-    QString path() const {
-        return m_path;
-    }
-
-    QString shortcut() const {
-        return m_action->getShortCut();
-    }
-
-    QString description() const {
-        return m_action->description();
-    }
-
-    bool isValid() const {
-        return true;
-    }
-
-signals:
-    void activated();
-    void shortcutChanged(const QString &oldShortcut, const QString &newShortcut);
-
-
-protected:
-
-    ShortCutImpl(qlonglong id, const QString &path, InnerAction *action, Core * core, QObject *parent = 0) {
-        m_core = core;
-        m_id = id;
-        m_action = action;
-        m_path = path;
-    }
-private:
-
-
-
-    QPointer<Core> m_core;
-    InnerAction *m_action;
-    qlonglong m_id;
-    QString m_path;
-    QString m_shortcut;
-};
-
-class KeyboardShortCutsService : public IKeyboardShortCutsService {
-public:
-
-    KeyboardShortCutsService() : ready(false) {
-        qDebug() << "Shortcuts-Service Startting";
-
-        bool wrongArgs = false;
-        bool printHelp = false;
-        bool runAsDaemon = true;
-        bool useSyslog = false;
-        bool minLogLevelSet = false;
-        int minLogLevel = LOG_NOTICE;
-        bool multipleActionsBehaviourSet = false;
-        MultipleActionsBehaviour multipleActionsBehaviour = MULTIPLE_ACTIONS_BEHAVIOUR_FIRST;
-        QStringList configFiles;
-
-        configFiles.push_back(QString::fromLocal8Bit(getenv("HOME")) + "/" DEFAULT_CONFIG);
-
-        m_core = new Core(runAsDaemon || useSyslog, minLogLevelSet, minLogLevel, configFiles, multipleActionsBehaviourSet, multipleActionsBehaviour);
-
-        if (!m_core->ready()) {
-            qCritical() << "Unable to start Shortcuts-Service";
-        } else {
-            ready = true;
-        }
-    }
-
-    virtual ~KeyboardShortCutsService() {
-    }
-
-    bool isReady() {
-        return ready;
-    }
-
-    virtual ShortCut *addShortCut(const QString &shortcut, const QString &path, const QString &description, QObject *parent = 0) {
-        if (!ready) {
-            qWarning() << "Failed to \"addShortCut\", the daemon is not ready.";
-            return NULL;
+        ~ShortCutImpl() {
+            bool result;
+            m_core->removeAction(result, m_id);
+            qDebug() << "Was the keyboard shortcut removed? " << result;
+            delete m_action;
         }
 
-        QPair<QString, qulonglong> result;
-        InnerAction * action = m_core->addInnerAction(result, shortcut, description);
-        ShortCutImpl * shortcutImpl = new ShortCutImpl(result.second, path, action, m_core, parent);
-        return shortcutImpl;
-    }
+        QString changeShortcut(const QString &shortcut) {
+            QString result;
+            QString prev = shortcut;
+            m_core->changeShortcut(result, m_id, shortcut);
+            if (result != prev)
+                emit shortcutChanged(prev, result);
+        }
 
-    //    virtual bool removeShortCut(const QString &path) = 0;
+        bool changeDescription(const QString &description) {
+            m_action->setDescription(description);
+        }
 
-private:
-    QPointer<Core> m_core;
-    bool ready;
-};
+        QString path() const {
+            return m_path;
+        }
+
+        QString shortcut() const {
+            return m_action->getShortCut();
+        }
+
+        QString description() const {
+            return m_action->description();
+        }
+
+        bool isValid() const {
+            return true;
+        }
+
+
+    protected:
+
+        ShortCutImpl(qlonglong id, const QString &path, InnerAction *action, Core * core, QObject *parent = 0) {
+            m_core = core;
+            m_id = id;
+            m_action = action;
+            m_path = path;
+            connect(action, SIGNAL(activated()), this, SIGNAL(activated()));
+        }
+    private:
+
+
+
+        QPointer<Core> m_core;
+        InnerAction *m_action;
+        qlonglong m_id;
+        QString m_path;
+        QString m_shortcut;
+    };
+
+    class KeyboardShortCutsService : public IKeyboardShortCutsService {
+    public:
+
+        KeyboardShortCutsService() : ready(false) {
+            qDebug() << "Shortcuts-Service Startting";
+
+            bool wrongArgs = false;
+            bool printHelp = false;
+            bool runAsDaemon = true;
+            bool useSyslog = false;
+            bool minLogLevelSet = false;
+            int minLogLevel = LOG_NOTICE;
+            bool multipleActionsBehaviourSet = false;
+            MultipleActionsBehaviour multipleActionsBehaviour = MULTIPLE_ACTIONS_BEHAVIOUR_FIRST;
+            QStringList configFiles;
+
+            configFiles.push_back(QString::fromLocal8Bit(getenv("HOME")) + "/" DEFAULT_CONFIG);
+
+            m_core = new Core(runAsDaemon || useSyslog, minLogLevelSet, minLogLevel, configFiles, multipleActionsBehaviourSet, multipleActionsBehaviour);
+
+            if (!m_core->ready()) {
+                qCritical() << "Unable to start Shortcuts-Service";
+            } else {
+                ready = true;
+            }
+        }
+
+        virtual ~KeyboardShortCutsService() {
+        }
+
+        bool isReady() {
+            return ready;
+        }
+
+        virtual ShortCut *addShortCut(const QString &shortcut, const QString &path, const QString &description, QObject *parent = 0) {
+            if (!ready) {
+                qWarning() << "Failed to \"addShortCut\", the daemon is not ready.";
+                return NULL;
+            }
+
+            QPair<QString, qulonglong> result;
+            InnerAction * action = m_core->addInnerAction(result, shortcut, description);
+            if (!action) {
+                qDebug() << "Failed to create shortcuts, it may be in use by another application.";
+                return NULL;
+            }
+
+            ShortCutImpl * shortcutImpl = new ShortCutImpl(result.second, path, action, m_core, parent);
+            return shortcutImpl;
+        }
+
+        //    virtual bool removeShortCut(const QString &path) = 0;
+
+    private:
+        QPointer<Core> m_core;
+        bool ready;
+    };
+}
 
 /**
  */
@@ -163,7 +173,7 @@ private:
 
 
 
-        m_service = new KeyboardShortCutsService();
+        m_service = new GlobalKeyShortcut::KeyboardShortCutsService();
 
         if (m_service->isReady()) {
             ServiceProperties props;
@@ -182,6 +192,6 @@ private:
         delete m_service;
     }
 
-    KeyboardShortCutsService * m_service;
+    GlobalKeyShortcut::KeyboardShortCutsService * m_service;
 };
 US_EXPORT_MODULE_ACTIVATOR(shortcuts_services, Activator)
