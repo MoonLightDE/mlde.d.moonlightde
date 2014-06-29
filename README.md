@@ -1,4 +1,4 @@
-MoonLight Desktop Environment (MoonLightDE)
+MoonLight Desktop Environment
 =======================================
 
 A modular and lightweight desktop environment for GNU/Linux systems, mainly for those that runs in low performance devices.
