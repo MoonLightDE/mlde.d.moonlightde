@@ -328,6 +328,9 @@ void Application::onLastWindowClosed() {
 void Application::onSaveStateRequest(QSessionManager& manager) {
 
 }
+void Application::quit() {
+    qApp->quit();
+}
 
 void Application::desktopManager(bool enabled) {
     // TODO: turn on or turn off desktpo management (desktop icons & wallpaper)

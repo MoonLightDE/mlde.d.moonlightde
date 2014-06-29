@@ -75,6 +75,9 @@ public:
   void openFolderInTerminal(FmPath* path);
   void openFolders(FmFileInfoList* files);
 
+  //  Slots from QApplication 
+  void quit();
+  
 protected Q_SLOTS:
   void onAboutToQuit();
 
@@ -88,6 +91,7 @@ protected Q_SLOTS:
   //  Slots from QApplication 
   void commitData(QSessionManager& manager);
   void onSaveStateRequest(QSessionManager& manager);
+  
  
 protected:
 //  virtual void commitData(QSessionManager & manager);
