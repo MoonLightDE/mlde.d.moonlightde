@@ -1,7 +1,10 @@
-MoonLightDE
-===========
+MoonLight Desktop Environment (MoonLightDE)
+=======================================
 
-Modular and Lightweight Desktop Environment for GNU/Linux systems, mainly for those that runs in low performance devices.
+A modular and lightweight desktop environment for GNU/Linux systems, mainly for those that runs in low performance devices.
+It merges the basic desktop components into a sinlge application in order to reduce the memory footprint and let you take the maximun from your devices.
+
+Know more at our [Wiki] (https://github.com/MoonLightDE/MoonLightDE/wiki).
 
 ## Start point
 
