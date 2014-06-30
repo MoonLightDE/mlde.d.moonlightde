@@ -30,7 +30,8 @@
 #include <usServiceReference.h>
 #include <usServiceException.h>
 
-#include <QWidget>
+
+#include <QDesktopWidget>
 #include <QRect>
 #include <QDebug>
 
@@ -49,10 +50,11 @@ public:
     void resizeEvent(QResizeEvent * event);
 
     ~Panel();
+
 private:
     void reserveScreenArea(const QRect &area);
 
-    template<class Interface> inline QWidget *getPanelWidget(us::ModuleContext * context); 
+    template<class Interface> inline QWidget *getPanelWidget(us::ModuleContext * context);
 
     Ui::Panel *ui;
     QWidget *launcher;
@@ -60,6 +62,8 @@ private:
     QWidget *taskBar;
     QWidget *sysTray;
     QWidget *clock;
+    
+    QDesktopWidget * desktopWidget;
 };
 
 #endif // LAUNCHER_H

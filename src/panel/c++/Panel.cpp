@@ -22,25 +22,43 @@
 #include "Panel.h"
 #include "ui_panel.h"
 
+#include <xcb/xcb.h>
+#include <LXQt/XfitMan>
+
 #include <QDebug>
 #include <QDesktopWidget>
+#include <QX11Info>
 
 #include <LXQt/lxqtxfitman.h>
 
 Panel::Panel(QWidget *parent) :
 QWidget(parent), ui(new Ui::Panel) {
     ui->setupUi(this);
-    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint );
+
+    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
     setAttribute(Qt::WA_X11NetWmWindowTypeDock);
     setAttribute(Qt::WA_AlwaysShowToolTips);
+    setAttribute(Qt::WA_TranslucentBackground);
 
-    setWindowTitle("MoonLightDE Panel");
-    setFocusPolicy(Qt::NoFocus);
-    
+    // set freedesktop.org EWMH hints properly
+    if (QX11Info::isPlatformX11() && QX11Info::connection()) {
+        xcb_connection_t* con = QX11Info::connection();
+        const char* atom_name = "_NET_WM_WINDOW_TYPE_DOCK";
+        xcb_atom_t atom = xcb_intern_atom_reply(con, xcb_intern_atom(con, 0, strlen(atom_name), atom_name), NULL)->atom;
+        const char* prop_atom_name = "_NET_WM_WINDOW_TYPE";
+        xcb_atom_t prop_atom = xcb_intern_atom_reply(con, xcb_intern_atom(con, 0, strlen(prop_atom_name), prop_atom_name), NULL)->atom;
+        xcb_atom_t XA_ATOM = 4;
+        xcb_change_property(con, XCB_PROP_MODE_REPLACE, winId(), prop_atom, XA_ATOM, 32, 1, &atom);
 
-    // Set panel at the button of the screen
-    const QRect screen = QApplication::desktop()->screenGeometry();
-    setGeometry(QRect(0, screen.height() - height(), screen.width(), height()));
+        Atom windowTypes[] = {
+            LxQt::xfitMan().atom("_NET_WM_WINDOW_TYPE_DOCK"),
+            LxQt::xfitMan().atom("_KDE_NET_WM_WINDOW_TYPE_OVERRIDE"), // required for Qt::FramelessWindowHint
+            LxQt::xfitMan().atom("_NET_WM_WINDOW_TYPE_NORMAL")
+        };
+        XChangeProperty(QX11Info::display(), winId(), LxQt::xfitMan().atom("_NET_WM_WINDOW_TYPE"),
+                XA_ATOM, 32, PropModeReplace, (unsigned char*) windowTypes, 3);
+    }
+
 
     // Services lookup
     us::ModuleContext * context = us::GetModuleContext();
@@ -76,11 +94,14 @@ void Panel::moveEvent(QMoveEvent * event) {
 }
 
 void Panel::resizeEvent(QResizeEvent * event) {
+    // Set panel geometry
+    const QRect screen = QApplication::desktop()->screenGeometry();
+    setGeometry(QRect(0, screen.height() - height(), screen.width(), height()));
+
     reserveScreenArea(geometry());
 }
 
 void Panel::reserveScreenArea(const QRect &area) {
-    qDebug() << "Reserving screen area " << area;
     int mScreenNum = QApplication::desktop()->screenNumber(this);
     const QRect screen = QApplication::desktop()->screenGeometry();
 
@@ -93,7 +114,6 @@ void Panel::reserveScreenArea(const QRect &area) {
             /* Top    */ 0, 0,
             /* Bottom */ area.left(), area.right()
             );
-
 }
 
 template<class Interface> inline QWidget * Panel::getPanelWidget(us::ModuleContext * context) {
