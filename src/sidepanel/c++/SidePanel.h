@@ -3,17 +3,14 @@
 
 #include "sidepanel/ISidePanel.h"
 
-#include <QWidget>
+#include <QObject>
 #include <QPointer>
 
-namespace Ui {
-    class SidePanel;
-}
 
-class SidePanel : public QWidget, public ISidePanel {
+class SidePanel: public QObject, public ISidePanel {
     Q_OBJECT
 public:
-    explicit SidePanel(QWidget *parent = 0);
+    explicit SidePanel(QObject *parent = 0);
     void showWidget(QWidget *widget, const bool autohide);
     ~SidePanel();
 
@@ -23,7 +20,6 @@ protected:
 private:
     QPointer<QWidget> m_widget;
     QPointer<QWidget> panel;
-    Ui::SidePanel * ui;
 };
 
 #endif // SIDEPANEL_H

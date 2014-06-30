@@ -36,7 +36,6 @@ set(${PROJECT_NAME}_SOURCES
 )
 
 set ( ${PROJEC_NAME}_UIS
-    ui/SidePanel.ui
 )
 
 set ( ${PROJEC_NAME}_RESOURCES

@@ -1,5 +1,4 @@
 #include "SidePanel.h"
-#include "ui_SidePanel.h"
 
 #include "panel/IPanel.h"
 
@@ -16,10 +15,7 @@
 #include <QDesktopWidget>
 #include <QVBoxLayout>
 
-SidePanel::SidePanel(QWidget *parent) :
-QWidget(parent), ui(new Ui::SidePanel()) {
-    ui->setupUi(this);
-
+SidePanel::SidePanel(QObject *parent) : QObject(parent) {
     us::ModuleContext * context = us::GetModuleContext();
     us::ServiceReference<IPanel> ref =
             context->GetServiceReference<IPanel>();
@@ -34,39 +30,37 @@ QWidget(parent), ui(new Ui::SidePanel()) {
 }
 
 void SidePanel::showWidget(QWidget *widget, const bool autohide) {
-    // Hide to delete old widgets
-    hide();
-    setGeometry(0,0,0,0);
+    // Hide old widget
+    if (m_widget)
+        m_widget->hide();
 
-    ui->verticalLayout->addWidget(widget);
+
     m_widget = widget;
 
     if (autohide)
-        setWindowFlags(Qt::FramelessWindowHint | Qt::Popup);
+        m_widget->setWindowFlags(Qt::FramelessWindowHint | Qt::Popup);
     else
-        setWindowFlags(Qt::FramelessWindowHint);
+        m_widget->setWindowFlags(Qt::FramelessWindowHint);
 
     // Correct position
-    adjustSize();
+    m_widget->adjustSize();
     const QRect screen = QApplication::desktop()->screenGeometry();
     if (panel)
-        setGeometry(QRect(screen.width() - m_widget->width() - ui->verticalLayout->margin(), 0,
+        m_widget->setGeometry(QRect(screen.width() - m_widget->width(), 0,
             m_widget->width(), QApplication::desktop()->screenGeometry().height() - panel->height()));
     else
-        setGeometry(QRect(screen.width() - m_widget->width(), 0,
+        m_widget->setGeometry(QRect(screen.width() - m_widget->width(), 0,
             m_widget->width(), QApplication::desktop()->screenGeometry().height()));
-    widget->adjustSize();
 
-    show();
-    raise();
-    activateWindow();
+    m_widget->show();
+    m_widget->raise();
+    m_widget->activateWindow();
 }
 
 void SidePanel::hideEvent(QHideEvent * event) {
-    ui->verticalLayout->removeWidget(m_widget);
-    delete m_widget;
+    m_widget->hide();
+    m_widget = NULL;
 }
 
 SidePanel::~SidePanel() {
-    delete ui;
 }
