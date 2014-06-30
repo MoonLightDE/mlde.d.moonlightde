@@ -45,8 +45,7 @@ namespace Ui {
     class LxQtClockConfiguration;
 }
 
-class LxQtClockConfiguration : public QWidget
-{
+class LxQtClockConfiguration : public QWidget {
     Q_OBJECT
 
 public:
@@ -60,18 +59,20 @@ private:
 
     /*
       Read settings from conf file and put data into controls.
-    */
+     */
     void loadSettings();
 
     /*
       Creates a date formats consistent with the region read from locale.
-    */
+     */
     void createDateFormats();
+
+    virtual void hideEvent(QHideEvent * event);
 
 private slots:
     /*
       Saves settings in conf file.
-    */
+     */
     void saveSettings();
     void dialogButtonsAction(QAbstractButton *btn);
     void dateFormatActivated(int);

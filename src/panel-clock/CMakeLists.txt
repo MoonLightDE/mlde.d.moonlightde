@@ -27,6 +27,7 @@ set(${PROJECT_NAME}_HEADERS
     c++/calendar_utils.h
     c++/lxqtclock.h
     c++/lxqtclockconfiguration.h
+    c++/CalendarWidget.h
 )
 set(${PROJECT_NAME}_PUBLIC_HEADERS
     
@@ -37,9 +38,11 @@ set(${PROJECT_NAME}_SOURCES
     c++/calendar_utils.cpp
     c++/lxqtclock.cpp
     c++/lxqtclockconfiguration.cpp
+    c++/CalendarWidget.cpp
 )
 
 set ( ${PROJEC_NAME}_UIS
+    ui/CalendarWidget.ui
     ui/lxqtclockconfiguration.ui
 )
 

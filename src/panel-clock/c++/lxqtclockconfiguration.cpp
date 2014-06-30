@@ -246,3 +246,7 @@ void LxQtClockConfiguration::dateFormatActivated(int index) {
 
     saveSettings();
 }
+
+void LxQtClockConfiguration::hideEvent(QHideEvent * event) {
+    deleteLater();
+}

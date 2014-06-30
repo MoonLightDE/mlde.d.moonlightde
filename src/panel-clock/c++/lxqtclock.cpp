@@ -37,6 +37,7 @@
 #include "core/ICore.h"
 #include "panel/IPanel.h"
 #include "sidepanel/ISidePanel.h"
+#include "CalendarWidget.h"
 
 #include <usModuleContext.h>
 #include <usGetModuleContext.h>
@@ -329,29 +330,26 @@ void LxQtClock::showCalendar() {
     }
 
     if (mCalendarWidget.isNull()) {
-        mCalendarWidget = new QWidget(mContent);
-        QVBoxLayout* layout = new QVBoxLayout(mCalendarWidget);
-        mCalendarWidget->setLayout(layout);
-        layout->setContentsMargins(0, 0, 0, 0);
-
-        QCalendarWidget* cal = new QCalendarWidget(mCalendarWidget);
-        cal->setFirstDayOfWeek(mFirstDayOfWeek);
-        layout->addWidget(cal, 0, Qt::AlignCenter);
-
-        QToolButton * settings_buttons = new QToolButton(mCalendarWidget);
-        settings_buttons->setText("Settings");
-        layout->addWidget(settings_buttons, 0, Qt::AlignCenter);
-        connect(settings_buttons, SIGNAL(pressed()) , this, SLOT(showSettings()));
-
-        layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Fixed, QSizePolicy::Expanding));
+        mCalendarWidget = new CalendarWidget();
+        //        QVBoxLayout* layout = new QVBoxLayout(mCalendarWidget);
+        //        mCalendarWidget->setLayout(layout);
+        //        layout->setContentsMargins(0, 0, 0, 0);
+        //
+        //        QCalendarWidget* cal = new QCalendarWidget(mCalendarWidget);
+        //        cal->setFirstDayOfWeek(mFirstDayOfWeek);
+        //        layout->addWidget(cal, 0, Qt::AlignCenter);
+        //
+        //        QToolButton * settings_buttons = new QToolButton(mCalendarWidget);
+        //        settings_buttons->setText("Settings");
+        //        layout->addWidget(settings_buttons, 0, Qt::AlignCenter);
+        //        connect(settings_buttons, SIGNAL(pressed()), this, SLOT(showSettings()));
+        //
+        //        layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Fixed, QSizePolicy::Expanding));
 
 
         sidePanel->showWidget(mCalendarWidget);
 
     } else {
-        if (sidePanel) {
-            (dynamic_cast<QWidget*> (sidePanel))->hide();
-        }
         delete mCalendarWidget;
         mCalendarWidget = 0;
     }
