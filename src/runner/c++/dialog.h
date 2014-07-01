@@ -28,6 +28,8 @@
 #ifndef DIALOG_H
 #define DIALOG_H
 
+#include "../../keyboard-shortcuts/client/action.h"
+
 #include <QDialog>
 
 namespace Ui {
@@ -44,11 +46,11 @@ class CommandListView;
 class CommandItemModel;
 class ConfigureDialog;
 
-// FIXME
-//namespace GlobalKeyShortcut
-//{
-//class Action;
-//}
+
+namespace GlobalKeyShortcut
+{
+class Action;
+}
 
 
 class Dialog : public QDialog
@@ -71,7 +73,7 @@ protected:
 private:
     Ui::Dialog *ui;
     LxQt::Settings *mSettings;
-//    GlobalKeyShortcut::Action *mGlobalShortcut;
+    GlobalKeyShortcut::Action *mGlobalShortcut;
     CommandItemModel *mCommandItemModel;
     bool mShowOnTop;
     int mMonitor;

@@ -35,6 +35,9 @@
 #include <LXQt/lxqtsettings.h>
 #include <qt5xdg/xdgicon.h>
 //#include <lxqt-globalkeys.h>
+#include "../../keyboard-shortcuts/client/action.h"
+#include "../../keyboard-shortcuts/client/client.h"
+
 #include <LXQt/lxqtpowermanager.h>
 #include <LXQt/lxqtscreensaver.h>
 
@@ -63,7 +66,7 @@ Dialog::Dialog(QWidget *parent) :
 QDialog(parent, Qt::Dialog | Qt::WindowStaysOnTopHint | Qt::CustomizeWindowHint),
 ui(new Ui::Dialog),
 mSettings(new LxQt::Settings("lxqt-runner", this)),
-//    mGlobalShortcut(0),
+mGlobalShortcut(0),
 mLockCascadeChanges(false),
 mConfigureDialog(0) {
     ui->setupUi(this);
@@ -114,9 +117,9 @@ mConfigureDialog(0) {
 
     applySettings();
 
-    //      FIXME
-    //    connect(mGlobalShortcut, SIGNAL(activated()), this, SLOT(showHide()));
-    //    connect(mGlobalShortcut, SIGNAL(shortcutChanged(QString,QString)), this, SLOT(shortcutChanged(QString,QString)));
+
+    connect(mGlobalShortcut, SIGNAL(activated()), this, SLOT(showHide()));
+    connect(mGlobalShortcut, SIGNAL(shortcutChanged(QString, QString)), this, SLOT(shortcutChanged(QString, QString)));
 
     resize(mSettings->value("dialog/width", 400).toInt(), size().height());
 
@@ -289,13 +292,12 @@ void Dialog::applySettings() {
     if (shortcut.isEmpty())
         shortcut = DEFAULT_SHORTCUT;
 
-    //    if (!mGlobalShortcut)
-    //        mGlobalShortcut = GlobalKeyShortcut::Client::instance()->addAction(shortcut, "/runner/show_hide_dialog", tr("Show/hide runner dialog"), this);
-    //    else if (mGlobalShortcut->shortcut() != shortcut)
-    //    {
-    //        mGlobalShortcut->changeShortcut(shortcut);
-    ////        std::cout << tr("Press \"%1\" to see dialog.").arg(shortcut.toString()).toLocal8Bit().constData() << std::endl;
-    //    }
+    if (!mGlobalShortcut)
+        mGlobalShortcut = GlobalKeyShortcut::Client::instance()->addAction(shortcut, "/runner/show_hide_dialog", tr("Show/hide runner dialog"), this);
+    else if (mGlobalShortcut->shortcut() != shortcut) {
+        mGlobalShortcut->changeShortcut(shortcut);
+        //        std::cout << tr("Press \"%1\" to see dialog.").arg(shortcut.toString()).toLocal8Bit().constData() << std::endl;
+    }
 
     mShowOnTop = mSettings->value("dialog/show_on_top", true).toBool();
 

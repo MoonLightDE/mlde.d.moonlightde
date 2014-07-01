@@ -56,6 +56,11 @@ include_directories(${CMAKE_BINARY_DIR})
 ## Dependencies
 ## -------------------------------- ------------------------------
 
+## Shortcuts
+link_directories(
+  ${LIBFM_LIBRARY_DIRS}
+)
+
 ## Qt
 find_package(Qt5Core        REQUIRED)
 find_package(Qt5Gui         REQUIRED)
@@ -118,6 +123,8 @@ target_link_libraries( ${PROJECT_NAME}
     Qt5::Gui
     Qt5::DBus
     Qt5::X11Extras
+
+    lxqt-globalkeys
 )
 ## --------------------------------------------------------------
 ## Deploy
