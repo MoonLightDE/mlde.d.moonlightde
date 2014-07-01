@@ -43,7 +43,7 @@ private:
     void Load(ModuleContext* context) {
         QWidget *hiddenPreviewParent = new QWidget(0, Qt::Tool);
         d = new Dialog(hiddenPreviewParent);
-        d->show();
+//        d->show();
     }
 
     /**
