@@ -42,7 +42,7 @@ private:
      */
     void Load(ModuleContext* context) {
         m_taskbar = new LxQtTaskBar();
-        m_taskbar.data()->show();
+//        m_taskbar.data()->show();
 
         ServiceProperties props;
         context->RegisterService<ITaskBar>(m_taskbar, props);

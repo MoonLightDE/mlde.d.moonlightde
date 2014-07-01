@@ -41,7 +41,7 @@ private:
      */
     void Load(ModuleContext* context) {
         m_quicklaunchers = new LxQtQuickLaunch();
-        m_quicklaunchers.data()->show();
+//        m_quicklaunchers.data()->show();
 
         ServiceProperties props;
         context->RegisterService<IQuickLauncher>(m_quicklaunchers, props);

@@ -41,7 +41,7 @@ private:
      */
     void Load(ModuleContext* context) {
         m_menu = new LxQtMainMenu();
-        m_menu.data()->show();
+//        m_menu.data()->show();
 
         ServiceProperties props;
         context->RegisterService<ILauncher>(m_menu, props);
