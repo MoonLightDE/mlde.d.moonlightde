@@ -32,7 +32,7 @@
 #include "menustyle.h"
 
 #include "panel/IPanel.h"
-#include "keyboard-shortcuts/IKeyboardShortCutsService.h"
+#include "../../keyboard-shortcuts/client/action.h"
 
 #include <qt5xdg/xdgmenu.h>
 #include <menu-cache/menu-cache.h>
@@ -76,7 +76,7 @@ private:
     //QToolButton mButton;
     QString mLogDir;
     QMenu* mMenu;
-    GlobalKeyShortcut::ShortCut *mShortcut;
+    GlobalKeyShortcut::Action *mShortcut;
     MenuStyle mTopMenuStyle;
     MenuStyle mMenuStyle;
     LxQt::PowerManager* mPowerManager;

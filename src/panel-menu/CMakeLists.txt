@@ -121,7 +121,7 @@ target_link_libraries( ${PROJECT_NAME}
     ${QTXDG_LIBRARIES}
     ${MENU_CACHE_LIBRARIES}
 
-#    lxqt-globalkeys
+    lxqt-globalkeys
 
     Qt5::Core
     Qt5::Widgets
