@@ -1,16 +1,17 @@
 /*
- * Copyright (C) 2013 Moonlight Desktop Environment Team
+ * Copyright (C) 2014 Moonlight Desktop Environment Team
  * Authors:
- * Alexis López Zubieta
- * This file is part of Moonlight Desktop Environment.
+ *  Alexis López Zubieta
+ * 
+ * This file is part of Moonlight Desktop Environment Core.
  *
- * Moonlight Desktop Environment is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Moonlight Desktop Environment is free software: you can redistribute it 
+ * and/or modify it under the terms of the GNU General Public License as 
+ * published by the Free Software Foundation, either version 3 of the License,
+ * or (at your option) any later version.
  *
- * Moonlight Desktop Environment is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * Moonlight Desktop Environment is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
@@ -19,7 +20,6 @@
  */
 
 #include "ModuleManager.h"
-//#include "core/IModuleManager.h"
 #include "MoonLightDECoreConfig.h"
 
 #include <usModule.h>
@@ -39,9 +39,23 @@
 
 US_USE_NAMESPACE
 
-ModuleManager::ModuleManager(const QString &aditionalLibsPath) {
-    paths.append(MODULES_OUTPUT_DIR);
-    paths.append(aditionalLibsPath);
+ModuleManager::ModuleManager(const QHash<QString, QVariant> config) {
+    qApp->addLibraryPath(MODULES_INSTALL_DIR);
+    qApp->addLibraryPath(config["modulesPath"].toString());
+
+    m_descriptorsPaths.append(DESCRIPTORS_INSTALL_DIR);
+    m_descriptorsPaths.append(config["descriptorsPath"].toString());
+    qDebug() << "Module manager configuration:";
+    qDebug() << "\tModules paths: " << qApp->libraryPaths();
+    qDebug() << "\tDescriptors paths: " << m_descriptorsPaths;
+
+    m_context = us::GetModuleContext();
+
+    m_CoreSettingsTracker = new us::ServiceTracker<QSettings>(
+            m_context, us::LDAPFilter(std::string("(&(") + us::ServiceConstants::OBJECTCLASS() + "=" +
+            us_service_interface_iid<QSettings>() + ")" + "(Module=Core))")
+            );
+    m_CoreSettingsTracker->Open();
 }
 
 ModuleManager::~ModuleManager() {
@@ -69,14 +83,14 @@ bool ModuleManager::load(const QString &name) {
 
                 qDebug() << "Module loaded: " << name;
                 return true;
-            } catch (const std::exception& e) {
+            } catch (const std::exception& ex) {
                 err_msg.append("\n\t");
-                err_msg.append(e.what());
+                err_msg.append(ex.what());
             }
         }
     } else { // Load module from scratch
 
-        foreach(QString path, paths) {
+        foreach(QString path, qApp->libraryPaths()) {
             try {
                 SharedLibrary *libHandle = new SharedLibrary(path.toStdString(), name.toStdString());
                 libHandle->Load();
@@ -84,9 +98,9 @@ bool ModuleManager::load(const QString &name) {
                 libs.insert(name, libHandle);
                 qDebug() << "Module loaded: " << name;
                 return true;
-            } catch (const std::exception& e) {
+            } catch (const std::exception& ex) {
                 err_msg.append("\n\t");
-                err_msg.append(e.what());
+                err_msg.append(ex.what());
             }
         }
 
@@ -129,48 +143,98 @@ bool ModuleManager::unload(const QString &name) {
     return true;
 }
 
-void ModuleManager::loadFromProfile(QSettings * profile) {
-    qDebug() << "Loading list: " << profile->fileName();
-
-    int nmodules = profile->beginReadArray("Modules");
-    if (nmodules > 0) {
-        for (int i = 0; i < nmodules; i++) {
-            profile->setArrayIndex(i);
-            QString moduleName = profile->value("Name").toString();
-            load(moduleName);
-        }
-        profile->endArray();
-    } else {
-        qWarning() << "Sorry, there are no modules names.";
-    }
-    qDebug() << "Loading list finished.";
-}
-
-QList<QString> ModuleManager::listAviableModules() {
+QList<QString> ModuleManager::getAviableModules() {
     QList<QString> list;
     QStringList nameFilters;
-    nameFilters << "*.so";
+    nameFilters << "libmoonlightDE-*.so";
 
-    foreach(QString path, paths) {
+    foreach(QString path, qApp->libraryPaths()) {
         QDir dir(path);
         dir.setFilter(QDir::Files | QDir::NoDotAndDotDot);
         dir.setNameFilters(nameFilters);
         QStringList filesList = dir.entryList();
 
         foreach(QString fileName, filesList) {
-            fileName.chop(3);
-            fileName.remove(0, 3);
+            fileName.chop(3); // remove "lib" preffix
+            fileName.remove(0, 3); // remove ".so" suffix
             list.append(fileName);
         }
     }
     return list;
 }
 
-QList<QString> ModuleManager::listActiveModules() {
+QList<QString> ModuleManager::getActiveModules() {
     QList<QString> list;
+    QStringList nameFilters;
+    nameFilters << "libmoonlightDE-*.so";
 
     foreach(Module * module, ModuleRegistry::GetLoadedModules()) {
-        list.append(QString::fromStdString(module->GetName()));
+        QFileInfo fileInfo(QString::fromStdString(module->GetLocation()));
+        QString name = fileInfo.fileName();
+        if (QDir::match(nameFilters, name)) {
+            name.chop(3); // remove "lib" preffix
+            name.remove(0, 3); // remove ".so" suffix
+            list.append(name);
+        }
     }
     return list;
+}
+
+XdgDesktopFile * ModuleManager::getModuleDescriptor(const QString moduleName) {
+    XdgDesktopFile * descriptor = new XdgDesktopFile();
+
+    QString fullname = moduleName + ".desktop";
+    descriptor->setValue("Name", moduleName);
+    descriptor->setValue("Comment", "No descriptor provided.");
+
+    foreach(QString path, m_descriptorsPaths) {
+        QDir dir(path);
+        if (dir.exists(fullname)) {
+            descriptor->load(dir.filePath(fullname));
+            break;
+        }
+    }
+    return descriptor;
+}
+
+const QStringList ModuleManager::getStartUpModules() const {
+    QStringList list;
+    QSettings * settings = m_CoreSettingsTracker->GetService();
+    if (settings == NULL)
+        qDebug() << "Unable to locate the CoreSettings Service.";
+    else {
+        qDebug() << "Reading startup modules list from: " << settings->fileName();
+
+        int nmodules = settings->beginReadArray("Modules");
+        if (nmodules > 0) {
+            for (int i = 0; i < nmodules; i++) {
+                settings->setArrayIndex(i);
+                QString moduleName = settings->value("Name").toString();
+                list.append(moduleName);
+            }
+        } else {
+            qWarning() << "There are any configured modules to load.";
+        }
+        settings->endArray();
+    }
+
+
+    return list;
+}
+
+void ModuleManager::setStartUpModules(const QStringList &modules) {
+    QSettings * settings = m_CoreSettingsTracker->GetService();
+    if (settings == NULL)
+        qDebug() << "Unable to locate the CoreSettings Service.";
+    else {
+        settings->beginWriteArray("Modules", modules.size());
+        int pos = 0;
+
+        foreach(QString moduleName, modules) {
+            settings->setArrayIndex(pos);
+            settings->setValue("Name", moduleName);
+            pos++;
+        }
+        settings->endArray();
+    }
 }

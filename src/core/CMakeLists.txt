@@ -16,38 +16,20 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Moonlight Desktop Environment.  If not, see <http://www.gnu.org/licenses/>.
 #
-project(moonlightDE)
+project(core)
 
 ## --------------------------------------------------------------
 ## Sources
 ## --------------------------------------------------------------
-set(${PROJECT_NAME}_HEADERS
-    c++/Controller.h
-    c++/SettingsProfile.h
-    c++/ModuleManager.h
-    c++/Environment.h
-)
-set(${PROJECT_NAME}_PUBLIC_HEADERS
-    ${INTERFACES_DIR}/core/ICore.h
-    ${INTERFACES_DIR}/core/IQt5.h
 
-)
+file(GLOB ${PROJECT_NAME}_PUBLIC_HEADERS ${CMAKE_SOURCE_DIR}/include/core/*.h)
 
-set(${PROJECT_NAME}_SOURCES
-    c++/Controller.cpp
-    c++/SettingsProfile.cpp
-    c++/ModuleManager.cpp
-    c++/Environment.cpp
-    c++/main.cpp
-)
+file(GLOB ${PROJECT_NAME}_SOURCES c++/*.cpp)
 
-set ( ${PROJEC_NAME}_UIS
-)
+file(GLOB ${PROJECT_NAME}_UIS ui/*.ui)
 
-set ( ${PROJEC_NAME}_RESOURCES
-)
+file(GLOB ${PROJECT_NAME}_RESOURCES res/*)
 
-include_directories(${INTERFACES_DIR})
 
 ## --------------------------------------------------------------
 ## Dependencies
@@ -61,7 +43,7 @@ find_package(Qt5Widgets REQUIRED)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-QT5_WRAP_UI(${PROJEC_NAME}_UI_HEADERS ${${PROJEC_NAME}_UIS})
+QT5_WRAP_UI(${PROJEC_NAME}_UI_HEADERS ${${PROJECT_NAME}_UIS})
 QT5_ADD_RESOURCES(${PROJEC_NAME}_QRC_SOURCES ${${PROJEC_NAME}_RESOURCES})
 
 #CppMicroServices
@@ -69,7 +51,6 @@ find_package(CppMicroServices NO_MODULE REQUIRED)
 include_directories(${CppMicroServices_INCLUDE_DIRS})
 
 include_directories(${CMAKE_BINARY_DIR})
-include_directories(${CMAKE_BINARY_DIR}/core-module/settings-manager)
 
 ## QT5XDG
 find_package(QT5XDG REQUIRED)
@@ -83,30 +64,23 @@ include(${LXQT_USE_FILE})
 ## Build Rules
 ## --------------------------------------------------------------
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/${MoonLightDEPrefix})
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-
 usFunctionGenerateExecutableInit(${PROJECT_NAME}_SOURCES
-                                 IDENTIFIER "MoonLightDECore"
+                                 IDENTIFIER "Core"
                                  )
-
 
 configure_file( c++/MoonLightDECoreConfig.h.in ${CMAKE_CURRENT_BINARY_DIR}/MoonLightDECoreConfig.h)
 
-add_executable(${PROJECT_NAME} 
+add_executable(${CMAKE_PROJECT_NAME}-${PROJECT_NAME} 
     ${${PROJECT_NAME}_HEADERS}
     ${${PROJECT_NAME}_SOURCES}
     ${${PROJEC_NAME}_UI_HEADERS}
     ${${PROJEC_NAME}_QRC_SOURCES}
 )
 
-qt5_use_modules(${PROJECT_NAME} Core)
-qt5_use_modules(${PROJECT_NAME} Gui)
-qt5_use_modules(${PROJECT_NAME} Widgets)
+qt5_use_modules(${CMAKE_PROJECT_NAME}-${PROJECT_NAME} Core Gui Widgets)
 
 # Link the CppMicroServices library
-target_link_libraries(${PROJECT_NAME} 
+target_link_libraries(${CMAKE_PROJECT_NAME}-${PROJECT_NAME} 
     CppMicroServices
     ${LXQT_LIBRARIES}
     ${QTXDG_LIBRARIES}
@@ -117,9 +91,9 @@ target_link_libraries(${PROJECT_NAME}
 ## --------------------------------------------------------------
 
 
-INSTALL(TARGETS ${PROJECT_NAME}
+INSTALL(TARGETS ${CMAKE_PROJECT_NAME}-${PROJECT_NAME}
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION MODULES_OUTPUT_DIR
     ARCHIVE DESTINATION lib/static)
 
-INSTALL(FILES ${${PROJECT_NAME}_PUBLIC_HEADERS} DESTINATION ${INTERFACES_OUTPUT_DIR}/${MODULE_NAME} )
+INSTALL(FILES ${${PROJECT_NAME}_PUBLIC_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/${PROJECT_NAME})

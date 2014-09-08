@@ -19,35 +19,21 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_H
-#define	CORE_H
 
-#include "core/ICore.h"
 #include "CoreConfigurationUI.h"
 
-#include <QString>
-#include <QHash>
+CoreConfigurationUI::CoreConfigurationUI() : m_treemodel(new ModuleModel(this)) {
+    widget.setupUi(this);
 
-class Controller : public Core::IController {
-    Q_OBJECT
-    Q_INTERFACES(Core::IController)
-public:
-    Controller(const QHash<QString, QVariant> &config);
-    void start();
-    void finish();
-    virtual ~Controller();
+    widget.treeView->setModel(m_treemodel);
+    connect(widget.controlButton, SIGNAL(released()), this, SLOT(onClickedControlButon()));
+}
 
-signals:
-    void started();
-    void finishing();
+CoreConfigurationUI::~CoreConfigurationUI() {
+    delete m_treemodel;
+}
 
-private:
-    Core::IModuleManager * moduleManager;
-    QSettings * m_profile;
-    QStringList m_descriptorsPaths;
-
-    CoreConfigurationUI * m_configUi;
-};
-
-#endif	/* CORE_H */
-
+void CoreConfigurationUI::onClickedControlButon() {
+    QModelIndex index = widget.treeView->currentIndex();
+    m_treemodel->toggleModule(index.row());
+}

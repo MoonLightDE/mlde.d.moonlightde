@@ -19,35 +19,23 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_H
-#define	CORE_H
+#ifndef _CORECONFIGURATIONUI_H
+#define	_CORECONFIGURATIONUI_H
 
-#include "core/ICore.h"
-#include "CoreConfigurationUI.h"
+#include "ModuleModel.h"
+#include "ui_CoreConfigurationUI.h"
 
-#include <QString>
-#include <QHash>
-
-class Controller : public Core::IController {
+class CoreConfigurationUI : public QWidget {
     Q_OBJECT
-    Q_INTERFACES(Core::IController)
 public:
-    Controller(const QHash<QString, QVariant> &config);
-    void start();
-    void finish();
-    virtual ~Controller();
+    CoreConfigurationUI();
+    virtual ~CoreConfigurationUI();
 
-signals:
-    void started();
-    void finishing();
-
+public slots:
+    void onClickedControlButon();
 private:
-    Core::IModuleManager * moduleManager;
-    QSettings * m_profile;
-    QStringList m_descriptorsPaths;
-
-    CoreConfigurationUI * m_configUi;
+    Ui::CoreConfigurationUI widget;
+    ModuleModel *m_treemodel;
 };
 
-#endif	/* CORE_H */
-
+#endif	/* _CORECONFIGURATIONUI_H */

@@ -1,16 +1,17 @@
 /*
  * Copyright (C) 2014 Moonlight Desktop Environment Team
  * Authors:
- * Alexis López Zubieta
- * This file is part of Moonlight Desktop Environment.
+ *  Alexis López Zubieta
+ * 
+ * This file is part of Moonlight Desktop Environment Core.
  *
- * Moonlight Desktop Environment is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Moonlight Desktop Environment is free software: you can redistribute it 
+ * and/or modify it under the terms of the GNU General Public License as 
+ * published by the Free Software Foundation, either version 3 of the License,
+ * or (at your option) any later version.
  *
- * Moonlight Desktop Environment is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * Moonlight Desktop Environment is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
@@ -18,11 +19,9 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "Controller.h"
-#include "SettingsProfile.h"
 #include "ModuleManager.h"
-#include "Environment.h"
+#include "../include/core/IQt5.h"
 
 #include <usGetModuleContext.h>
 #include <usModuleContext.h>
@@ -30,42 +29,57 @@
 
 #include <QDebug>
 #include <QApplication>
+#include <QFile>
 
 using namespace us;
 
-Controller::Controller(QString profile, QString aditionalLibsPath) {
+Controller::Controller(const QHash<QString, QVariant> &config) {
+    QString profile = config["profile"].toString();
+    if (QFile::exists(profile)) {
+        m_profile = new QSettings(profile, QSettings::NativeFormat, this);
+    } else {
+        m_profile = new QSettings(qApp->organizationName(), profile, this);
+    }
+
     ModuleContext * context = GetModuleContext();
 
-    // Core services creation
-    settingsProfile = new SettingsProfile(profile);
-    {
-        ServiceProperties props;
-        context->RegisterService<Core::ISettingsProfile>(settingsProfile, props);
-    }
-    moduleManager = new ModuleManager(aditionalLibsPath);
+    moduleManager = new ModuleManager(config);
     {
         ServiceProperties props;
         context->RegisterService<Core::IModuleManager>(moduleManager, props);
     }
-
-    environment = new Environment();
     {
         ServiceProperties props;
-        context->RegisterService<Core::IEnvironment>(environment, props);
+        props["Module"] = std::string("Core");
+        context->RegisterService<QSettings>(m_profile, props);
     }
-
     {
         ServiceProperties props;
         context->RegisterService<Core::IController>(this, props);
+    }
+    if (config["showConfig"].toBool()) {
+        m_configUi = new CoreConfigurationUI();
+        m_configUi->show();
+    } else {
+        m_configUi = NULL;
+    
     }
 }
 
 void Controller::start() {
     // Loading modules
-    QSettings * profile = settingsProfile->getSettingsOf();
-    moduleManager->loadFromProfile(profile);
+    const QStringList list = moduleManager->getStartUpModules();
 
+    foreach(QString module, list) {
+        moduleManager->load(module);
+    }
     emit(started());
+
+    if (moduleManager->getActiveModules().size() <= 1) {
+        if (m_configUi == NULL)
+            m_configUi = new CoreConfigurationUI();
+        m_configUi->show();
+    }
 }
 
 void Controller::finish() {
@@ -74,5 +88,6 @@ void Controller::finish() {
 }
 
 Controller::~Controller() {
+    delete m_profile;
 }
 
