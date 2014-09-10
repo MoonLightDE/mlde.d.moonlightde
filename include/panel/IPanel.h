@@ -22,14 +22,17 @@
 #ifndef IPANEL_H
 #define	IPANEL_H
 
+#include <QWidget>
+#include <QString>
 #include <usServiceInterface.h>
 
 struct IPanel {
     virtual ~IPanel(){};
 };
 
-struct ILauncher {
-    virtual ~ILauncher(){};
+struct ILauncherFactory {
+    virtual QWidget* getLauncher(const QString &menuFileName) = 0; 
+    virtual ~ILauncherFactory(){};
 };
 
 struct IQuickLauncher {
@@ -49,7 +52,7 @@ struct IClock {
 };
 
 US_DECLARE_SERVICE_INTERFACE(IPanel, "org.moonlightde.panel.IPanel/1.0")
-US_DECLARE_SERVICE_INTERFACE(ILauncher, "org.moonlightde.panel.ILauncher/1.0")
+US_DECLARE_SERVICE_INTERFACE(ILauncherFactory, "org.moonlightde.panel.ILauncher/1.0")
 US_DECLARE_SERVICE_INTERFACE(IQuickLauncher, "org.moonlightde.panel.IQuickLauncher/1.0")
 US_DECLARE_SERVICE_INTERFACE(ITaskBar, "org.moonlightde.panel.ITaskBar/1.0")
 US_DECLARE_SERVICE_INTERFACE(ISystemTray, "org.moonlightde.panel.ISystemTry/1.0")
