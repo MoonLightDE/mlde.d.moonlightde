@@ -1,0 +1,11 @@
+Moonlight Desktop Environment Applications Dash
+====================================================
+Provides an applications dash for the MoonLight Desktop Environment.
+
+18,4 mb - 6,8 mb (core) = 11,6 mb  (panel) with menu-cache
+
+Depends:
+- libqt5xdg
+- liblxqt
+- menu-cache
+
