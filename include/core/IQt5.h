@@ -24,15 +24,12 @@
 #include <usServiceInterface.h>
 #include <QObject>
 #include <QWidget>
+#include <QSettings>
 
-template<> inline const char* us_service_interface_iid<QObject>() {
-    return "org.qt-project.Qt.QObject";
-}
+Q_DECLARE_INTERFACE(QObject, "org.qt-project.Qt.QObject")
+US_DECLARE_SERVICE_INTERFACE(QObject, "org.qt-project.Qt.QObject")
 
-template<> inline const char* us_service_interface_iid<QWidget>() {
-    return "org.qt-project.Qt.QWidget";
-}
+US_DECLARE_SERVICE_INTERFACE(QWidget, "org.qt-project.Qt.QWidget")
 
-
-
+US_DECLARE_SERVICE_INTERFACE(QSettings, "org.qt-project.Qt.QSettings")
 #endif // IQT5_H
