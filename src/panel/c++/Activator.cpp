@@ -54,8 +54,9 @@ private:
      * @param context the framework context for the module.
      */
     void Unload(ModuleContext* context) {
+        delete(m_panel);
     }
 
     QPointer<Panel> m_panel;
 };
-US_EXPORT_MODULE_ACTIVATOR(Panel, Activator)
+US_EXPORT_MODULE_ACTIVATOR(panel, Activator)

@@ -7,14 +7,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
+    <width>630</width>
     <height>38</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>0</width>
-    <height>38</height>
+    <width>360</width>
+    <height>16</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -30,7 +30,7 @@
    </size>
   </property>
   <property name="mouseTracking">
-   <bool>true</bool>
+   <bool>false</bool>
   </property>
   <property name="focusPolicy">
    <enum>Qt::NoFocus</enum>
@@ -40,24 +40,10 @@
   </property>
   <property name="styleSheet">
    <string notr="true">QWidget#Panel{
-background-color:#333;
+#background-color:#333;
 }
 
-QToolButton#startButton{
-	width: 70;
-    background-color: #0784c5;
-    border: 1px solid #0784c5;
-    padding: 0;
-    padding: 5px 12px 7px 15px;
-}
-QToolButton#startButton:hover{
-    background-color: #07689a;
-        border: 1px solid #07689a;
-}
-QToolButton#startButton:pressed{
-    background-color: #07689a;
-        border: 1px solid #07689a;
-}</string>
+</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <property name="spacing">
@@ -76,11 +62,40 @@ QToolButton#startButton:pressed{
     <number>0</number>
    </property>
    <item>
-    <layout class="QHBoxLayout" name="launcherArea">
-     <property name="sizeConstraint">
-      <enum>QLayout::SetNoConstraint</enum>
+    <widget class="QToolButton" name="startButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
-    </layout>
+     <property name="focusPolicy">
+      <enum>Qt::ClickFocus</enum>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QToolButton#startButton{
+	width: 70;
+    background-color: #0784c5;
+	border: 1px solid #0784c5;
+    padding: 0;
+    padding: 5px 12px 7px 15px;
+}
+QToolButton#startButton:hover{
+    background-color: #07689a;
+        border: 1px solid #07689a;
+}
+QToolButton#startButton:pressed{
+   background-color: #07689a;
+	border: 1px solid #07689a;
+}</string>
+     </property>
+     <property name="text">
+      <string>Start</string>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QWidget" name="quickLaunchArea" native="true">
@@ -131,7 +146,7 @@ QToolButton#startButton:pressed{
      </layout>
     </widget>
    </item>
-   <item alignment="Qt::AlignRight">
+   <item>
     <widget class="QWidget" name="windowsArea" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
@@ -141,7 +156,7 @@ QToolButton#startButton:pressed{
      </property>
      <property name="minimumSize">
       <size>
-       <width>0</width>
+       <width>300</width>
        <height>38</height>
       </size>
      </property>
@@ -212,7 +227,7 @@ QToolButton:actived{
      </layout>
     </widget>
    </item>
-   <item alignment="Qt::AlignRight">
+   <item>
     <widget class="QWidget" name="systrayArea" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
@@ -222,7 +237,7 @@ QToolButton:actived{
      </property>
      <property name="minimumSize">
       <size>
-       <width>0</width>
+       <width>48</width>
        <height>38</height>
       </size>
      </property>
@@ -292,7 +307,7 @@ QFrame{
      </property>
      <property name="minimumSize">
       <size>
-       <width>0</width>
+       <width>10</width>
        <height>38</height>
       </size>
      </property>

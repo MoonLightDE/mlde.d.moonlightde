@@ -24,46 +24,49 @@
 
 #include "panel/IPanel.h"
 
-#include <usModule.h>
 #include <usModuleContext.h>
-#include <usGetModuleContext.h>
-#include <usServiceReference.h>
-#include <usServiceException.h>
 
-
-#include <QDesktopWidget>
+#include <QFrame>
 #include <QRect>
-#include <QDebug>
-
+#include <usServiceTracker.h>
 
 namespace Ui {
     class Panel;
 }
 
-class Panel : public QWidget, public IPanel {
+class Panel : public QFrame, public IPanel {
     Q_OBJECT
 
 public:
     explicit Panel(QWidget *parent = 0);
 
-    void moveEvent(QMoveEvent * event);
-    void resizeEvent(QResizeEvent * event);
-
     ~Panel();
 
-private:
-    void reserveScreenArea(const QRect &area);
+public slots:
+    void setupWindowFlags();
+    void adjustSizeToScreen();
+    void requestExclusiveScreenArea();
+
+    void startButtonClicked();
+
+protected:
+    bool event(QEvent *event);
+
 
     template<class Interface> inline QWidget *getPanelWidget(us::ModuleContext * context);
 
+private:
     Ui::Panel *ui;
-    QWidget *launcher;
+    
+    us::ServiceTracker<ILauncherFactory> *m_launcherTracker;
     QWidget *quicklauncher;
     QWidget *taskBar;
     QWidget *sysTray;
     QWidget *clock;
+
+    /* Panel properties */
+    int mHeight;
     
-    QDesktopWidget * desktopWidget;
 };
 
 #endif // LAUNCHER_H

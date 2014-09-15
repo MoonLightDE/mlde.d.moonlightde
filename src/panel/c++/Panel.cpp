@@ -22,57 +22,52 @@
 #include "Panel.h"
 #include "ui_panel.h"
 
-#include <xcb/xcb.h>
-#include <LXQt/XfitMan>
+#include <qt5xdg/XdgMenu>
+
+#include <usModule.h>
+#include <usGetModuleContext.h>
+#include <usServiceReference.h>
+#include <usServiceException.h>
 
 #include <QDebug>
-#include <QDesktopWidget>
+#include <QMenu>
+#include <QWidget>
+#include <QWindow>
 #include <QX11Info>
+#include <QDesktopWidget>
 
-#include <LXQt/lxqtxfitman.h>
+#include <LXQt/XfitMan>
+#include <X11/Xatom.h>
+#include <qt5/QtCore/qpointer.h>
+#include <qt4/QtCore/qnamespace.h>
+
+using namespace us;
 
 Panel::Panel(QWidget *parent) :
-QWidget(parent), ui(new Ui::Panel) {
+QFrame(parent), ui(new Ui::Panel) {
     ui->setupUi(this);
 
-    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
-    setAttribute(Qt::WA_X11NetWmWindowTypeDock);
-    setAttribute(Qt::WA_AlwaysShowToolTips);
-    setAttribute(Qt::WA_TranslucentBackground);
-
-    // set freedesktop.org EWMH hints properly
-    if (QX11Info::isPlatformX11() && QX11Info::connection()) {
-        xcb_connection_t* con = QX11Info::connection();
-        const char* atom_name = "_NET_WM_WINDOW_TYPE_DOCK";
-        xcb_atom_t atom = xcb_intern_atom_reply(con, xcb_intern_atom(con, 0, strlen(atom_name), atom_name), NULL)->atom;
-        const char* prop_atom_name = "_NET_WM_WINDOW_TYPE";
-        xcb_atom_t prop_atom = xcb_intern_atom_reply(con, xcb_intern_atom(con, 0, strlen(prop_atom_name), prop_atom_name), NULL)->atom;
-        xcb_atom_t XA_ATOM = 4;
-        xcb_change_property(con, XCB_PROP_MODE_REPLACE, winId(), prop_atom, XA_ATOM, 32, 1, &atom);
-
-        Atom windowTypes[] = {
-            LxQt::xfitMan().atom("_NET_WM_WINDOW_TYPE_DOCK"),
-            LxQt::xfitMan().atom("_KDE_NET_WM_WINDOW_TYPE_OVERRIDE"), // required for Qt::FramelessWindowHint
-            LxQt::xfitMan().atom("_NET_WM_WINDOW_TYPE_NORMAL")
-        };
-        XChangeProperty(QX11Info::display(), winId(), LxQt::xfitMan().atom("_NET_WM_WINDOW_TYPE"),
-                XA_ATOM, 32, PropModeReplace, (unsigned char*) windowTypes, 3);
-    }
-
+    mHeight = 36;
+    adjustSizeToScreen();
+    setupWindowFlags();
 
     // Services lookup
     us::ModuleContext * context = us::GetModuleContext();
-    launcher = getPanelWidget<ILauncher>(context);
     quicklauncher = getPanelWidget<IQuickLauncher>(context);
     taskBar = getPanelWidget<ITaskBar>(context);
     sysTray = getPanelWidget<ISystemTray>(context);
     clock = getPanelWidget<IClock>(context);
 
+    // Create a service tracker to monitor the launcher.
+    m_launcherTracker = new ServiceTracker<ILauncherFactory>(
+            context, LDAPFilter(std::string("(&(") + ServiceConstants::OBJECTCLASS() + "=" +
+            us_service_interface_iid<ILauncherFactory>() + "))")
+            );
+    m_launcherTracker->Open();
+
+    connect(ui->startButton, SIGNAL(clicked()), this, SLOT(startButtonClicked()));
+
     // Connect widgets
-    if (launcher) {
-        launcher->setObjectName("startButton");
-        ui->launcherArea->layout()->addWidget(launcher);
-    }
     if (quicklauncher)
         ui->quickLaunchArea->layout()->addWidget(quicklauncher);
     if (taskBar)
@@ -83,37 +78,11 @@ QWidget(parent), ui(new Ui::Panel) {
         ui->clockArea->layout()->addWidget(clock);
         clock->show();
     }
+    connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(adjustSizeToScreen()));
 }
 
 Panel::~Panel() {
     delete ui;
-}
-
-void Panel::moveEvent(QMoveEvent * event) {
-    reserveScreenArea(geometry());
-}
-
-void Panel::resizeEvent(QResizeEvent * event) {
-    // Set panel geometry
-    const QRect screen = QApplication::desktop()->screenGeometry();
-    setGeometry(QRect(0, screen.height() - height(), screen.width(), height()));
-
-    reserveScreenArea(geometry());
-}
-
-void Panel::reserveScreenArea(const QRect &area) {
-    int mScreenNum = QApplication::desktop()->screenNumber(this);
-    const QRect screen = QApplication::desktop()->screenGeometry();
-
-    LxQt::XfitMan xf = LxQt::xfitMan();
-    Window wid = effectiveWinId();
-
-    xf.setStrut(wid, 0, 0, 0, screen.height() - area.y(),
-            /* Left   */ 0, 0,
-            /* Right  */ 0, 0,
-            /* Top    */ 0, 0,
-            /* Bottom */ area.left(), area.right()
-            );
 }
 
 template<class Interface> inline QWidget * Panel::getPanelWidget(us::ModuleContext * context) {
@@ -129,3 +98,117 @@ template<class Interface> inline QWidget * Panel::getPanelWidget(us::ModuleConte
         qDebug() << "Unable to find: " << us_service_interface_iid<Interface>();
     return component;
 };
+
+bool Panel::event(QEvent *event) {
+    switch (event->type()) {
+        case QEvent::Show:
+            requestExclusiveScreenArea();
+            break;
+        case QEvent::ContextMenu:
+            break;
+
+        case QEvent::LayoutRequest:
+            qDebug() << "Layout change";
+            adjustSizeToScreen();
+            break;
+
+        case QEvent::WinIdChange:
+            qDebug() << "Wid change";
+            setupWindowFlags();
+            adjustSizeToScreen();
+            //            if (isVisible())
+            //                LxQt::xfitMan().moveWindowToDesktop(effectiveWinId(), -1);
+            //            break;
+        default:
+            break;
+    }
+    return QFrame::event(event);
+}
+
+void Panel::adjustSizeToScreen() {
+    // Panel widgth must match the screen widgth
+    const QRect currentScreenGeometry = QApplication::desktop()->screenGeometry(this);
+    QRect rect;
+
+    rect.setHeight(mHeight);
+    rect.setWidth(currentScreenGeometry.width());
+
+    rect.moveBottom(currentScreenGeometry.bottom());
+
+
+    qDebug() << " setting size: " << rect;
+    if (rect != geometry()) {
+        setGeometry(rect);
+        setFixedSize(rect.size());
+
+        // Update reserved screen area on resize
+        requestExclusiveScreenArea();
+    }
+}
+
+void Panel::setupWindowFlags() {
+    // Qt::WA_X11NetWmWindowTypeDock becomes ineffective in Qt 5
+    // See QTBUG-39887: https://bugreports.qt-project.org/browse/QTBUG-39887
+    // Let's do it manually
+    Atom windowTypes[] = {
+        LxQt::xfitMan().atom("_NET_WM_WINDOW_TYPE_DOCK"),
+        LxQt::xfitMan().atom("_KDE_NET_WM_WINDOW_TYPE_OVERRIDE"), // required for Qt::FramelessWindowHint
+        LxQt::xfitMan().atom("_NET_WM_WINDOW_TYPE_NORMAL")
+    };
+    XChangeProperty(QX11Info::display(), effectiveWinId(), LxQt::xfitMan().atom("_NET_WM_WINDOW_TYPE"),
+            XA_ATOM, 32, PropModeReplace, (unsigned char*) windowTypes, 3);
+}
+
+void Panel::requestExclusiveScreenArea() {
+    Window wid = effectiveWinId();
+    if (wid == 0 || !isVisible())
+        return;
+
+    LxQt::XfitMan xf = LxQt::xfitMan();
+    const QRect wholeScreen = QApplication::desktop()->geometry();
+    // qDebug() << "wholeScreen" << wholeScreen;
+    const QRect rect = geometry();
+    // NOTE: http://standards.freedesktop.org/wm-spec/wm-spec-latest.html
+    // Quote from the EWMH spec: " Note that the strut is relative to the screen edge, and not the edge of the xinerama monitor."
+    // So, we use the geometry of the whole screen to calculate the strut rather than using the geometry of individual monitors.
+    // Though the spec only mention Xinerama and did not mention XRandR, the rule should still be applied.
+    // At least openbox is implemented like this.
+
+    xf.setStrut(wid, 0, 0, 0, wholeScreen.bottom() - rect.y(),
+            /* Left   */ 0, 0,
+            /* Right  */ 0, 0,
+            /* Top    */ 0, 0,
+            /* Bottom */ rect.left(), rect.right()
+            );
+
+}
+
+void Panel::startButtonClicked() {
+    ILauncherFactory * factory = m_launcherTracker->GetService();
+    if (factory == NULL)
+        qDebug() << "There aren't available launchers.";
+    else {
+        QPointer<QWidget> launcher = factory->getLauncher(XdgMenu::getMenuFileName());
+        if (launcher.isNull())
+            return;
+
+        if (launcher->isVisible()) {
+            launcher->hide();
+        } else {
+            if (qobject_cast<QMenu *>(launcher)) {
+                QPoint position = pos();
+                position.ry() -= (launcher->sizeHint().height());
+                //qDebug() << " menu pos: " << position;
+                qobject_cast<QMenu *>(launcher)->popup(position);
+            } else {
+                QRect rect = qApp->desktop()->geometry();
+                
+                launcher->move(QPoint(0, 0));
+                launcher->resize(rect.width(), rect.height() - size().height());
+                launcher->show();                
+            }
+//            releaseKeyboard();
+//            releaseMouse();
+        }
+    }
+}
