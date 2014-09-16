@@ -23,6 +23,8 @@
 #define	ICORE_H
 #include <usServiceInterface.h>
 
+#include <qt5xdg/XdgDesktopFile>
+
 #include <QObject>
 #include <QString>
 #include <QSettings>
@@ -40,42 +42,25 @@ signals:
         void finishing();
     };
 
-    class IEnvironment : public QObject {
-    public:
-        virtual QProcessEnvironment generateProcessEnvironment() = 0;
-        virtual void insert(QString key, QString value) = 0;
-        virtual void remove(QString key) = 0;
-        virtual bool contains(QString key) = 0;
-
-signals:
-        virtual void environmentUpdated(QString key, QString value) = 0;
-
-    };
-
     class IModuleManager {
     public:
         virtual bool load(const QString &name) = 0;
         virtual bool unload(const QString &name) = 0;
-        virtual void loadFromProfile(QSettings * profile) = 0;
-        virtual QList<QString> listAviableModules() = 0;
-        virtual QList<QString> listActiveModules() = 0;
 
+        virtual QList<QString> getAviableModules() = 0;
+        virtual QList<QString> getActiveModules() = 0;
+        virtual XdgDesktopFile * getModuleDescriptor(const QString moduleName) = 0;
+
+        virtual const QStringList getStartUpModules() const = 0;
+        virtual void setStartUpModules(const QStringList &modules) = 0;
     };
-
-    /*Public interface for the "SettingsProfile" class.*/
-    class ISettingsProfile {
-    public:
-        virtual QSettings * getSettingsOf(QObject * object = 0) = 0;
-        virtual QSettings * getSettingsOf(const QString & objectPath) = 0;
-
-    };
-
 
 }
+
+Q_DECLARE_INTERFACE(Core::IController, "org.moonlightde.core.IController/1.0")
 US_DECLARE_SERVICE_INTERFACE(Core::IController, "org.moonlightde.core.IController/1.0")
-US_DECLARE_SERVICE_INTERFACE(Core::IEnvironment, "org.moonlightde.core.IEnvironment/1.0")
-US_DECLARE_SERVICE_INTERFACE(Core::IModuleManager, "org.moonlightde.core.IModuleManager/1.0")
-US_DECLARE_SERVICE_INTERFACE(Core::ISettingsProfile, "org.moonlightde.core.ISettingsProfile/1.0")
+
+US_DECLARE_SERVICE_INTERFACE(Core::IModuleManager, "org.moonlightde.core.IModuleManager/1.1")
 
 #endif	/* ICORE_H */
 
