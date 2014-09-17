@@ -10,8 +10,6 @@
 
 #include "ui_Dash.h"
 
-
-
 #include <QFrame>
 #include <LXQt/Settings>
 

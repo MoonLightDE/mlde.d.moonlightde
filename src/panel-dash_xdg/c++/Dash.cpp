@@ -6,8 +6,9 @@
  */
 
 #include "Dash.h"
-
 #include "AppButton.h"
+#include "GridLayoutHExpanding.h"
+#include "GridLayoutVExpanding.h"
 
 #include <qt5xdg/XdgDesktopFile>
 
@@ -19,10 +20,12 @@
 #include <QRect>
 #include <QLabel>
 #include <QTime>
+#include <QTextStream>
 
 #include <algorithm>
 #include <qt4/QtCore/qnamespace.h>
 
+QTextStream cout(stdout);
 /**
  * As XdgDesktopFile doesn't provides the opperator < we must implement it here.
  */
@@ -38,8 +41,6 @@ Dash::Dash() : m_settings("panel-dash_xdg") {
     m_ui.setupUi(this);
     setWindowFlags(Qt::Popup);
     setFrameStyle(QFrame::NoFrame);
-
-    
     built = false;
 }
 
@@ -50,34 +51,25 @@ void Dash::build() {
     QTime time;
     time.start();
 
-    QGridLayout *layoutApps = new QGridLayout(m_ui.tabApps);
-    layoutApps->setSpacing(0);
-    layoutApps->setMargin(16);
-   
-    QGridLayout *layoutSettings = new QGridLayout(m_ui.tabSettings);
-    layoutSettings->setSpacing(0);
-    layoutSettings->setMargin(16);
-    
     const QRect screen = qApp->desktop()->screenGeometry();
 
-
+    /* This goes on Layout */
     const QSize iconSize(64, 64);
     const QSize boxSize(100, 100);
 
-
     const int maxColumnApps = m_ui.tabs->size().width() / (boxSize.width() + 32);
-    //    qDebug() << "maxColumnApps: " << maxColumnApps;
-    int currentRowApps = 0;
-    int currentColumnApp = 0;
-
-    const int maxColumnSettings = maxColumnApps;
-    //    qDebug() << "maxColumnSettings: " << maxColumnSettings;
-    int currentRowSettings = 0;
-    int currentColumnSettings = 0;
-
-
+    GridLayoutVExpanding *layoutApps = new GridLayoutVExpanding(maxColumnApps, m_ui.tabApps);
+    
+    layoutApps->setSpacing(0);
+    layoutApps->setMargin(16);
+    
+    GridLayoutVExpanding *layoutSettings = new GridLayoutVExpanding(maxColumnApps, m_ui.tabSettings);
+    
+    layoutSettings->setSpacing(0);
+    layoutSettings->setMargin(16);
+    
     qDebug() << "Layouts init: " << time.elapsed();
-    // Idividual items are released insed the AppButton class
+    // Individual items are released inside the AppButton class
     QList<XdgDesktopFile*> appList = XdgDesktopFileCache::getAllFiles();
     std::sort(appList.begin(), appList.end(), XdgDesktopFileComparisonFunctor());
     //    qSort(appList.begin(), appList.end());
@@ -98,7 +90,6 @@ void Dash::build() {
         label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
         label->setMaximumSize(boxSize.width(), 35);
         
-
         bttn->setFlat(true);
         bttn->setIconSize(iconSize);
         bttn->setMinimumSize(boxSize);
@@ -106,30 +97,13 @@ void Dash::build() {
 
         connect(bttn, &AppButton::released, this, &Dash::hide);
 
-
         QString appCategories = app->value("Categories", "None").toString();
-        //        qDebug() << "appCategories: " << appCategories;
         if (appCategories.contains("Settings", Qt::CaseInsensitive)) {
-            //            qDebug() << "Settings: " << app->name();
-            layoutSettings->addWidget(bttn, currentRowSettings, currentColumnSettings, Qt::AlignHCenter);
-            layoutSettings->addWidget(label, currentRowSettings + 1, currentColumnSettings, Qt::AlignHCenter);
-
-            currentColumnSettings++;
-            if (currentColumnSettings >= maxColumnSettings) {
-                currentColumnSettings = 0;
-                currentRowSettings += 2;
-            }
+            layoutSettings->addWidget(bttn);
+            layoutSettings->addWidget(label);
 
         } else {
-            //            qDebug() << "Apps: " << app->name();
-            layoutApps->addWidget(bttn, currentRowApps, currentColumnApp, Qt::AlignHCenter);
-            layoutApps->addWidget(label, currentRowApps + 1, currentColumnApp, Qt::AlignHCenter);
-
-            currentColumnApp++;
-            if (currentColumnApp >= maxColumnApps) {
-                currentColumnApp = 0;
-                currentRowApps += 2;
-            }
+            layoutApps->addWidget(bttn);
         }
 
     }
@@ -137,11 +111,13 @@ void Dash::build() {
 
     qDebug() << "appcontainerSize" << m_ui.tabs->size();
 
-    m_ui.apps->setGeometry(0, 0, m_ui.scrollArea->size().width() - (layoutApps->spacing() * maxColumnApps) , currentRowApps * boxSize.height());
+    m_ui.apps->setGeometry(0, 0, m_ui.scrollArea->size().width() - (layoutApps->spacing() * maxColumnApps) 
+                         , layoutApps->getCurrentRow() * boxSize.height());
     m_ui.apps->setLayout(layoutApps);
 
 
-    m_ui.settings->setGeometry(0, 0, m_ui.scrollAreaSettings->size().width(), currentRowSettings * boxSize.height());
+    m_ui.settings->setGeometry(0, 0, m_ui.scrollAreaSettings->size().width()
+                             , layoutApps->getCurrentRow() * boxSize.height());
     m_ui.settings->setLayout(layoutSettings);
 
 }
