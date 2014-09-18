@@ -36,12 +36,24 @@ GridLayoutHExpanding::~GridLayoutHExpanding() {
 }
 
 void GridLayoutHExpanding::addWidget(QWidget* widget) {
-    
+
     if (currentRow == maxRow) {
         currentColumn++;
         currentRow = 0;
-    } 
-    QGridLayout::addWidget(widget, currentRow, currentColumn, Qt::AlignHCenter);
+    }
+
+    QGridLayout::addWidget(widget, currentRow, currentColumn, Qt::AlignCenter);
+    currentRow++;
+}
+
+void GridLayoutHExpanding::addLayout(QLayout* layout) {
+
+    if (currentRow == maxRow) {
+        currentColumn++;
+        currentRow = 0;
+    }
+
+    QGridLayout::addLayout(layout, currentRow, currentColumn, Qt::AlignCenter);
     currentRow++;
 }
 
