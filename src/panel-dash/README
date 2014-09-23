@@ -1,0 +1,8 @@
+Moonlight Desktop Environment Applications Dash
+====================================================
+Provides an applications dash for the MoonLight Desktop Environment.
+
+Depends:
+- libqt5xdg
+- liblxqt
+- menu-cache
