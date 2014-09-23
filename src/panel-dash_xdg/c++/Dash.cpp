@@ -24,7 +24,7 @@
 #include <QTextStream>
 
 #include <algorithm>
-#include <qt4/QtCore/qnamespace.h>
+
 
 QTextStream cout(stdout);
 /**
