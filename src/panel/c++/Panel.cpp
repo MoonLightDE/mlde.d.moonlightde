@@ -2,7 +2,7 @@
  * Copyright (C) 2014 Moonlight Desktop Environment Team
  * Authors:
  *      Alexis López Zubieta
- * 
+ *      Jorge Fernández Sánchez
  * This file is part of Moonlight Desktop Environment.
  *
  * Moonlight Desktop Environment is free software: you can redistribute it and/or modify
@@ -51,6 +51,7 @@ QFrame(parent), ui(new Ui::Panel) {
     mHeight = 36;
     adjustSizeToScreen();
     setupWindowFlags();
+    visibleDash = false;
 
     // Services lookup
     us::ModuleContext * context = us::GetModuleContext();
@@ -201,12 +202,21 @@ void Panel::startButtonClicked() {
                 position.ry() -= (launcher->sizeHint().height());
                 //qDebug() << " menu pos: " << position;
                 qobject_cast<QMenu *>(launcher)->popup(position);
-            } else {
-                QRect rect = qApp->desktop()->geometry();
-                
-                launcher->move(QPoint(0, 0));
-                launcher->resize(rect.width(), rect.height() - size().height());
-                launcher->show();                
+            } else { //Dash
+                if(!visibleDash)
+                {
+                    QRect rect = qApp->desktop()->geometry();
+                    
+                    launcher->move(QPoint(0, 0));
+                    launcher->resize(rect.width(), rect.height() - size().height());
+                    launcher->show();
+                    visibleDash = true;
+                }
+                else
+                {
+                    launcher->hide();
+                    visibleDash = false;
+                }
             }
 //            releaseKeyboard();
 //            releaseMouse();
