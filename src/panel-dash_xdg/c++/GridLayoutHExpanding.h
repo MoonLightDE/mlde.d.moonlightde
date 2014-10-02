@@ -31,6 +31,7 @@ public:
     GridLayoutHExpanding(const GridLayoutHExpanding& orig);
     virtual ~GridLayoutHExpanding();
     void addWidget(QWidget* widget);
+    void addLayout(QLayout* layout);
 private:
     int maxRow; /* Dash max columns */
     int currentRow; // Actual row position from App

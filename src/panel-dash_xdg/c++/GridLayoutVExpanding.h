@@ -30,7 +30,9 @@ public:
     GridLayoutVExpanding(const GridLayoutVExpanding& orig);
     virtual ~GridLayoutVExpanding();
     void addWidget(QWidget* widget);
+    void addLayout(QLayout* layout);
     int getCurrentRow() { return currentRow; }
+    
 private:
     int maxColumn; /* Dash max rows */
     int currentColumn;

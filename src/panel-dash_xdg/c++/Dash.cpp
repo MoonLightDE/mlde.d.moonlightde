@@ -16,6 +16,7 @@
 #include <QGridLayout>
 #include <QPushButton>
 #include <QApplication>
+#include <QVBoxLayout>
 #include <QDesktopWidget>
 #include <QRect>
 #include <QLabel>
@@ -23,7 +24,7 @@
 #include <QTextStream>
 
 #include <algorithm>
-#include <qt4/QtCore/qnamespace.h>
+
 
 QTextStream cout(stdout);
 /**
@@ -53,17 +54,16 @@ void Dash::build() {
 
     const QRect screen = qApp->desktop()->screenGeometry();
 
-    /* This goes on Layout */
     const QSize iconSize(64, 64);
     const QSize boxSize(100, 100);
-
     const int maxColumnApps = m_ui.tabs->size().width() / (boxSize.width() + 32);
-    GridLayoutVExpanding *layoutApps = new GridLayoutVExpanding(maxColumnApps, m_ui.tabApps);
+    
+    GridLayoutVExpanding* layoutApps = new GridLayoutVExpanding(maxColumnApps, m_ui.tabApps);
     
     layoutApps->setSpacing(0);
     layoutApps->setMargin(16);
     
-    GridLayoutVExpanding *layoutSettings = new GridLayoutVExpanding(maxColumnApps, m_ui.tabSettings);
+    GridLayoutVExpanding* layoutSettings = new GridLayoutVExpanding(maxColumnApps, m_ui.tabSettings);
     
     layoutSettings->setSpacing(0);
     layoutSettings->setMargin(16);
@@ -80,8 +80,7 @@ void Dash::build() {
             delete app;
             continue;
         }
-
-        AppButton * bttn = new AppButton(app, this);
+        AppButton *bttn = new AppButton(app, this);
 
         QLabel *label = new QLabel(app->name());
         label->setAlignment(Qt::AlignHCenter);
@@ -96,14 +95,20 @@ void Dash::build() {
         bttn->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 
         connect(bttn, &AppButton::released, this, &Dash::hide);
-
+        
+        //Layout for widget
+        QVBoxLayout* vBoxLayout = new QVBoxLayout();            
+        vBoxLayout->addWidget(bttn);
+        vBoxLayout->addWidget(label);
+        
         QString appCategories = app->value("Categories", "None").toString();
+        
         if (appCategories.contains("Settings", Qt::CaseInsensitive)) {
-            layoutSettings->addWidget(bttn);
-            layoutSettings->addWidget(label);
-
+            
+            layoutSettings->addLayout(vBoxLayout);
         } else {
-            layoutApps->addWidget(bttn);
+            
+            layoutApps->addLayout(vBoxLayout);
         }
 
     }

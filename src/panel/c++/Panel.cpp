@@ -35,11 +35,12 @@
 #include <QWindow>
 #include <QX11Info>
 #include <QDesktopWidget>
+#include <QPointer>
+
 
 #include <LXQt/XfitMan>
 #include <X11/Xatom.h>
-#include <qt5/QtCore/qpointer.h>
-#include <qt4/QtCore/qnamespace.h>
+
 
 using namespace us;
 

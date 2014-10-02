@@ -38,9 +38,18 @@ void GridLayoutVExpanding::addWidget(QWidget* widget) {
         currentColumn = 0;
         currentRow++;
     }
-    
-    QGridLayout::addWidget(widget, currentRow, currentColumn, Qt::AlignHCenter);
+
+    QGridLayout::addWidget(widget, currentRow, currentColumn, Qt::AlignCenter);
     currentColumn++;
+}
 
+void GridLayoutVExpanding::addLayout(QLayout* layout) {
 
+    if (currentColumn == maxColumn) {
+        currentColumn = 0;
+        currentRow++;
+    }
+
+    QGridLayout::addLayout(layout, currentRow, currentColumn, Qt::AlignCenter);
+    currentColumn++;
 }
