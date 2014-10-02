@@ -45,6 +45,7 @@ find_package(Qt5X11Extras   REQUIRED)
 ## CppMicroServices
 find_package(CppMicroServices NO_MODULE REQUIRED)
 include_directories(${CppMicroServices_INCLUDE_DIRS})
+message(STATUS ----------- ${CMAKE_CURRENT_SOURCE_DIR})
 
 ## LXQT -- depends on QT5XDG
 find_package(LXQT-QT5 REQUIRED )
@@ -61,6 +62,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 include_directories(${CMAKE_BINARY_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 QT5_WRAP_UI(${PROJEC_NAME}_UI_HEADERS ${${PROJECT_NAME}_UIS})
 QT5_ADD_RESOURCES(${PROJEC_NAME}_QRC_SOURCES ${${PROJEC_NAME}_RESOURCES})
 

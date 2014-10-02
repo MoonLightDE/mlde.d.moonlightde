@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2014 Moonlight Desktop Environment Team
  * Authors:
- *      Alexis López Zubieta
- *      Jorge Fernández Sánchez
+ * 		Alexis López Zubieta
+ * 		Jorge Fernández Sánchez
  * This file is part of Moonlight Desktop Environment.
  *
  * Moonlight Desktop Environment is free software: you can redistribute it and/or modify
@@ -21,43 +21,21 @@
 
 
 
-#ifndef _DASH_H
-#define	_DASH_H
+#ifndef STARTBUTTON_H
+#define STARTBUTTON_H
 
-#include "ui_Dash.h"
 
-#include <QFrame>
-#include <LXQt/Settings>
+#include <QToolButton>
+#include <QEvent>
 
-class Dash : public QFrame {
-    Q_OBJECT
+class StartButton : public QToolButton
+{
 public:
-    Dash();
-    virtual ~Dash();
+	StartButton(QWidget *parent=0);
 
-    void build();
-    void free();
-    void hideEvent(QHideEvent *event);
-
-protected:
-    /** 
-     * Description: 
-     *  Setups the widget to before it's displayed. Loads apps in
-     *  case of update or first show, igline new apps and restore focus to the
-     *  "start" section. 
-     **/
-    void showEvent(QShowEvent * event);
-
-private slots:
-    void onItemTrigerred();
-    void handleMouseMoveEvent(QMouseEvent *event);
-
-private:
-    Ui::Dash m_ui;
-    LxQt::Settings m_settings;
-    // TODO: arreglar este churre
-
-    bool built;
+	void enterEvent (QEvent* event);
 };
 
-#endif	/* _DASH_H */
+
+
+#endif // STARTBUTTON_H

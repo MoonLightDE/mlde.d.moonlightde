@@ -2,7 +2,7 @@
  * Copyright (C) 2014 Moonlight Desktop Environment Team
  * Authors:
  *      Alexis López Zubieta
- * 
+ *      Jorge Fernández Sánchex
  * This file is part of Moonlight Desktop Environment.
  *
  * Moonlight Desktop Environment is free software: you can redistribute it and/or modify
@@ -66,6 +66,9 @@ private:
 
     /* Panel properties */
     int mHeight;
+
+    //jfsanchez@estudiantes.uci.cu
+    bool visibleDash;
     
 };
 
