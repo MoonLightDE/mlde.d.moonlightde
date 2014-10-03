@@ -47,8 +47,8 @@ int main(int argc, char** argv) {
     app.setApplicationName(PROJEC_NAME);
     app.setApplicationVersion(PROJEC_VERSION);
 
-    app.setOrganizationName("MoonLight Desktop Environment");
-    app.setOrganizationDomain("org.moonlightde");
+    app.setOrganizationName("moonlightde.org");
+    app.setOrganizationDomain("moonlightde.org");
 
     // Parse arguments
     QHash<QString, QVariant> config;
@@ -96,7 +96,7 @@ int main(int argc, char** argv) {
         config["descriptorsPath"] = parser.value(modulesDescriptorsPathOption);
     }
 
-    Core::IController * core = new Controller(config);
+    Core::IController * core = new Core::Controller(config);
     core->start();
     return app.exec();
 }

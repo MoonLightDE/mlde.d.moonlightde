@@ -21,7 +21,8 @@
 
 #include "Controller.h"
 #include "ModuleManager.h"
-#include "../include/core/IQt5.h"
+#include "core/IQt5.h"
+#include "core/ModuleSettings.h"
 
 #include <usGetModuleContext.h>
 #include <usModuleContext.h>
@@ -32,16 +33,13 @@
 #include <QFile>
 
 using namespace us;
+using namespace Core;
 
 Controller::Controller(const QHash<QString, QVariant> &config) {
-    QString profile = config["profile"].toString();
-    if (QFile::exists(profile)) {
-        m_profile = new QSettings(profile, QSettings::NativeFormat, this);
-    } else {
-        m_profile = new QSettings(qApp->organizationName(), profile, this);
-    }
-
     ModuleContext * context = GetModuleContext();
+
+    ModuleSettings::setProfileName(config["profile"].toString());
+    m_profile = ModuleSettings::getModuleSettings(context);
 
     moduleManager = new ModuleManager(config);
     {
@@ -62,7 +60,7 @@ Controller::Controller(const QHash<QString, QVariant> &config) {
         m_configUi->show();
     } else {
         m_configUi = NULL;
-    
+
     }
 }
 

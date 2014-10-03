@@ -27,27 +27,28 @@
 
 #include <QString>
 #include <QHash>
+namespace Core {
 
-class Controller : public Core::IController {
-    Q_OBJECT
-    Q_INTERFACES(Core::IController)
-public:
-    Controller(const QHash<QString, QVariant> &config);
-    void start();
-    void finish();
-    virtual ~Controller();
+    class Controller : public Core::IController {
+        Q_OBJECT
+        Q_INTERFACES(Core::IController)
+    public:
+        Controller(const QHash<QString, QVariant> &config);
+        void start();
+        void finish();
+        virtual ~Controller();
 
-signals:
-    void started();
-    void finishing();
+    signals:
+        void started();
+        void finishing();
 
-private:
-    Core::IModuleManager * moduleManager;
-    QSettings * m_profile;
-    QStringList m_descriptorsPaths;
+    private:
+        Core::IModuleManager * moduleManager;
+        QSettings * m_profile;
+        QStringList m_descriptorsPaths;
 
-    CoreConfigurationUI * m_configUi;
-};
-
+        CoreConfigurationUI * m_configUi;
+    };
+}
 #endif	/* CORE_H */
 
