@@ -29,6 +29,7 @@ public slots:
 private slots:
     void ICore();
     void IModuleManager();
+    void ModuleManager() ;
 
 private:
     QHash<QString, QString> values;
