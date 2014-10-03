@@ -68,7 +68,7 @@ add_subdirectory(src/core)
 
 option(TEST_MODE "Build test modules?" OFF)
 if (TEST_MODE)
-    add_subdirectory(src/core-test)
+    add_subdirectory(test/core)
 endif(TEST_MODE)
 
 
@@ -87,7 +87,7 @@ add_subdirectory(src/panel-dash_xdg)
 #
 #add_subdirectory(src/actions_registry)
 #add_subdirectory(src/keyboard-shortcuts)
-#add_subdirectory(src/notifications)
+add_subdirectory(src/notifications)
 #add_subdirectory(src/file-manager)
 #add_subdirectory(src/runner)
 
