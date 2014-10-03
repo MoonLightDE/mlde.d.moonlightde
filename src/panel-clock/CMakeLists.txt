@@ -23,31 +23,13 @@ project(moonlightDE-${MODULE_NAME})
 ## --------------------------------------------------------------
 ## Sources
 ## --------------------------------------------------------------
-set(${PROJECT_NAME}_HEADERS
-    c++/calendar_utils.h
-    c++/lxqtclock.h
-    c++/lxqtclockconfiguration.h
-    c++/CalendarWidget.h
-)
-set(${PROJECT_NAME}_PUBLIC_HEADERS
-    
-)
+file(GLOB ${PROJECT_NAME}_PUBLIC_HEADERS ${CMAKE_SOURCE_DIR}/include/core/*.h)
 
-set(${PROJECT_NAME}_SOURCES 
-    c++/Activator.cpp
-    c++/calendar_utils.cpp
-    c++/lxqtclock.cpp
-    c++/lxqtclockconfiguration.cpp
-    c++/CalendarWidget.cpp
-)
+file(GLOB ${PROJECT_NAME}_SOURCES c++/*.cpp)
 
-set ( ${PROJEC_NAME}_UIS
-    ui/CalendarWidget.ui
-    ui/lxqtclockconfiguration.ui
-)
+file(GLOB ${PROJECT_NAME}_UIS ui/*.ui)
 
-set ( ${PROJEC_NAME}_RESOURCES
-)
+file(GLOB ${PROJECT_NAME}_RESOURCES res/*)
 
 include_directories(${INTERFACES_DIR})
 include_directories(${CMAKE_BINARY_DIR})
@@ -89,29 +71,27 @@ configure_file(cmake/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-QT5_WRAP_UI(${PROJEC_NAME}_UI_HEADERS ${${PROJEC_NAME}_UIS})
-QT5_ADD_RESOURCES(${PROJEC_NAME}_QRC_SOURCES ${${PROJEC_NAME}_RESOURCES})
+QT5_WRAP_UI(${PROJECT_NAME}_UI_HEADERS ${${PROJECT_NAME}_UIS})
+QT5_ADD_RESOURCES(${PROJECT_NAME}_QRC_SOURCES ${${PROJECT_NAME}_RESOURCES})
 
-usFunctionGenerateModuleInit( ${PROJECT_NAME}_SOURCES
-        NAME ${MODULE_FULL_NAME}
-        LIBRARY_NAME "${MODULE_NAME}"
-)
 
+## Inter-module dependencies
+set(${PROJECT_NAME}_DEPENDS )
 ## --------------------------------------------------------------
 ## Build & Link
 ## --------------------------------------------------------------
+set (${PROJECT_NAME}_SOURCES
+    ${${PROJECT_NAME}_SOURCES}
+    ${${PROJECT_NAME}_UI_HEADERS}
+    ${${PROJECT_NAME}_QRC_SOURCES}
+)
+
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/${MoonLightDEPrefix}/modules)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-add_library(${PROJECT_NAME} SHARED 
-    ${${PROJECT_NAME}_HEADERS}
-    ${${PROJECT_NAME}_PUBLIC_HEADERS}
-    ${${PROJECT_NAME}_SOURCES}
-    ${${PROJEC_NAME}_UI_HEADERS}
-    ${${PROJEC_NAME}_QRC_SOURCES}
-)
+MoonLightDE_CreateModule(${PROJECT_NAME} ${${PROJECT_NAME}_SOURCES})
 
-target_link_libraries( ${PROJECT_NAME} 
+target_link_libraries(moonlightDE-${PROJECT_NAME} 
     ${CppMicroServices_LIBRARIES}
     ${LXQT_LIBRARIES}
     ${QTXDG_LIBRARIES}
@@ -123,12 +103,3 @@ target_link_libraries( ${PROJECT_NAME}
     Qt5::DBus
     Qt5::X11Extras
 )
-## --------------------------------------------------------------
-## Deploy
-## --------------------------------------------------------------
-INSTALL(TARGETS ${PROJECT_NAME}
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION ${MODULES_OUTPUT_DIR}
-    ARCHIVE DESTINATION lib/static)
-
-INSTALL(FILES ${${PROJECT_NAME}_PUBLIC_HEADERS} DESTINATION include/${MoonLightDEPrefix} )
