@@ -35,8 +35,9 @@
 #include "calendar_utils.h"
 
 #include "core/ICore.h"
+#include "core/ModuleSettings.h"
 #include "panel/IPanel.h"
-#include "sidepanel/ISidePanel.h"
+#include "panel/ISidePanel.h"
 #include "CalendarWidget.h"
 
 #include <usModuleContext.h>
@@ -82,15 +83,7 @@ mCalendarWidget(0) {
     // Lookup for settings services
     ModuleContext * context = GetModuleContext();
 
-    ServiceReference<Core::ISettingsProfile> ref =
-            context->GetServiceReference<Core::ISettingsProfile>();
-    if (!ref) {
-        qWarning() << "Unable to find the SettingsProfile service.";
-    } else {
-        Core::ISettingsProfile * settingsProfile = context->GetService(ref);
-        m_settings = settingsProfile->getSettingsOf("Panel/Clock");
-    }
-
+    m_settings = ModuleSettings::getModuleSettings(context);    
 
     mRotatedWidget = new LxQt::RotatedWidget(*(new QWidget()), this);
     mContent = mRotatedWidget->content();
@@ -327,6 +320,7 @@ void LxQtClock::showCalendar() {
         qWarning() << "Unable to find the ISidePanel service.";
     } else {
         sidePanel = dynamic_cast<ISidePanel*> (context->GetService(ref));
+        Q_ASSERT(sidePanel != NULL);
     }
 
     if (mCalendarWidget.isNull()) {

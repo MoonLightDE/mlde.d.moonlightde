@@ -16,9 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Moonlight Desktop Environment.  If not, see <http://www.gnu.org/licenses/>.
 #
-set(MODULE_NAME PanelWidget_Clock)
-set(MODULE_FULL_NAME "MoonLightDE Clock Panel Widget")
-project(moonlightDE-${MODULE_NAME})
+project(PanelWidget_Clock)
 
 ## --------------------------------------------------------------
 ## Sources
@@ -85,9 +83,6 @@ set (${PROJECT_NAME}_SOURCES
     ${${PROJECT_NAME}_UI_HEADERS}
     ${${PROJECT_NAME}_QRC_SOURCES}
 )
-
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/${MoonLightDEPrefix}/modules)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 MoonLightDE_CreateModule(${PROJECT_NAME} ${${PROJECT_NAME}_SOURCES})
 
