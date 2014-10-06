@@ -19,7 +19,10 @@
  */
 
 #include "Panel.h"
-#include "panel/IPanel.h" 
+#include "SidePanel.h"
+
+#include "panel/IPanel.h"
+#include "panel/ISidePanel.h"
 
 #include <usModuleActivator.h>
 #include <usModuleContext.h>
@@ -27,6 +30,7 @@
 
 #include <QDebug>
 #include <QPointer>
+#include <qt5/QtCore/qpointer.h>
 
 US_USE_NAMESPACE
 /**
@@ -40,10 +44,11 @@ private:
      * @param context the framework context for the module.
      */
     void Load(ModuleContext* context) {
+        m_sidePanel = new SidePanel();
+        context->RegisterService<ISidePanel>(m_sidePanel, ServiceProperties());
+
         m_panel = new Panel();
-        
-        ServiceProperties props;
-        context->RegisterService<IPanel>(m_panel, props);
+        context->RegisterService<IPanel>(m_panel, ServiceProperties());
         
         m_panel.data()->show();
     }
@@ -58,5 +63,6 @@ private:
     }
 
     QPointer<Panel> m_panel;
+    QPointer<SidePanel> m_sidePanel;
 };
 US_EXPORT_MODULE_ACTIVATOR(panel, Activator)
