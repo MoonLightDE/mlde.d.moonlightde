@@ -42,10 +42,10 @@ public:
      * \retval QSettings* settings for the current module.
      * 
      * Usage:
-     *  #include <usGetModuleContext>
+     *  #include <usGetModuleContext.h>
      *  
-     *  us::ModuleContext *context = getModuleContext();
-     *  QSettings settings = getModuleSettings(context);
+     *  us::ModuleContext *context = us::getModuleContext();
+     *  QSettings *settings = ModuleSettings::getModuleSettings(context);
      *  
      *  ...
      * 
@@ -60,7 +60,10 @@ public:
      * \retval QSettings* settings for the current module.
      * 
      * Usage:
-     *  QSettings settings = getGlobalSettings();
+     *  #include <usGetModuleContext.h>
+     * 
+     *  us::ModuleContext *context = us::getModuleContext();
+     *  QSettings *settings = ModuleSettings::getGlobalSettings();
      *  
      *  ...
      * 
@@ -75,14 +78,10 @@ public:
      * \retval QSettings* settings for the current module.
      * 
      * Usage:
-     *  #include <usGetModuleContext>
+     *  #include <usGetModuleContext.h>
      *  
-     *  us::ModuleContext *context = getModuleContext();
-     *  QSettings settings = getModuleDataLocation(context);
-     *  
-     *  ...
-     * 
-     *  delete settings;
+     *  us::ModuleContext *context = us::getModuleContext();
+     *  QString dataLocation = ModuleSettings::getModuleDataLocation(context);
      * 
      */
     static QString getModuleDataLocation(us::ModuleContext * context);
