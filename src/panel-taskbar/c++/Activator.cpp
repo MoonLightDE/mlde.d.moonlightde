@@ -58,4 +58,4 @@ private:
 
     QPointer<LxQtTaskBar> m_taskbar;
 };
-US_EXPORT_MODULE_ACTIVATOR(PanelWidget_TaskBar, Activator)
+US_EXPORT_MODULE_ACTIVATOR(panelTaskBar, Activator)

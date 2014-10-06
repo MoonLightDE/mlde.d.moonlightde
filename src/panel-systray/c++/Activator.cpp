@@ -58,4 +58,4 @@ private:
 
     QPointer<LxQtTray> m_systray;
 };
-US_EXPORT_MODULE_ACTIVATOR(PanelWidget_SysTray, Activator)
+US_EXPORT_MODULE_ACTIVATOR(panelSysTray, Activator)

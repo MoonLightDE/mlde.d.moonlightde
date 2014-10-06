@@ -29,7 +29,7 @@
 #include "lxqttaskbar.h"
 #include "lxqttaskbutton.h"
 
-#include "core/ICore.h"
+#include "core/ModuleSettings.h"
 
 #include <qt5xdg/xdgicon.h>
 #include <LXQt/lxqtgridlayout.h>
@@ -63,15 +63,8 @@ mPlaceHolder(new LxQtTaskButton(0, this)) {
     // Lookup for settings services
     us::ModuleContext * context = us::GetModuleContext();
 
-    us::ServiceReference<Core::ISettingsProfile> ref =
-            context->GetServiceReference<Core::ISettingsProfile>();
-    if (!ref) {
-        qWarning() << "Unable to find the SettingsProfile service.";
-        m_settings = new QSettings(qApp->applicationName(), "Panel/Clock");
-    } else {
-        Core::ISettingsProfile * settingsProfile = context->GetService(ref);
-        m_settings = settingsProfile->getSettingsOf("Panel/Clock");
-    }
+
+    m_settings = ModuleSettings::getModuleSettings(context);
 
     // Install event filter
     qApp->installNativeEventFilter(this);
@@ -91,6 +84,7 @@ mPlaceHolder(new LxQtTaskButton(0, this)) {
 
  ************************************************/
 LxQtTaskBar::~LxQtTaskBar() {
+    delete m_settings;
 }
 
 /************************************************
@@ -268,17 +262,17 @@ void LxQtTaskBar::handlePropertyNotify(xcb_property_notify_event_t * event) {
             btn->handlePropertyNotify(event);
     }
 
-//        char* aname = XGetAtomName(QX11Info::display(), event->atom);
-//        qDebug() << "** XPropertyEvent ********************";
-//        qDebug() << "  atom:       0x" << hex << event->atom
-//                << " (" << (aname ? aname : "Unknown") << ')';
-//        qDebug() << "  window:    " << XfitMan::debugWindow(event->window);
-//        qDebug() << "  display:   " << event->display;
-//        qDebug() << "  send_event:" << event->send_event;
-//        qDebug() << "  serial:    " << event->serial;
-//        qDebug() << "  state:     " << event->state;
-//        qDebug() << "  time:      " << event->time;
-//        qDebug();
+    //        char* aname = XGetAtomName(QX11Info::display(), event->atom);
+    //        qDebug() << "** XPropertyEvent ********************";
+    //        qDebug() << "  atom:       0x" << hex << event->atom
+    //                << " (" << (aname ? aname : "Unknown") << ')';
+    //        qDebug() << "  window:    " << XfitMan::debugWindow(event->window);
+    //        qDebug() << "  display:   " << event->display;
+    //        qDebug() << "  send_event:" << event->send_event;
+    //        qDebug() << "  serial:    " << event->serial;
+    //        qDebug() << "  state:     " << event->state;
+    //        qDebug() << "  time:      " << event->time;
+    //        qDebug();
 
 }
 

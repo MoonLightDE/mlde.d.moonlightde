@@ -30,7 +30,7 @@
 #include "quicklaunchbutton.h"
 #include "quicklaunchaction.h"
 
-#include "core/ICore.h"
+#include "core/ModuleSettings.h"
 
 #include <LXQt/lxqtgridlayout.h>
 
@@ -65,19 +65,10 @@ mPlaceHolder(0) {
     mLayout = new LxQt::GridLayout(this);
     setLayout(mLayout);
 
-    // Lookup for settings services
-    QSettings *settings;
-    ModuleContext * context = GetModuleContext();
-
-    ServiceReference<Core::ISettingsProfile> ref =
-            context->GetServiceReference<Core::ISettingsProfile>();
-    if (!ref) {
-        qWarning() << "Unable to find the SettingsProfile service.";
-    } else {
-        Core::ISettingsProfile * settingsProfile = context->GetService(ref);
-        settings = settingsProfile->getSettingsOf("Panel/Clock");
-    }
     
+    ModuleContext * context = GetModuleContext();
+    QSettings *settings = ModuleSettings::getModuleSettings(context);
+
     int count = settings->beginReadArray("apps");
 
     QString desktop;
@@ -142,13 +133,13 @@ void LxQtQuickLaunch::realign() {
         mLayout->setColumnCount(1);
         mLayout->setRowCount(1);
     } else {
-//        if (panel->isHorizontal()) {
-//            mLayout->setRowCount(panel->lineCount());
-//            mLayout->setColumnCount(0);
-//        } else {
-//            mLayout->setColumnCount(panel->lineCount());
-//            mLayout->setRowCount(0);
-//        }
+        //        if (panel->isHorizontal()) {
+        //            mLayout->setRowCount(panel->lineCount());
+        //            mLayout->setColumnCount(0);
+        //        } else {
+        //            mLayout->setColumnCount(panel->lineCount());
+        //            mLayout->setRowCount(0);
+        //        }
     }
     mLayout->setEnabled(true);
 }
@@ -199,10 +190,10 @@ void LxQtQuickLaunch::dropEvent(QDropEvent *e) {
             filePath = url.toLocalFile();
         else
             filePath = url.toString();
-        
+
         QFileInfo fi(filePath);
         XdgDesktopFile * xdg = XdgDesktopFileCache::getFile(fi.fileName());
-        
+
 
         if (xdg->isValid()) {
             if (xdg->isApplicable())
@@ -276,18 +267,12 @@ void LxQtQuickLaunch::buttonMoveRight() {
 }
 
 void LxQtQuickLaunch::saveSettings() {
-    QSettings *settings;
+
     ModuleContext * context = GetModuleContext();
 
-    ServiceReference<Core::ISettingsProfile> ref =
-            context->GetServiceReference<Core::ISettingsProfile>();
-    if (!ref) {
-        qWarning() << "Unable to find the SettingsProfile service.";
-    } else {
-        Core::ISettingsProfile * settingsProfile = context->GetService(ref);
-        settings = settingsProfile->getSettingsOf("Panel/Clock");
-    }
-    
+    QSettings * settings = ModuleSettings::getModuleSettings(context);
+
+
     settings->remove("apps");
     settings->beginWriteArray("apps");
     int i = 0;
@@ -309,6 +294,7 @@ void LxQtQuickLaunch::saveSettings() {
     }
 
     settings->endArray();
+    delete settings;
 }
 
 void LxQtQuickLaunch::showPlaceHolder() {
