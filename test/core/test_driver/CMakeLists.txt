@@ -28,6 +28,7 @@ set(${PROJECT_NAME}_SOURCES
     Activator.cpp
     TestICore.h    
     TestICore.cpp
+    TestIntentFilter.cpp
 )
 
 set (${PROJECT_NAME}_UIS

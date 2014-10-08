@@ -6,7 +6,11 @@
  */
 
 #include "TestICore.h"
+
 #include "core/ModuleSettings.h"
+#include "core/Intent.h"
+#include "core/DefaultActions.h"
+#include "core/sendIntent.h"
 
 #include <usModuleContext.h>
 #include <usModuleActivator.h>
@@ -57,31 +61,44 @@ void TestICore::IModuleManager() {
     }
 }
 
-void TestICore::ModuleManager() {
+void TestICore::ModuleSettings() {
     ModuleContext * context = GetModuleContext();
     QSettings * settings = ModuleSettings::getModuleSettings(context);
     QVERIFY(settings != NULL);
 
     settings->setValue("TEST_KEY", "TEST_VALUE");
     delete settings;
-    
+
     settings = ModuleSettings::getModuleSettings(context);
     QString value = settings->value("TEST_KEY", "").toString();
     QVERIFY(value == "TEST_VALUE");
     delete settings;
-    
+
     QSettings * settingsGlobal = ModuleSettings::getGlobalSettings();
     QVERIFY(settingsGlobal != NULL);
 
     settingsGlobal->setValue("TEST_KEY", "TEST_VALUE");
     delete settingsGlobal;
-    
+
     settingsGlobal = ModuleSettings::getGlobalSettings();
     settingsGlobal->value("TEST_KEY", "").toString();
     QVERIFY(value == "TEST_VALUE");
     delete settingsGlobal;
-    
+
     QString resDir = ModuleSettings::getModuleDataLocation(context);
-    QDir dir (resDir);
+    QDir dir(resDir);
     QVERIFY(dir.exists());
+}
+
+void TestICore::IIntentFilter() {
+    using namespace Core;
+    Intent intent(DefaultActions::ACTION_OPEN, QString("file://test"));
+    
+    sendIntent(intent);
+    
+    Intent intent2;
+    intent2.SetAction(DefaultActions::ACTION_OPEN);
+    intent2.SetData("file:///home/user/music/letitbe.mp3");
+    intent2.SetType("music/mp3");
+    sendIntent(intent2);
 }

@@ -20,8 +20,13 @@
  */
 
 #include "TestICore.h"
+#include "TestIntentFilter.h"
+#include "core/DefaultActions.h"
 
+#include <usModule.h>
+#include <usModuleContext.h>
 #include <usModuleActivator.h>
+#include <usServiceProperties.h>
 
 #include <QDebug>
 #include <QSettings>
@@ -33,6 +38,7 @@ US_USE_NAMESPACE
 class Activator : public ModuleActivator {
 private:
     TestICore *test;
+    TestIntentFilter *filter;
 
     /**
      * Implements ModuleActivator::Load().
@@ -40,6 +46,20 @@ private:
      * @param context the framework context for the module.
      */
     void Load(ModuleContext* context) {
+        
+        filter = new TestIntentFilter();
+        ServiceProperties props;
+        props["Component"] = std::string("one");
+        props["Action"] = std::string(DefaultActions::ACTION_OPEN);
+        context->RegisterService<IIntentFilter>(filter, props);
+        
+//        
+        ServiceProperties props2;
+        props2["Component"] = std::string("two");
+        props2["Action"] = std::string(DefaultActions::ACTION_OPEN);
+        props2["Type"] = std::string("music/mp3");
+        context->RegisterService<IIntentFilter>(filter, props2);
+//        
         test = new TestICore();
         QTest::qExec(test, QStringList());
     }
@@ -50,8 +70,9 @@ private:
      * @param context the framework context for the module.
      */
     void Unload(ModuleContext* context) {
-        delete(test);
+        delete test;
+        delete filter;
     }
 
 };
-US_EXPORT_MODULE_ACTIVATOR( test_driver, Activator)
+US_EXPORT_MODULE_ACTIVATOR(test_driver, Activator)
