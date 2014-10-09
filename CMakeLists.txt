@@ -52,6 +52,8 @@ set(MoonLightDE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
 set(MoonLightDE_HEADERS_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/include")
 set(MoonLightDE_DESCRIPTORS_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/share/moonlightDE/descriptors")
 
+set(DBUS_INTERFACES_INSTALL_DIR "share/dbus-1/interfaces")
+
 foreach(_type ARCHIVE LIBRARY RUNTIME HEADERS)
   if(NOT CMAKE_${_type}_OUTPUT_DIRECTORY)
     set(CMAKE_${_type}_OUTPUT_DIRECTORY ${MoonLightDE_${_type}_OUTPUT_DIRECTORY})
@@ -72,13 +74,11 @@ if (TEST_MODE)
 endif(TEST_MODE)
 
 
-#add_subdirectory(src/sidepanel)
-#
 
-add_subdirectory(src/panel)
+#add_subdirectory(src/panel)
 #add_subdirectory(src/panel-clasic-menu)
-add_subdirectory(src/panel-dash_xdg)
-
+#add_subdirectory(src/panel-dash_xdg)
+#
 #add_subdirectory(src/panel-clock)
 #add_subdirectory(src/panel-menu)
 #add_subdirectory(src/panel-taskbar)
@@ -87,9 +87,11 @@ add_subdirectory(src/panel-dash_xdg)
 #
 #add_subdirectory(src/actions_registry)
 #add_subdirectory(src/keyboard-shortcuts)
-add_subdirectory(src/notifications)
+#add_subdirectory(src/notifications)
 #add_subdirectory(src/file-manager)
 #add_subdirectory(src/runner)
+
+add_subdirectory(src/remote)
 
 ## --------------------------------------------------------------
 ## Third Parthy
