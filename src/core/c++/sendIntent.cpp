@@ -30,7 +30,6 @@
 #include <usServiceProperties.h>
 #include <QStringList>
 
-#include <QDebug>
 #include <QStringList>
 #include <CppMicroServices/usModule.h>
 
@@ -52,7 +51,6 @@ void Core::sendIntent(Intent intent) {
         pattern << "(Component=" << intent.GetComponent() << ")";
     }
     pattern << ")";
-    qDebug() << pattern;
 
 
     std::vector<us::ServiceReference<IIntentFilter> > refs =
