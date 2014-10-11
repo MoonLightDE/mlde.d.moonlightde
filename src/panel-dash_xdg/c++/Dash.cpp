@@ -25,6 +25,7 @@
 #include "GridLayoutHExpanding.h"
 #include "GridLayoutVExpanding.h"
 
+#include <LXQt/PowerManager>
 #include <qt5xdg/XdgDesktopFile>
 
 #include <QDebug>
@@ -36,14 +37,16 @@
 #include <QRect>
 #include <QLabel>
 #include <QTime>
+#include <QMenu>
 #include <QTextStream>
 
- #include <QThread>
+#include <QThread>
 
 #include <algorithm>
 
 
 QTextStream cout(stdout);
+
 /**
  * As XdgDesktopFile doesn't provides the opperator < we must implement it here.
  */
@@ -60,6 +63,11 @@ Dash::Dash() : m_settings("panel-dash_xdg") {
     setWindowFlags(Qt::Popup);
     setFrameStyle(QFrame::NoFrame);
     built = false;
+
+    m_powerManager = new LxQt::PowerManager(this);
+    QMenu* leaveMenu = new QMenu(this);
+    leaveMenu->addActions(m_powerManager->availableActions());
+    m_ui.powerButton->setMenu(leaveMenu);
 }
 
 Dash::~Dash() {
@@ -74,17 +82,17 @@ void Dash::build() {
     const QSize iconSize(64, 64);
     const QSize boxSize(100, 100);
     const int maxColumnApps = m_ui.tabs->size().width() / (boxSize.width() + 32);
-    
+
     GridLayoutVExpanding* layoutApps = new GridLayoutVExpanding(maxColumnApps, m_ui.tabApps);
-    
+
     layoutApps->setSpacing(0);
     layoutApps->setMargin(16);
-    
+
     GridLayoutVExpanding* layoutSettings = new GridLayoutVExpanding(maxColumnApps, m_ui.tabSettings);
-    
+
     layoutSettings->setSpacing(0);
     layoutSettings->setMargin(16);
-    
+
     qDebug() << "Layouts init: " << time.elapsed();
     // Individual items are released inside the AppButton class
     QList<XdgDesktopFile*> appList = XdgDesktopFileCache::getAllFiles();
@@ -105,26 +113,26 @@ void Dash::build() {
         label->setWordWrap(true);
         label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
         label->setMaximumSize(boxSize.width(), 35);
-        
+
         bttn->setFlat(true);
         bttn->setIconSize(iconSize);
         bttn->setMinimumSize(boxSize);
         bttn->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 
         connect(bttn, &AppButton::released, this, &Dash::hide);
-        
+
         //Layout for widget
-        QVBoxLayout* vBoxLayout = new QVBoxLayout();            
+        QVBoxLayout* vBoxLayout = new QVBoxLayout();
         vBoxLayout->addWidget(bttn);
         vBoxLayout->addWidget(label);
-        
+
         QString appCategories = app->value("Categories", "None").toString();
-        
+
         if (appCategories.contains("Settings", Qt::CaseInsensitive)) {
-            
+
             layoutSettings->addLayout(vBoxLayout);
         } else {
-            
+
             layoutApps->addLayout(vBoxLayout);
         }
 
@@ -133,13 +141,13 @@ void Dash::build() {
 
     qDebug() << "appcontainerSize" << m_ui.tabs->size();
 
-    m_ui.apps->setGeometry(0, 0, m_ui.scrollArea->size().width() - (layoutApps->spacing() * maxColumnApps) 
-                         , layoutApps->getCurrentRow() * boxSize.height());
+    m_ui.apps->setGeometry(0, 0, m_ui.scrollArea->size().width() - (layoutApps->spacing() * maxColumnApps)
+            , layoutApps->getCurrentRow() * boxSize.height());
     m_ui.apps->setLayout(layoutApps);
 
 
     m_ui.settings->setGeometry(0, 0, m_ui.scrollAreaSettings->size().width()
-                             , layoutApps->getCurrentRow() * boxSize.height());
+            , layoutApps->getCurrentRow() * boxSize.height());
     m_ui.settings->setLayout(layoutSettings);
 
 }
@@ -203,8 +211,7 @@ void Dash::showEvent(QShowEvent * event) {
 
 //jfsanchez@estudiantes.uci.cu
 
-void Dash::hideEvent(QHideEvent *event)
-{
+void Dash::hideEvent(QHideEvent *event) {
     qDebug() << "hideEvent()";
     QThread::msleep(1);
     QFrame::hideEvent(event);

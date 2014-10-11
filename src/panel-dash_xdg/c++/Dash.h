@@ -25,6 +25,7 @@
 #define	_DASH_H
 
 #include "ui_Dash.h"
+#include <LXQt/lxqtpowermanager.h>
 
 #include <QFrame>
 #include <LXQt/Settings>
@@ -55,6 +56,7 @@ private slots:
 private:
     Ui::Dash m_ui;
     LxQt::Settings m_settings;
+    LxQt::PowerManager *m_powerManager;
     // TODO: arreglar este churre
 
     bool built;

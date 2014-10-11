@@ -64,6 +64,13 @@
        </property>
       </spacer>
      </item>
+     <item>
+      <widget class="QPushButton" name="powerButton">
+       <property name="text">
+        <string>Power</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -122,8 +129,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>422</width>
-              <height>344</height>
+              <width>98</width>
+              <height>28</height>
              </rect>
             </property>
            </widget>
@@ -159,7 +166,7 @@
               <x>0</x>
               <y>0</y>
               <width>384</width>
-              <height>346</height>
+              <height>354</height>
              </rect>
             </property>
            </widget>
@@ -182,8 +189,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>422</width>
-              <height>344</height>
+              <width>98</width>
+              <height>28</height>
              </rect>
             </property>
            </widget>
