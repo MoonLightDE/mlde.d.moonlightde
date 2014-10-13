@@ -17,13 +17,11 @@
 #    along with Moonlight Desktop Environment.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-project(panel_dash_xdg)
+project(theme_manager)
 
 ## --------------------------------------------------------------
 ## Sources
 ## --------------------------------------------------------------
-file(GLOB ${PROJECT_NAME}_PUBLIC_HEADERS ${CMAKE_SOURCE_DIR}/include/core/*.h)
-
 file(GLOB ${PROJECT_NAME}_SOURCES c++/*.cpp)
 
 file(GLOB ${PROJECT_NAME}_UIS ui/*.ui)
@@ -49,15 +47,6 @@ include_directories(${CppMicroServices_INCLUDE_DIRS})
 ## LXQT -- depends on QT5XDG
 find_package(LXQT-QT5 REQUIRED )
 include(${LXQT_USE_FILE})
-
-## Menu-Cache
-find_package(PkgConfig)
-pkg_check_modules(MENU_CACHE REQUIRED
-    libmenu-cache>=0.3.3
-)
-include_directories(${MENU_CACHE_INCLUDE_DIRS})
-add_definitions(-DHAVE_MENU_CACHE=1)
-
 
 ## Inter-module dependencies
 set(${PROJECT_NAME}_DEPENDS )
@@ -85,9 +74,7 @@ set (${PROJECT_NAME}_SOURCES
 MoonLightDE_CreateModule(${PROJECT_NAME} ${${PROJECT_NAME}_SOURCES})
 
 target_link_libraries(moonlightDE-${PROJECT_NAME} 
-    ${CppMicroServices_LIBRARIES}
     ${LXQT_LIBRARIES}
-    ${MENU_CACHE_LIBRARIES}
 
     Qt5::Core
     Qt5::Widgets
