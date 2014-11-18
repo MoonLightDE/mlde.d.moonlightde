@@ -64,13 +64,6 @@
        </property>
       </spacer>
      </item>
-     <item>
-      <widget class="QPushButton" name="powerButton">
-       <property name="text">
-        <string>Power</string>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
    <item>
@@ -100,7 +93,7 @@
         <enum>QTabWidget::Rounded</enum>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>2</number>
        </property>
        <property name="elideMode">
         <enum>Qt::ElideNone</enum>
@@ -120,21 +113,7 @@
         </attribute>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
-          <widget class="QScrollArea" name="scrollAreaStart">
-           <property name="widgetResizable">
-            <bool>true</bool>
-           </property>
-           <widget class="QWidget" name="start">
-            <property name="geometry">
-             <rect>
-              <x>0</x>
-              <y>0</y>
-              <width>98</width>
-              <height>28</height>
-             </rect>
-            </property>
-           </widget>
-          </widget>
+          <widget class="QListView" name="StartView"/>
          </item>
         </layout>
        </widget>
@@ -144,33 +123,7 @@
         </attribute>
         <layout class="QHBoxLayout" name="horizontalLayout_5">
          <item>
-          <widget class="QScrollArea" name="scrollArea">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Plain</enum>
-           </property>
-           <property name="lineWidth">
-            <number>0</number>
-           </property>
-           <property name="widgetResizable">
-            <bool>true</bool>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <widget class="QWidget" name="apps">
-            <property name="geometry">
-             <rect>
-              <x>0</x>
-              <y>0</y>
-              <width>384</width>
-              <height>354</height>
-             </rect>
-            </property>
-           </widget>
-          </widget>
+          <widget class="QListView" name="AppView"/>
          </item>
         </layout>
        </widget>
@@ -180,21 +133,7 @@
         </attribute>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
-          <widget class="QScrollArea" name="scrollAreaSettings">
-           <property name="widgetResizable">
-            <bool>true</bool>
-           </property>
-           <widget class="QWidget" name="settings">
-            <property name="geometry">
-             <rect>
-              <x>0</x>
-              <y>0</y>
-              <width>98</width>
-              <height>28</height>
-             </rect>
-            </property>
-           </widget>
-          </widget>
+          <widget class="QListView" name="SettingsView"/>
          </item>
         </layout>
        </widget>

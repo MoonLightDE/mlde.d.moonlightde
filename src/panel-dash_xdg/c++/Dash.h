@@ -1,34 +1,23 @@
-/*
- * Copyright (C) 2014 Moonlight Desktop Environment Team
- * Authors:
- *      Alexis López Zubieta
- *      Jorge Fernández Sánchez
- * This file is part of Moonlight Desktop Environment.
+/* 
+ * File:   Dash.h
+ * Author: alexis
  *
- * Moonlight Desktop Environment is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Moonlight Desktop Environment is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
+ * Created on 10 de septiembre de 2014, 16:21
  */
-
-
 
 #ifndef _DASH_H
 #define	_DASH_H
 
 #include "ui_Dash.h"
-#include <LXQt/lxqtpowermanager.h>
 
 #include <QFrame>
 #include <LXQt/Settings>
+#include <QFileSystemWatcher>
+#include "GridLayoutHExpanding.h"
+#include "GridLayoutVExpanding.h"
+#include "DesktopFileCollection.h"
+#include "DashViewModel.h"
+#include <QListView>
 
 class Dash : public QFrame {
     Q_OBJECT
@@ -37,9 +26,14 @@ public:
     virtual ~Dash();
 
     void build();
-    void free();
+    void configView(QListView* view);
+    void buildSearch(QString search);
+    void cleanApps();
+    void addFavorites(XdgDesktopFile* app);
+    void getFavorites();
     void hideEvent(QHideEvent *event);
-
+    
+    
 protected:
     /** 
      * Description: 
@@ -50,16 +44,34 @@ protected:
     void showEvent(QShowEvent * event);
 
 private slots:
-    void onItemTrigerred();
+    void onAppItemTrigerred(const QModelIndex& item);
+    void onSettingsItemTrigerred(const QModelIndex& item);
+    void onStartItemTrigerred(const QModelIndex& item);
     void handleMouseMoveEvent(QMouseEvent *event);
+    void onApplicationsFolderChanged();
+    void searchEditChanged(QString);
+    void removeFavorites(XdgDesktopFile* app);
+    
+    void showContextMenuForApp(QPoint);
+    void showContextMenuForStart(QPoint);
+    
+    void addFavorite();
+    void removeFavorite();
 
 private:
+    QFileSystemWatcher* monitor;
+    DashViewModel* appDashModel;
+    DashViewModel* settingsDashModel;
+    DashViewModel* startDashModel;
+        
     Ui::Dash m_ui;
     LxQt::Settings m_settings;
-    LxQt::PowerManager *m_powerManager;
     // TODO: arreglar este churre
-
     bool built;
+    int appIndex;
+    DesktopFileCollection* appListGenerator;
+    void putFavorites(QList<XdgDesktopFile*> favAppList);
+    
 };
 
 #endif	/* _DASH_H */

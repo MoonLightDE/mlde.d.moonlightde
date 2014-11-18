@@ -16,15 +16,25 @@ class AppButton : public QPushButton {
     Q_OBJECT
 public:
     AppButton(XdgDesktopFile* item, QWidget* parent = 0);
+    AppButton(XdgDesktopFile* item, bool remove, QWidget* parent = 0);
     virtual ~AppButton();
+    void mouseReleaseEvent(QMouseEvent* event);
 
 protected slots:
-    void onClick();
+    void addFavoritesAction();
+    void rightClickAction();
+    void handleMenuFavorites();
+    void removeFromFavorites();
 
+signals:
+    void pushFavorites(XdgDesktopFile* app);
+    void removeFavorites(XdgDesktopFile* app);
+    
 private:
     XdgDesktopFile* m_desktopFile;
-    
-
+    QMenu* menu;
+    //Optional attribute to check if the application is already in favorites
+    //bool isFavorite;
 };
 
 #endif	/* APPBUTTON_H */

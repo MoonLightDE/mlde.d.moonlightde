@@ -1,31 +1,23 @@
 /*
- * Copyright (C) 2014 Moonlight Desktop Environment Team
- * Authors:
- *      Alexis López Zubieta
- *      Jorge Fernández Sánchez
- * This file is part of Moonlight Desktop Environment.
+ * File:   Dash.cpp
+ * Author: alexis
  *
- * Moonlight Desktop Environment is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Moonlight Desktop Environment is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
+ * Created on 10 de septiembre de 2014, 16:21
  */
-
 
 #include "Dash.h"
 #include "AppButton.h"
 #include "GridLayoutHExpanding.h"
 #include "GridLayoutVExpanding.h"
+#include "DesktopFileCollection.h"
 
-#include <LXQt/PowerManager>
+#include "qevent.h"
+#include "qdir.h"
+#include "core/ModuleSettings.h"
+#include "DashViewModel.h"
+#include "DashViewItemDelegate.h"
+
+
 #include <qt5xdg/XdgDesktopFile>
 
 #include <QDebug>
@@ -37,12 +29,19 @@
 #include <QRect>
 #include <QLabel>
 #include <QTime>
-#include <QMenu>
 #include <QTextStream>
+#include <QListView>
+#include <QMenu>
+
+#include <algorithm>
+
+#include <stdlib.h>
+#include <string.h>
+#include <limits.h>
 
 #include <QThread>
 
-#include <algorithm>
+#include <usGetModuleContext.h>
 
 
 QTextStream cout(stdout);
@@ -59,110 +58,176 @@ struct XdgDesktopFileComparisonFunctor {
 };
 
 Dash::Dash() : m_settings("panel-dash_xdg") {
+    startDashModel = NULL;
+    appDashModel = NULL;
+    settingsDashModel = NULL;
+
     m_ui.setupUi(this);
     setWindowFlags(Qt::Popup);
     setFrameStyle(QFrame::NoFrame);
     built = false;
 
-    m_powerManager = new LxQt::PowerManager(this);
-    QMenu* leaveMenu = new QMenu(this);
-    leaveMenu->addActions(m_powerManager->availableActions());
-    m_ui.powerButton->setMenu(leaveMenu);
+    monitor = new QFileSystemWatcher();
+    monitor->addPath("/usr/share/applications");
+    connect(m_ui.lineEdit, SIGNAL(textChanged(QString)), SLOT(searchEditChanged(QString)));
+    connect(monitor, SIGNAL(directoryChanged(QString)), SLOT(onApplicationsFolderChanged()));
+    appListGenerator = new DesktopFileCollection();
+    getFavorites();
+    appIndex = -1;
 }
 
 Dash::~Dash() {
 }
 
+void Dash::configView(QListView* view) {
+    view->setViewMode(QListView::IconMode);
+    view->setSpacing(20);
+    view->setIconSize(QSize(48, 48));
+
+    // TODO: Implement an item delegate to give an apropiated size to the
+    //  items.
+    view->setUniformItemSizes(true);
+    view->setWrapping(true);
+    view->setSelectionMode(QAbstractItemView::NoSelection);
+    view->setSelectionBehavior(QAbstractItemView::SelectItems);
+
+    view->setTextElideMode(Qt::ElideMiddle);
+    view->setWordWrap(true);
+
+    view->setMovement(QListView::Static);
+    view->setResizeMode(QListView::Adjust);
+    //    view->setSelectionMode(QAbstractItemView::ContiguousSelection);
+
+    view->setLayoutMode(QListView::Batched);
+    view->setBatchSize(20);
+
+    view->setContextMenuPolicy(Qt::CustomContextMenu);
+    view->setItemDelegate(new DashViewItemDelegate());
+}
+
 void Dash::build() {
-    QTime time;
-    time.start();
+    configView(m_ui.AppView);
+    configView(m_ui.SettingsView);
+    configView(m_ui.StartView);
 
-    const QRect screen = qApp->desktop()->screenGeometry();
+    QList<XdgDesktopFile*> appList = appListGenerator->all();
 
-    const QSize iconSize(64, 64);
-    const QSize boxSize(100, 100);
-    const int maxColumnApps = m_ui.tabs->size().width() / (boxSize.width() + 32);
+    appDashModel = new DashViewModel(appList);
+    m_ui.AppView->setModel(appDashModel);
 
-    GridLayoutVExpanding* layoutApps = new GridLayoutVExpanding(maxColumnApps, m_ui.tabApps);
+    QHash<QString, QString>* filters = new QHash<QString, QString>();
+    filters->insert(QString("Categories"), "Settings");
+    QList<XdgDesktopFile*> settingsList = appListGenerator->filter(*filters);
 
-    layoutApps->setSpacing(0);
-    layoutApps->setMargin(16);
+    settingsDashModel = new DashViewModel(settingsList);
+    m_ui.SettingsView->setModel(settingsDashModel);
 
-    GridLayoutVExpanding* layoutSettings = new GridLayoutVExpanding(maxColumnApps, m_ui.tabSettings);
+    connect(m_ui.AppView, SIGNAL(clicked(const QModelIndex&)), SLOT(onAppItemTrigerred(const QModelIndex&)));
+    connect(m_ui.SettingsView, SIGNAL(clicked(const QModelIndex&)), SLOT(onSettingsItemTrigerred(const QModelIndex&)));
+    connect(m_ui.StartView, SIGNAL(clicked(const QModelIndex&)), SLOT(onStartItemTrigerred(const QModelIndex&)));
 
-    layoutSettings->setSpacing(0);
-    layoutSettings->setMargin(16);
+    connect(m_ui.AppView, SIGNAL(customContextMenuRequested(QPoint)),
+            SLOT(showContextMenuForApp(QPoint)));
 
-    qDebug() << "Layouts init: " << time.elapsed();
-    // Individual items are released inside the AppButton class
-    QList<XdgDesktopFile*> appList = XdgDesktopFileCache::getAllFiles();
-    std::sort(appList.begin(), appList.end(), XdgDesktopFileComparisonFunctor());
-    //    qSort(appList.begin(), appList.end());
-    qDebug() << "XdgDesktopFile lockup: " << time.elapsed();
+    connect(m_ui.StartView, SIGNAL(customContextMenuRequested(QPoint)),
+            SLOT(showContextMenuForStart(QPoint)));
 
-    foreach(XdgDesktopFile * app, appList) {
-        if (app->type() != XdgDesktopFile::ApplicationType) {
-            delete app;
-            continue;
-        }
-        AppButton *bttn = new AppButton(app, this);
+}
 
-        QLabel *label = new QLabel(app->name());
-        label->setAlignment(Qt::AlignHCenter);
+void Dash::showContextMenuForApp(QPoint pos) {
+    qDebug() << "showContextMenuForApp " << pos.x() << " " << pos.y();
+    appIndex = m_ui.AppView->indexAt(mapFromGlobal(pos)).row() - 1; //esto no mapea bien la posicion
+    qDebug() << appIndex;
 
-        label->setWordWrap(true);
-        label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
-        label->setMaximumSize(boxSize.width(), 35);
-
-        bttn->setFlat(true);
-        bttn->setIconSize(iconSize);
-        bttn->setMinimumSize(boxSize);
-        bttn->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-
-        connect(bttn, &AppButton::released, this, &Dash::hide);
-
-        //Layout for widget
-        QVBoxLayout* vBoxLayout = new QVBoxLayout();
-        vBoxLayout->addWidget(bttn);
-        vBoxLayout->addWidget(label);
-
-        QString appCategories = app->value("Categories", "None").toString();
-
-        if (appCategories.contains("Settings", Qt::CaseInsensitive)) {
-
-            layoutSettings->addLayout(vBoxLayout);
-        } else {
-
-            layoutApps->addLayout(vBoxLayout);
-        }
-
+    if (appIndex >= 0) {
+        QMenu* contextMenu = new QMenu();
+        QAction* addAction = new QAction(tr("Add to favorites"), this);
+        connect(addAction, SIGNAL(triggered()), SLOT(addFavorite()));
+        contextMenu->addAction(addAction);
+        contextMenu->exec(mapToGlobal(pos));
     }
-    qDebug() << "Layouts built: " << time.elapsed();
-
-    qDebug() << "appcontainerSize" << m_ui.tabs->size();
-
-    m_ui.apps->setGeometry(0, 0, m_ui.scrollArea->size().width() - (layoutApps->spacing() * maxColumnApps)
-            , layoutApps->getCurrentRow() * boxSize.height());
-    m_ui.apps->setLayout(layoutApps);
-
-
-    m_ui.settings->setGeometry(0, 0, m_ui.scrollAreaSettings->size().width()
-            , layoutApps->getCurrentRow() * boxSize.height());
-    m_ui.settings->setLayout(layoutSettings);
-
 }
 
-void Dash::free() {
+void Dash::showContextMenuForStart(QPoint pos) {
+    if (m_ui.lineEdit->text().length() == 0) {
+        qDebug() << "showContextMenuForApp " << pos.x() << " " << pos.y();
+        appIndex = m_ui.StartView->indexAt(mapFromGlobal(pos)).row() - 1;
+        qDebug() << appIndex;
 
+        if (appIndex >= 0) {
+            QMenu* contextMenu = new QMenu();
+            QAction* addAction = new QAction(tr("Remove from favorites"), this);
+            connect(addAction, SIGNAL(triggered()), SLOT(removeFavorite()));
+            contextMenu->addAction(addAction);
+            contextMenu->exec(mapToGlobal(pos));
+        }
+    }
 }
 
-void Dash::onItemTrigerred() {
-    //    XdgCachedMenuAction* action = static_cast<XdgCachedMenuAction*> (sender());
-    //    XdgDesktopFile df;
-    //    char* desktop_file = menu_cache_item_get_file_path(action->item());
-    //    df.load(desktop_file);
-    //    g_free(desktop_file);
-    //    df.startDetached();
+void Dash::addFavorite() {
+    if (appIndex >= 0) {
+        XdgDesktopFile* theApp = appDashModel->getDesktop(appIndex);
+        qDebug() << "app" << appIndex << " -->> " << theApp->name();
+        addFavorites(theApp);
+        getFavorites();
+        appIndex = -1;
+    }
+}
+
+void Dash::removeFavorite() {
+    if (appIndex >= 0) {
+        XdgDesktopFile* theApp = startDashModel->getDesktop(appIndex);
+        qDebug() << "app" << appIndex << " -->> " << theApp->name();
+        removeFavorites(theApp);
+        getFavorites();
+        appIndex = -1;
+    }
+}
+
+void Dash::cleanApps() {
+    if (appDashModel != NULL) {
+        appDashModel->clear();
+    }
+
+    if (settingsDashModel != NULL) {
+        settingsDashModel->clear();
+    }
+}
+
+void Dash::buildSearch(QString search) {
+    QList<XdgDesktopFile*> startList;
+    if (search.length() == 0) {
+        startList = QList<XdgDesktopFile*>();
+    } else {
+        QHash<QString, QString>* filters = new QHash<QString, QString>();
+        filters->insert(QString("Name"), search);
+        filters->insert(QString("Categories"), search);
+        filters->insert(QString("Comment"), search);
+        startList = appListGenerator->filter(*filters);
+    }
+
+    startDashModel = new DashViewModel(startList);
+    delete m_ui.StartView->model();
+    m_ui.StartView->setModel(startDashModel);
+}
+
+void Dash::onAppItemTrigerred(const QModelIndex& item) {
+    qDebug() << "AppItemTrigerred" << item.row();
+    qDebug() << appDashModel->getDesktop(item.row())->name();
+    appDashModel->getDesktop(item.row())->startDetached();
+    m_ui.AppView->clearSelection();
+}
+
+void Dash::onSettingsItemTrigerred(const QModelIndex& item) {
+    qDebug() << "SettingsItemTrigerred" << item.row();
+    settingsDashModel->getDesktop(item.row())->startDetached();
+    m_ui.SettingsView->clearSelection();
+}
+
+void Dash::onStartItemTrigerred(const QModelIndex& item) {
+    qDebug() << "StartItemTrigerred" << item.row();
+    startDashModel->getDesktop(item.row())->startDetached();
+    m_ui.StartView->clearSelection();
 }
 
 // taken from libqtxdg: XdgMenuWidget
@@ -170,6 +235,86 @@ void Dash::onItemTrigerred() {
 
 
 // taken from libqtxdg: XdgMenuWidget
+
+void Dash::addFavorites(XdgDesktopFile* app) {
+    us::ModuleContext* context = us::GetModuleContext();
+    const QString ruta(ModuleSettings::getModuleDataLocation(context));
+
+    const QString appName(app->fileName());
+    QDir* dir = new QDir(ruta);
+    dir->mkdir("favs");
+    QFile* file = new QFile(appName);
+    if (file->copy(dir->absolutePath() + "/favs/" + app->name().toLower())) {
+        qDebug() << "Archivo copiado";
+    } else {
+        qDebug() << "Error";
+    }
+}
+
+//Get all favorite apps in the directory and paint them on start widget
+
+void Dash::getFavorites() {
+
+    us::ModuleContext* context = us::GetModuleContext();
+    const QString ruta(ModuleSettings::getModuleDataLocation(context) + "/favs");
+
+    qDebug() << "Ruta: " << endl;
+    qDebug() << ruta;
+    QDir* favsDir = new QDir(ruta);
+
+    QFileInfoList list = favsDir->entryInfoList(QDir::Files, QDir::Name);
+    QList<XdgDesktopFile*> favAppList;
+
+    if (!list.empty()) {
+
+        foreach(QFileInfo app, list) {
+            const QString cadena(app.filePath());
+            //You have to specify the absolute path to the file, otherwise it wont work
+            XdgDesktopFile* fav = XdgDesktopFileCache::getFile(cadena);
+            favAppList.append(fav);
+        }
+    }
+    //Call method putFavorites
+    putFavorites(favAppList);
+}
+
+//jfsanchez@estudiantes.uci.cu
+
+void Dash::hideEvent(QHideEvent *event) {
+    qDebug() << "hideEvent()";
+    QThread::msleep(1);
+    QFrame::hideEvent(event);
+}
+
+void Dash::putFavorites(QList<XdgDesktopFile*> favAppList) {
+
+    startDashModel = new DashViewModel(favAppList);
+    delete m_ui.StartView->model();
+    m_ui.StartView->setModel(startDashModel);
+}
+
+//TODO: Dinamically update the start widget showing|unshowing the favorites
+
+void Dash::removeFavorites(XdgDesktopFile* app) {
+    qDebug() << "Certainly YOU SHALL NOT PASS!!!!";
+    us::ModuleContext* context = us::GetModuleContext();
+    const QString ruta(ModuleSettings::getModuleDataLocation(context) + "/favs");
+
+    QDir* favsDir = new QDir(ruta);
+
+    QFileInfoList list = favsDir->entryInfoList(QDir::Files, QDir::Name);
+
+    foreach(QFileInfo file, list) {
+        //        qDebug() << file.fileName();
+        //        qDebug() << app->name();
+        if (file.fileName() == app->name().toLower()) {
+            qDebug() << "You should buy a pet :P";
+            const QString ruta(app->fileName());
+            QFile* archive = new QFile(ruta);
+            archive->remove();
+        }
+    }
+}
 
 void Dash::handleMouseMoveEvent(QMouseEvent *event) {
     //    if (!(event->buttons() & Qt::LeftButton))
@@ -201,18 +346,31 @@ void Dash::showEvent(QShowEvent * event) {
     if (!built) {
         build();
         built = true;
+    } else {
+        //no recuerdo pa q era esto
+        cleanApps();
+        build();
+        getFavorites();
     }
 
     m_ui.tabs->setCurrentWidget(m_ui.tabStart);
+    m_ui.lineEdit->setFocus();
     show();
 }
 
+void Dash::onApplicationsFolderChanged() {
+    qDebug() << "Applications folder changed";
+    cleanApps();
+    build();
+}
 
-
-//jfsanchez@estudiantes.uci.cu
-
-void Dash::hideEvent(QHideEvent *event) {
-    qDebug() << "hideEvent()";
-    QThread::msleep(1);
-    QFrame::hideEvent(event);
+void Dash::searchEditChanged(QString asearch) {
+    qDebug() << "search edit changed " << asearch;
+    if (asearch.length() > 0) {
+        qDebug() << "searching for " << asearch;
+        m_ui.tabs->setCurrentIndex(0);
+        buildSearch(asearch);
+    } else {
+        getFavorites();
+    }
 }

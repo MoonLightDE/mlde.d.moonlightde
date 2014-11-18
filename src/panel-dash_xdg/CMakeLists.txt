@@ -15,7 +15,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with Moonlight Desktop Environment.  If not, see <http://www.gnu.org/licenses/>.
-#
+#  
 
 project(panel_dash_xdg)
 
