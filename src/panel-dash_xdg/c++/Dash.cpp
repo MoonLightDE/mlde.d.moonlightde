@@ -44,6 +44,7 @@
 #include <usGetModuleContext.h>
 
 
+
 QTextStream cout(stdout);
 
 /**
@@ -88,7 +89,8 @@ void Dash::configView(QListView* view) {
     //  items.
     view->setUniformItemSizes(true);
     view->setWrapping(true);
-    view->setSelectionMode(QAbstractItemView::NoSelection);
+    //    view->setSelectionMode(QAbstractItemView::NoSelection);
+    view->setSelectionMode(QAbstractItemView::SingleSelection);
     view->setSelectionBehavior(QAbstractItemView::SelectItems);
 
     view->setTextElideMode(Qt::ElideMiddle);
@@ -122,11 +124,17 @@ void Dash::build() {
     settingsDashModel = new DashViewModel(settingsList);
     m_ui.SettingsView->setModel(settingsDashModel);
 
-    connect(m_ui.AppView, SIGNAL(clicked(const QModelIndex&)), SLOT(onAppItemTrigerred(const QModelIndex&)));
-    connect(m_ui.SettingsView, SIGNAL(clicked(const QModelIndex&)), SLOT(onSettingsItemTrigerred(const QModelIndex&)));
-    connect(m_ui.StartView, SIGNAL(clicked(const QModelIndex&)), SLOT(onStartItemTrigerred(const QModelIndex&)));
+    connect(m_ui.AppView, SIGNAL(doubleClicked(const QModelIndex&)), SLOT(onAppItemTrigerred(const QModelIndex&)));
+    connect(m_ui.SettingsView, SIGNAL(doubleClicked(const QModelIndex&)), SLOT(onSettingsItemTrigerred(const QModelIndex&)));
+    connect(m_ui.StartView, SIGNAL(doubleClicked(const QModelIndex&)), SLOT(onStartItemTrigerred(const QModelIndex&)));
+    //    connect(m_ui.AppView, SIGNAL(clicked(const QModelIndex&)), SLOT(onAppItemTrigerred(const QModelIndex&)));
+    //    connect(m_ui.SettingsView, SIGNAL(clicked(const QModelIndex&)), SLOT(onSettingsItemTrigerred(const QModelIndex&)));
+    //    connect(m_ui.StartView, SIGNAL(clicked(const QModelIndex&)), SLOT(onStartItemTrigerred(const QModelIndex&)));
 
     connect(m_ui.AppView, SIGNAL(customContextMenuRequested(QPoint)),
+            SLOT(showContextMenuForApp(QPoint)));
+
+    connect(m_ui.SettingsView, SIGNAL(customContextMenuRequested(QPoint)),
             SLOT(showContextMenuForApp(QPoint)));
 
     connect(m_ui.StartView, SIGNAL(customContextMenuRequested(QPoint)),
@@ -136,7 +144,15 @@ void Dash::build() {
 
 void Dash::showContextMenuForApp(QPoint pos) {
     qDebug() << "showContextMenuForApp " << pos.x() << " " << pos.y();
-    appIndex = m_ui.AppView->indexAt(mapFromGlobal(pos)).row() - 1; //esto no mapea bien la posicion
+    if (m_ui.tabs->currentIndex() == 1) {
+        if (m_ui.AppView->selectionModel()->selectedIndexes().length() >= 1) {
+            appIndex = m_ui.AppView->selectionModel()->selectedIndexes().at(0).row();
+        }
+    } else {
+        if (m_ui.SettingsView->selectionModel()->selectedIndexes().length() >= 1) {
+            appIndex = m_ui.SettingsView->selectionModel()->selectedIndexes().at(0).row();
+        }
+    }
     qDebug() << appIndex;
 
     if (appIndex >= 0) {
@@ -149,26 +165,41 @@ void Dash::showContextMenuForApp(QPoint pos) {
 }
 
 void Dash::showContextMenuForStart(QPoint pos) {
-    if (m_ui.lineEdit->text().length() == 0) {
-        qDebug() << "showContextMenuForApp " << pos.x() << " " << pos.y();
-        appIndex = m_ui.StartView->indexAt(mapFromGlobal(pos)).row() - 1;
-        qDebug() << appIndex;
+    qDebug() << "showContextMenuForApp " << pos.x() << " " << pos.y();
+    //    appIndex = m_ui.StartView->indexAt(mapFromGlobal(pos)).row() - 1;
+    if (m_ui.StartView->selectionModel()->selectedIndexes().length() >= 1) {
+        appIndex = m_ui.StartView->selectionModel()->selectedIndexes().at(0).row();
+    }
+    qDebug() << appIndex;
 
-        if (appIndex >= 0) {
-            QMenu* contextMenu = new QMenu();
-            QAction* addAction = new QAction(tr("Remove from favorites"), this);
+    if (appIndex >= 0) {
+        QMenu* contextMenu = new QMenu();
+        QAction* addAction;
+        if (m_ui.lineEdit->text().length() == 0) {
+            addAction = new QAction(tr("Remove from favorites"), this);
             connect(addAction, SIGNAL(triggered()), SLOT(removeFavorite()));
-            contextMenu->addAction(addAction);
-            contextMenu->exec(mapToGlobal(pos));
+        } else {
+            addAction = new QAction(tr("Add to favorites"), this);
+            connect(addAction, SIGNAL(triggered()), SLOT(addFavorite()));
         }
+        contextMenu->addAction(addAction);
+        contextMenu->exec(mapToGlobal(pos));
     }
 }
 
 void Dash::addFavorite() {
     if (appIndex >= 0) {
-        XdgDesktopFile* theApp = appDashModel->getDesktop(appIndex);
+        XdgDesktopFile* theApp;
+        if (m_ui.tabs->currentIndex() == 1) {
+            theApp = appDashModel->getDesktop(appIndex);
+        } else if (m_ui.tabs->currentIndex() == 2) {
+            theApp = settingsDashModel->getDesktop(appIndex);
+        } else {
+            theApp = startDashModel->getDesktop(appIndex);
+        }
         qDebug() << "app" << appIndex << " -->> " << theApp->name();
         addFavorites(theApp);
+        m_ui.lineEdit->setText("");
         getFavorites();
         appIndex = -1;
     }
@@ -216,25 +247,22 @@ void Dash::onAppItemTrigerred(const QModelIndex& item) {
     qDebug() << appDashModel->getDesktop(item.row())->name();
     appDashModel->getDesktop(item.row())->startDetached();
     m_ui.AppView->clearSelection();
+    hide();
 }
 
 void Dash::onSettingsItemTrigerred(const QModelIndex& item) {
     qDebug() << "SettingsItemTrigerred" << item.row();
     settingsDashModel->getDesktop(item.row())->startDetached();
     m_ui.SettingsView->clearSelection();
+    hide();
 }
 
 void Dash::onStartItemTrigerred(const QModelIndex& item) {
     qDebug() << "StartItemTrigerred" << item.row();
     startDashModel->getDesktop(item.row())->startDetached();
     m_ui.StartView->clearSelection();
+    hide();
 }
-
-// taken from libqtxdg: XdgMenuWidget
-
-
-
-// taken from libqtxdg: XdgMenuWidget
 
 void Dash::addFavorites(XdgDesktopFile* app) {
     us::ModuleContext* context = us::GetModuleContext();
