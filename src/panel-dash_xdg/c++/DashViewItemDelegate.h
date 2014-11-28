@@ -15,7 +15,7 @@ class DashViewItemDelegate : public QStyledItemDelegate {
 public:
     DashViewItemDelegate();
     virtual ~DashViewItemDelegate();
-//    void paint(QPainter *, const QStyleOptionViewItem &, const QModelIndex &) const ;
+    void paint(QPainter *, const QStyleOptionViewItem &, const QModelIndex &) const ;
     QSize sizeHint(const QStyleOptionViewItem & , const QModelIndex &) const ;
 private:
 

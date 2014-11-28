@@ -42,6 +42,7 @@
 #include <QThread>
 
 #include <usGetModuleContext.h>
+#include <qt5xdg/XdgIcon>
 
 
 
@@ -64,6 +65,7 @@ Dash::Dash() : m_settings("panel-dash_xdg") {
     settingsDashModel = NULL;
 
     m_ui.setupUi(this);
+    
     setWindowFlags(Qt::Popup);
     setFrameStyle(QFrame::NoFrame);
     built = false;
@@ -75,12 +77,14 @@ Dash::Dash() : m_settings("panel-dash_xdg") {
     appListGenerator = new DesktopFileCollection();
     getFavorites();
     appIndex = -1;
+    XdgIcon::setThemeName("FaenzaFlattr");
 }
 
 Dash::~Dash() {
 }
 
 void Dash::configView(QListView* view) {
+    view->setItemDelegate(new DashViewItemDelegate());
     view->setViewMode(QListView::IconMode);
     view->setSpacing(20);
     view->setIconSize(QSize(48, 48));
@@ -89,22 +93,26 @@ void Dash::configView(QListView* view) {
     //  items.
     view->setUniformItemSizes(true);
     view->setWrapping(true);
-    //    view->setSelectionMode(QAbstractItemView::NoSelection);
     view->setSelectionMode(QAbstractItemView::SingleSelection);
     view->setSelectionBehavior(QAbstractItemView::SelectItems);
 
     view->setTextElideMode(Qt::ElideMiddle);
+ 
     view->setWordWrap(true);
 
     view->setMovement(QListView::Static);
     view->setResizeMode(QListView::Adjust);
-    //    view->setSelectionMode(QAbstractItemView::ContiguousSelection);
 
     view->setLayoutMode(QListView::Batched);
-    view->setBatchSize(20);
-
+    const QRect screenGeometry = QApplication::desktop()->screenGeometry(this);
+    if (screenGeometry.width() >= 1360){
+        view->setBatchSize(84); //para 1366X768
+    } else {
+        view->setBatchSize(56); //para 1024x768
+    }
+    
     view->setContextMenuPolicy(Qt::CustomContextMenu);
-    view->setItemDelegate(new DashViewItemDelegate());
+    
 }
 
 void Dash::build() {
@@ -383,6 +391,7 @@ void Dash::showEvent(QShowEvent * event) {
 
     m_ui.tabs->setCurrentWidget(m_ui.tabStart);
     m_ui.lineEdit->setFocus();
+    
     show();
 }
 
