@@ -23,10 +23,6 @@ struct XdgDesktopFileComparisonFunctor {
     }
 };
 
-bool compXdgDesktopFile(const XdgDesktopFile * __x, const XdgDesktopFile * __y) {
-    return __x->name() < __y->name();
-}
-
 DesktopFileCollection::DesktopFileCollection() {
 
 }
@@ -34,6 +30,7 @@ DesktopFileCollection::DesktopFileCollection() {
 QList<XdgDesktopFile*> DesktopFileCollection::all() {
     QList<XdgDesktopFile*> appList = XdgDesktopFileCache::getAllFiles();
     QList<XdgDesktopFile*> res;
+
     foreach(XdgDesktopFile * app, appList) {
         if (app->type() != XdgDesktopFile::ApplicationType) {
             continue;
@@ -41,7 +38,7 @@ QList<XdgDesktopFile*> DesktopFileCollection::all() {
             res.append(app);
         }
     }
-    qSort(res.begin(),res.end(),compXdgDesktopFile);
+    qSort(res.begin(), res.end(), XdgDesktopFileComparisonFunctor());
     return res;
 }
 
@@ -49,14 +46,14 @@ QList<XdgDesktopFile*> DesktopFileCollection::filter(QHash<QString, QString> fil
     QList<XdgDesktopFile*> appList = all();
     QList<XdgDesktopFile*> res;
 
-    std::sort(appList.begin(), appList.end(), XdgDesktopFileComparisonFunctor());
+    qSort(appList.begin(), appList.end(), XdgDesktopFileComparisonFunctor());
 
     foreach(XdgDesktopFile * app, appList) {
         QHashIterator<QString, QString> filter(filters);
         while (filter.hasNext()) {
             filter.next();
             QString appValue = app->value(filter.key(), "None").toString();
-            if (appValue.contains(filter.value(),Qt::CaseInsensitive)){
+            if (appValue.contains(filter.value(), Qt::CaseInsensitive)) {
                 res.append(app);
                 break;
             }
