@@ -65,7 +65,7 @@ Dash::Dash() : m_settings("panel-dash_xdg") {
     settingsDashModel = NULL;
 
     m_ui.setupUi(this);
-    
+
     setWindowFlags(Qt::Popup);
     setFrameStyle(QFrame::NoFrame);
     built = false;
@@ -96,8 +96,8 @@ void Dash::configView(QListView* view) {
     view->setSelectionMode(QAbstractItemView::SingleSelection);
     view->setSelectionBehavior(QAbstractItemView::SelectItems);
 
-    view->setTextElideMode(Qt::ElideMiddle);
- 
+    view->setTextElideMode(Qt::ElideLeft);
+
     view->setWordWrap(true);
 
     view->setMovement(QListView::Static);
@@ -105,14 +105,14 @@ void Dash::configView(QListView* view) {
 
     view->setLayoutMode(QListView::Batched);
     const QRect screenGeometry = QApplication::desktop()->screenGeometry(this);
-    if (screenGeometry.width() >= 1360){
+    if (screenGeometry.width() >= 1360) {
         view->setBatchSize(84); //para 1366X768
     } else {
         view->setBatchSize(56); //para 1024x768
     }
-    
+
     view->setContextMenuPolicy(Qt::CustomContextMenu);
-    
+
 }
 
 void Dash::build() {
@@ -132,12 +132,9 @@ void Dash::build() {
     settingsDashModel = new DashViewModel(settingsList);
     m_ui.SettingsView->setModel(settingsDashModel);
 
-    connect(m_ui.AppView, SIGNAL(doubleClicked(const QModelIndex&)), SLOT(onAppItemTrigerred(const QModelIndex&)));
-    connect(m_ui.SettingsView, SIGNAL(doubleClicked(const QModelIndex&)), SLOT(onSettingsItemTrigerred(const QModelIndex&)));
-    connect(m_ui.StartView, SIGNAL(doubleClicked(const QModelIndex&)), SLOT(onStartItemTrigerred(const QModelIndex&)));
-    //    connect(m_ui.AppView, SIGNAL(clicked(const QModelIndex&)), SLOT(onAppItemTrigerred(const QModelIndex&)));
-    //    connect(m_ui.SettingsView, SIGNAL(clicked(const QModelIndex&)), SLOT(onSettingsItemTrigerred(const QModelIndex&)));
-    //    connect(m_ui.StartView, SIGNAL(clicked(const QModelIndex&)), SLOT(onStartItemTrigerred(const QModelIndex&)));
+    connect(m_ui.AppView, SIGNAL(clicked(const QModelIndex&)), SLOT(onItemTrigerred(const QModelIndex&)));
+    connect(m_ui.SettingsView, SIGNAL(clicked(const QModelIndex&)), SLOT(onItemTrigerred(const QModelIndex&)));
+    connect(m_ui.StartView, SIGNAL(clicked(const QModelIndex&)), SLOT(onItemTrigerred(const QModelIndex&)));
 
     connect(m_ui.AppView, SIGNAL(customContextMenuRequested(QPoint)),
             SLOT(showContextMenuForApp(QPoint)));
@@ -250,25 +247,28 @@ void Dash::buildSearch(QString search) {
     m_ui.StartView->setModel(startDashModel);
 }
 
-void Dash::onAppItemTrigerred(const QModelIndex& item) {
-    qDebug() << "AppItemTrigerred" << item.row();
-    qDebug() << appDashModel->getDesktop(item.row())->name();
-    appDashModel->getDesktop(item.row())->startDetached();
-    m_ui.AppView->clearSelection();
-    hide();
-}
+void Dash::onItemTrigerred(const QModelIndex& item) {
+    DashViewModel* themodel;
+    QListView *theview;
 
-void Dash::onSettingsItemTrigerred(const QModelIndex& item) {
-    qDebug() << "SettingsItemTrigerred" << item.row();
-    settingsDashModel->getDesktop(item.row())->startDetached();
-    m_ui.SettingsView->clearSelection();
-    hide();
-}
+    if (m_ui.tabs->currentIndex() == 0) {
+        qDebug() << "StartItemTrigerred" << item.row();
+        themodel = startDashModel;
+        theview = m_ui.StartView;
+    } else if (m_ui.tabs->currentIndex() == 1) {
+        qDebug() << "AppItemTrigerred" << item.row();
+        themodel = appDashModel;
+        theview = m_ui.AppView;
+    } else if (m_ui.tabs->currentIndex() == 2) {
+        qDebug() << "SettingsItemTrigerred" << item.row();
+        themodel = settingsDashModel;
+        theview = m_ui.SettingsView;
+    }
 
-void Dash::onStartItemTrigerred(const QModelIndex& item) {
-    qDebug() << "StartItemTrigerred" << item.row();
-    startDashModel->getDesktop(item.row())->startDetached();
-    m_ui.StartView->clearSelection();
+    qDebug() << themodel->getDesktop(item.row())->name();
+    themodel->getDesktop(item.row())->startDetached();
+    theview->clearSelection();
+
     hide();
 }
 
@@ -352,46 +352,23 @@ void Dash::removeFavorites(XdgDesktopFile* app) {
     }
 }
 
-void Dash::handleMouseMoveEvent(QMouseEvent *event) {
-    //    if (!(event->buttons() & Qt::LeftButton))
-    //        return;
-    //
-    //    if ((event->pos() - mDragStartPosition).manhattanLength() < QApplication::startDragDistance())
-    //        return;
-    //
-    //    XdgCachedMenuAction *a = qobject_cast<XdgCachedMenuAction*>(actionAt(event->pos()));
-    //    if (!a)
-    //        return;
-    //
-    //    QList<QUrl> urls;
-    //    char* desktop_file = menu_cache_item_get_file_path(a->item());
-    //    urls << QUrl(desktop_file);
-    //    g_free(desktop_file);
-    //
-    //    QMimeData *mimeData = new QMimeData();
-    //    mimeData->setUrls(urls);
-    //
-    //    QDrag *drag = new QDrag(this);
-    //    drag->setMimeData(mimeData);
-    //    drag->exec(Qt::CopyAction | Qt::LinkAction);
-}
-
 void Dash::showEvent(QShowEvent * event) {
     qDebug() << "Show event";
 
     if (!built) {
         build();
         built = true;
-    } else {
-        //no recuerdo pa q era esto
-        cleanApps();
-        build();
-        getFavorites();
     }
+    //    else {
+    //        //no recuerdo pa q era esto
+    //        cleanApps();
+    //        build();
+    //        getFavorites();
+    //    }
 
     m_ui.tabs->setCurrentWidget(m_ui.tabStart);
     m_ui.lineEdit->setFocus();
-    
+
     show();
 }
 

@@ -44,10 +44,7 @@ protected:
     void showEvent(QShowEvent * event);
 
 private slots:
-    void onAppItemTrigerred(const QModelIndex& item);
-    void onSettingsItemTrigerred(const QModelIndex& item);
-    void onStartItemTrigerred(const QModelIndex& item);
-    void handleMouseMoveEvent(QMouseEvent *event);
+    void onItemTrigerred(const QModelIndex& item);
     void onApplicationsFolderChanged();
     void searchEditChanged(QString);
     void removeFavorites(XdgDesktopFile* app);

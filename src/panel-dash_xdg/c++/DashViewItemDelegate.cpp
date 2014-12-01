@@ -22,14 +22,14 @@ void DashViewItemDelegate::paint(QPainter * painter, const QStyleOptionViewItem 
 //    QStyledItemDelegate::paint(painter, option, index);
     QString name = index.model()->data(index, Qt::DisplayRole).toString();
     QIcon icon = index.model()->data(index, Qt::DecorationRole).value<QIcon>();
-    QRect iconRect = QRect(option.rect.x(),option.rect.y(),option.rect.width()-20,option.rect.height()-30);
+    QRect iconRect = QRect(option.rect.x()+10,option.rect.y(),option.rect.width()-20,option.rect.height()-40);
     QRect textRect = QRect(option.rect.x(),option.rect.y()+60,option.rect.width(),option.rect.height()-60);
     
-    icon.paint(painter,iconRect,Qt::AlignCenter);
-    painter->drawText(textRect,Qt::TextWordWrap | Qt::AlignCenter | ,name);
+    icon.paint(painter,iconRect,Qt::AlignCenter | Qt::AlignTop);
+    painter->drawText(textRect,Qt::TextWordWrap | Qt::TextWrapAnywhere | Qt::AlignCenter | Qt::TextEditable ,name);
     painter->save();
 }
 
 QSize DashViewItemDelegate::sizeHint(const QStyleOptionViewItem & option, const QModelIndex & index) const {
-    return QSize(80, 90);
+    return QSize(80, 100);
 }
