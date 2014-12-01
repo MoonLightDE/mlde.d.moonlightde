@@ -23,6 +23,10 @@ struct XdgDesktopFileComparisonFunctor {
     }
 };
 
+bool compXdgDesktopFile(const XdgDesktopFile * __x, const XdgDesktopFile * __y) {
+    return __x->name() < __y->name();
+}
+
 DesktopFileCollection::DesktopFileCollection() {
 
 }
@@ -37,6 +41,7 @@ QList<XdgDesktopFile*> DesktopFileCollection::all() {
             res.append(app);
         }
     }
+    qSort(res.begin(),res.end(),compXdgDesktopFile);
     return res;
 }
 

@@ -48,17 +48,6 @@
 
 QTextStream cout(stdout);
 
-/**
- * As XdgDesktopFile doesn't provides the opperator < we must implement it here.
- */
-struct XdgDesktopFileComparisonFunctor {
-
-    bool
-    operator()(const XdgDesktopFile * __x, const XdgDesktopFile * __y) const {
-        return __x->name() < __y->name();
-    }
-};
-
 Dash::Dash() : m_settings("panel-dash_xdg") {
     startDashModel = NULL;
     appDashModel = NULL;
