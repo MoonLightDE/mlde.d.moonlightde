@@ -86,7 +86,7 @@ Dash::~Dash() {
 void Dash::configView(QListView* view) {
     view->setItemDelegate(new DashViewItemDelegate());
     view->setViewMode(QListView::IconMode);
-    view->setSpacing(20);
+    view->setSpacing(26);
     view->setIconSize(QSize(48, 48));
 
     // TODO: Implement an item delegate to give an apropiated size to the
@@ -105,6 +105,7 @@ void Dash::configView(QListView* view) {
 
     view->setLayoutMode(QListView::Batched);
     const QRect screenGeometry = QApplication::desktop()->screenGeometry(this);
+    //volver a calcular esto
     if (screenGeometry.width() >= 1360) {
         view->setBatchSize(84); //para 1366X768
     } else {
