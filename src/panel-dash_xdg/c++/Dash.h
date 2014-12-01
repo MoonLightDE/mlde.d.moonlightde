@@ -56,6 +56,7 @@ protected:
      *  case of update or first show, igline new apps and restore focus to the
      *  "start" section. 
      **/
+    bool eventFilter(QObject *obj, QEvent *event);
     void showEvent(QShowEvent * event);
 
 private slots:

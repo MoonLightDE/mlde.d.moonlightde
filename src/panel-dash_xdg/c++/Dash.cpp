@@ -82,6 +82,13 @@ Dash::Dash() : m_settings("panel-dash_xdg") {
     appListGenerator = new DesktopFileCollection();
     getFavorites();
     appIndex = -1;
+    //    EditEventFilter* editeventfilter = new EditEventFilter();
+    //    m_ui.lineEdit->installEventFilter(editeventfilter);
+    m_ui.lineEdit->installEventFilter(this);
+    m_ui.tabs->installEventFilter(this);
+    m_ui.StartView->installEventFilter(this);
+    m_ui.AppView->installEventFilter(this);
+    m_ui.SettingsView->installEventFilter(this);
     XdgIcon::setThemeName("FaenzaFlattr");
 }
 
@@ -150,6 +157,50 @@ void Dash::build() {
 
     connect(m_ui.StartView, SIGNAL(customContextMenuRequested(QPoint)),
             SLOT(showContextMenuForStart(QPoint)));
+
+}
+
+bool Dash::eventFilter(QObject *obj, QEvent *event) {
+    if (obj == m_ui.lineEdit) {
+        if (event->type() == QEvent::KeyPress) {
+            QKeyEvent *keyEvent = static_cast<QKeyEvent *> (event);
+            if (keyEvent->key() == Qt::Key_Down) {
+                if (m_ui.tabs->currentIndex() == 0) {
+                    m_ui.StartView->setFocus();
+                    m_ui.StartView->setCurrentIndex(startDashModel->index(0, 0));
+                } else if (m_ui.tabs->currentIndex() == 1) {
+                    m_ui.AppView->setFocus();
+                    m_ui.AppView->setCurrentIndex(appDashModel->index(0, 0));
+                } else if (m_ui.tabs->currentIndex() == 2) {
+                    m_ui.SettingsView->setFocus();
+                    m_ui.SettingsView->setCurrentIndex(settingsDashModel->index(0, 0));
+                }
+
+                qDebug() << "Down key pressed";
+                return true;
+            } else {
+                return QObject::eventFilter(obj, event);
+            }
+
+        } else {
+            // standard event processing
+            return QObject::eventFilter(obj, event);
+        }
+    } else {
+        if (event->type() == QEvent::KeyPress) {
+            QKeyEvent *keyEvent = static_cast<QKeyEvent *> (event);
+            if (keyEvent->key() != Qt::Key_Down
+                    && keyEvent->key() != Qt::Key_Up
+                    && keyEvent->key() != Qt::Key_Right
+                    && keyEvent->key() != Qt::Key_Left
+                    && keyEvent->key() != Qt::Key_Enter) {
+                m_ui.lineEdit->setFocus();
+                m_ui.lineEdit->setText(keyEvent->text());
+                return QObject::eventFilter(obj, event);
+            }
+        }
+        return QObject::eventFilter(obj, event);
+    }
 
 }
 
@@ -279,15 +330,15 @@ void Dash::onItemTrigerred(const QModelIndex& item) {
         theview = m_ui.SettingsView;
     }
 
-    
+
     qDebug() << themodel->getDesktop(item.row())->name();
     themodel->getDesktop(item.row())->startDetached();
     theview->clearSelection();
-    
+
     if (m_ui.tabs->currentIndex() == 0) {
         getFavorites();
     }
-    
+
     hide();
 }
 
@@ -377,13 +428,12 @@ void Dash::showEvent(QShowEvent * event) {
     if (!built) {
         build();
         built = true;
+    } else {
+        //no recuerdo pa q era esto
+        //            cleanApps();
+        //            build();
+        getFavorites();
     }
-        else {
-            //no recuerdo pa q era esto
-//            cleanApps();
-//            build();
-            getFavorites();
-        }
 
     m_ui.tabs->setCurrentWidget(m_ui.tabStart);
     m_ui.lineEdit->setFocus();
@@ -403,8 +453,8 @@ void Dash::searchEditChanged(QString asearch) {
         qDebug() << "searching for " << asearch;
         m_ui.tabs->setCurrentIndex(0);
         buildSearch(asearch);
-        
-        m_ui.StartView->setCurrentIndex(startDashModel->index(0,0));
+
+        m_ui.StartView->setCurrentIndex(startDashModel->index(0, 0));
     } else {
         getFavorites();
     }

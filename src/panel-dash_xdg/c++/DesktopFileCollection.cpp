@@ -18,11 +18,14 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "QTextStream"
 #include "DesktopFileCollection.h"
 #include <qt5xdg/XdgDesktopFile>
+#include <X11/Xlib.h>
 #include "QHash"
 #include "QHashIterator"
 #include "QDebug"
+
 
 /**
  TODO: Implement some sorting here
@@ -48,7 +51,17 @@ QList<XdgDesktopFile*> DesktopFileCollection::all() {
         if (app->type() != XdgDesktopFile::ApplicationType) {
             continue;
         } else {
-            res.append(app);
+            bool indexed = false;
+            //esto elimina los duplicados pero demora un poco
+//            foreach(XdgDesktopFile * appRes, res) {
+//                if (appRes->name().compare(app->name()) == 0 ){
+//                    indexed = True;
+//                    break;
+//                }
+//            }
+            if (!indexed){
+                res.append(app);
+            }
         }
     }
     qSort(res.begin(), res.end(), XdgDesktopFileComparisonFunctor());
