@@ -46,6 +46,9 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="clearButtonEnabled">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item>
@@ -93,7 +96,7 @@
         <enum>QTabWidget::Rounded</enum>
        </property>
        <property name="currentIndex">
-        <number>2</number>
+        <number>0</number>
        </property>
        <property name="elideMode">
         <enum>Qt::ElideNone</enum>
@@ -113,7 +116,11 @@
         </attribute>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
-          <widget class="QListView" name="StartView"/>
+          <widget class="QListView" name="StartView">
+           <property name="tabKeyNavigation">
+            <bool>true</bool>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -123,7 +130,11 @@
         </attribute>
         <layout class="QHBoxLayout" name="horizontalLayout_5">
          <item>
-          <widget class="QListView" name="AppView"/>
+          <widget class="QListView" name="AppView">
+           <property name="tabKeyNavigation">
+            <bool>true</bool>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -133,7 +144,11 @@
         </attribute>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
-          <widget class="QListView" name="SettingsView"/>
+          <widget class="QListView" name="SettingsView">
+           <property name="tabKeyNavigation">
+            <bool>true</bool>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>

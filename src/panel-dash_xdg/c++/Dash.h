@@ -54,6 +54,7 @@ private slots:
     
     void addFavorite();
     void removeFavorite();
+    void onReturnPressed();
 
 private:
     QFileSystemWatcher* monitor;

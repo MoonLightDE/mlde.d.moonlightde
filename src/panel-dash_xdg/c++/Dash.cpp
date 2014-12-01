@@ -73,6 +73,7 @@ Dash::Dash() : m_settings("panel-dash_xdg") {
     monitor = new QFileSystemWatcher();
     monitor->addPath("/usr/share/applications");
     connect(m_ui.lineEdit, SIGNAL(textChanged(QString)), SLOT(searchEditChanged(QString)));
+    connect(m_ui.lineEdit, SIGNAL(returnPressed()), SLOT(onReturnPressed()));
     connect(monitor, SIGNAL(directoryChanged(QString)), SLOT(onApplicationsFolderChanged()));
     appListGenerator = new DesktopFileCollection();
     getFavorites();
@@ -133,9 +134,9 @@ void Dash::build() {
     settingsDashModel = new DashViewModel(settingsList);
     m_ui.SettingsView->setModel(settingsDashModel);
 
-    connect(m_ui.AppView, SIGNAL(clicked(const QModelIndex&)), SLOT(onItemTrigerred(const QModelIndex&)));
-    connect(m_ui.SettingsView, SIGNAL(clicked(const QModelIndex&)), SLOT(onItemTrigerred(const QModelIndex&)));
-    connect(m_ui.StartView, SIGNAL(clicked(const QModelIndex&)), SLOT(onItemTrigerred(const QModelIndex&)));
+    connect(m_ui.AppView, SIGNAL(activated(const QModelIndex&)), SLOT(onItemTrigerred(const QModelIndex&)));
+    connect(m_ui.SettingsView, SIGNAL(activated(const QModelIndex&)), SLOT(onItemTrigerred(const QModelIndex&)));
+    connect(m_ui.StartView, SIGNAL(activated(const QModelIndex&)), SLOT(onItemTrigerred(const QModelIndex&)));
 
     connect(m_ui.AppView, SIGNAL(customContextMenuRequested(QPoint)),
             SLOT(showContextMenuForApp(QPoint)));
@@ -146,6 +147,15 @@ void Dash::build() {
     connect(m_ui.StartView, SIGNAL(customContextMenuRequested(QPoint)),
             SLOT(showContextMenuForStart(QPoint)));
 
+}
+
+void Dash::onReturnPressed() {
+    qDebug() << "Return pressed";
+    if (m_ui.lineEdit->text().length() > 0 && startDashModel->rowCount() > 0) {
+        startDashModel->getDesktop(0)->startDetached();
+        m_ui.StartView->clearSelection();
+        getFavorites();
+    }
 }
 
 void Dash::showContextMenuForApp(QPoint pos) {
@@ -205,7 +215,6 @@ void Dash::addFavorite() {
         }
         qDebug() << "app" << appIndex << " -->> " << theApp->name();
         addFavorites(theApp);
-        m_ui.lineEdit->setText("");
         getFavorites();
         appIndex = -1;
     }
@@ -266,10 +275,15 @@ void Dash::onItemTrigerred(const QModelIndex& item) {
         theview = m_ui.SettingsView;
     }
 
+    
     qDebug() << themodel->getDesktop(item.row())->name();
     themodel->getDesktop(item.row())->startDetached();
     theview->clearSelection();
-
+    
+    if (m_ui.tabs->currentIndex() == 0) {
+        getFavorites();
+    }
+    
     hide();
 }
 
@@ -282,16 +296,16 @@ void Dash::addFavorites(XdgDesktopFile* app) {
     dir->mkdir("favs");
     QFile* file = new QFile(appName);
     if (file->copy(dir->absolutePath() + "/favs/" + app->name().toLower())) {
-        qDebug() << "Archivo copiado";
+        qDebug() << "Archivo copiado a favoritos";
     } else {
-        qDebug() << "Error";
+        qDebug() << "Error copiando archivo a favoritos";
     }
 }
 
 //Get all favorite apps in the directory and paint them on start widget
 
 void Dash::getFavorites() {
-
+    m_ui.lineEdit->clear();
     us::ModuleContext* context = us::GetModuleContext();
     const QString ruta(ModuleSettings::getModuleDataLocation(context) + "/favs");
 
@@ -360,12 +374,12 @@ void Dash::showEvent(QShowEvent * event) {
         build();
         built = true;
     }
-    //    else {
-    //        //no recuerdo pa q era esto
-    //        cleanApps();
-    //        build();
-    //        getFavorites();
-    //    }
+        else {
+            //no recuerdo pa q era esto
+//            cleanApps();
+//            build();
+            getFavorites();
+        }
 
     m_ui.tabs->setCurrentWidget(m_ui.tabStart);
     m_ui.lineEdit->setFocus();
@@ -385,6 +399,8 @@ void Dash::searchEditChanged(QString asearch) {
         qDebug() << "searching for " << asearch;
         m_ui.tabs->setCurrentIndex(0);
         buildSearch(asearch);
+        
+        m_ui.StartView->setCurrentIndex(startDashModel->index(0,0));
     } else {
         getFavorites();
     }
