@@ -189,17 +189,22 @@ bool Dash::eventFilter(QObject *obj, QEvent *event) {
     } else {
         if (event->type() == QEvent::KeyPress) {
             QKeyEvent *keyEvent = static_cast<QKeyEvent *> (event);
-            if (keyEvent->key() != Qt::Key_Down
+            if (keyEvent->key() == Qt::Key_Return) {
+                qDebug() << "esto es un enter";
+                return QObject::eventFilter(obj, event);
+            } else if (keyEvent->key() != Qt::Key_Down
                     && keyEvent->key() != Qt::Key_Up
                     && keyEvent->key() != Qt::Key_Right
                     && keyEvent->key() != Qt::Key_Left
-                    && keyEvent->key() != Qt::Key_Enter) {
+                    && keyEvent->key() != Qt::Key_Return) {
+                qDebug() << "ahora se va pal edit";
                 m_ui.lineEdit->setFocus();
                 m_ui.lineEdit->setText(keyEvent->text());
                 return QObject::eventFilter(obj, event);
             }
+        } else {
+            return QObject::eventFilter(obj, event);
         }
-        return QObject::eventFilter(obj, event);
     }
 
 }
