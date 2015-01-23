@@ -46,6 +46,7 @@ endif()
 # Init output directories
 #-------------------------------------------------------------------------------
 
+set(MOONLIGHTDE_PREFIX moonlightde)
 set(MoonLightDE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib")
 set(MoonLightDE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib")
 set(MoonLightDE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
@@ -62,36 +63,36 @@ endforeach()
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-include(cmake/build_utils.cmake)
 ## --------------------------------------------------------------
 ## Modules
 ## --------------------------------------------------------------
 add_subdirectory(src/core)
 
-option(TEST_MODE "Build test modules?" OFF)
-if (TEST_MODE)
-    add_subdirectory(test/core)
-endif(TEST_MODE)
+## CMake build scripts
+include(src/utils.cmake/create-module.cmake)
+
+##
+## MoonLightDE Modules Comment comment to disable build.
+##
 
 
-
-add_subdirectory(src/panel)
+add_subdirectory(src/presentation.panel)
 #add_subdirectory(src/panel-clasic-menu)
-add_subdirectory(src/panel-dash_xdg)
+#add_subdirectory(src/panel-dash_xdg)
 #
-add_subdirectory(src/panel-clock)
+#add_subdirectory(src/panel-clock)
 #add_subdirectory(src/panel-menu)
-add_subdirectory(src/panel-taskbar)
-add_subdirectory(src/panel-systray)
+#add_subdirectory(src/panel-taskbar)
+#add_subdirectory(src/panel-systray)
 #add_subdirectory(src/panel-quicklauchers)
 #
 #add_subdirectory(src/actions_registry)
 #add_subdirectory(src/keyboard-shortcuts)
-add_subdirectory(src/notifications)
+#add_subdirectory(src/notifications)
 #add_subdirectory(src/file-manager)
 #add_subdirectory(src/runner)
 
-add_subdirectory(src/remote)
+#add_subdirectory(src/remote)
 
 ## --------------------------------------------------------------
 ## Third Parthy
