@@ -18,6 +18,7 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "module_config.h"
 #include "PanelImpl.h"
 
 #include <qt5xdg/XdgMenu>
@@ -69,12 +70,12 @@ bool PanelImpl::event(QEvent *event) {
             break;
 
         case QEvent::LayoutRequest:
-            qDebug() << "presentation_panel: desktop layout changed.";
+            qDebug() << MODULE_NAME << ": desktop layout changed.";
             adjustSizeToScreen();
             break;
 
         case QEvent::WinIdChange:
-            qDebug() << "presentation_panel: Wid changed.";
+            qDebug() << MODULE_NAME << ": Wid changed.";
             setupWindowFlags();
             adjustSizeToScreen();
         default:
@@ -92,9 +93,9 @@ void PanelImpl::adjustSizeToScreen() {
 
     QWidget::setGeometry(m_Geometry);
     
-    qDebug() << "presentation_panel: Adjusting size to: " << m_Geometry.size();
-    qDebug() << "presentation_panel: Adjusting position to: " << m_Geometry.topLeft();
-    qDebug() << "presentation_panel: resulting geometry: " << geometry();
+    qDebug() << MODULE_NAME << ": Adjusting size to: " << m_Geometry.size();
+    qDebug() << MODULE_NAME << ": Adjusting position to: " << m_Geometry.topLeft();
+    qDebug() << MODULE_NAME << ": resulting geometry: " << geometry();
     
     // Update reserved screen area on resize
     requestExclusiveScreenArea();
@@ -135,7 +136,7 @@ void PanelImpl::requestExclusiveScreenArea() {
 
 void PanelImpl::addWidget(QWidget* widget) {
     if (widget == NULL) {
-        qDebug() << "preesntation.panel: traing to add a NULL widget.";
+        qWarning() << MODULE_NAME << ": traing to add a NULL widget.";
         return;
     }
     if (widget->objectName() == "MainMenuButton") {
@@ -159,12 +160,12 @@ void PanelImpl::addWidget(QWidget* widget) {
         return;
     }
     
-    qDebug() << "preesntation.panel: not supported widget: " << widget->objectName();
+    qWarning() << MODULE_NAME << ": not supported widget: " << widget->objectName();
 }
 
 void PanelImpl::removeWidget(QWidget* widget) {
     if (widget == NULL) {
-        qDebug() << "preesntation.panel: traing to remove a NULL widget.";
+        qWarning() << MODULE_NAME << ": traing to remove a NULL widget.";
         return;
     }
     if (widget->objectName() == "MainMenuButton") {
@@ -216,7 +217,7 @@ QRect PanelImpl::geometry() {
 }
 
 void PanelImpl::setGeometry(QRect geometry) {
-    qDebug() << "preesntation.panel: " << __PRETTY_FUNCTION__ << " not soported.";
+    qWarning() << MODULE_NAME << __PRETTY_FUNCTION__ << " not soported.";
 }
 
 
