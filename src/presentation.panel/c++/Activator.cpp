@@ -18,10 +18,10 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Panel.h"
+#include "PanelImpl.h"
 #include "SidePanel.h"
 
-#include "panel/IPanel.h"
+#include "presentation.panel/Panel.h"
 #include "panel/ISidePanel.h"
 
 #include <usModuleActivator.h>
@@ -47,8 +47,8 @@ private:
         m_sidePanel = new SidePanel();
         context->RegisterService<ISidePanel>(m_sidePanel, ServiceProperties());
 
-        m_panel = new Panel();
-        context->RegisterService<IPanel>(m_panel, ServiceProperties());
+        m_panel = new PanelImpl();
+        context->RegisterService<presentation_panel::Panel>(m_panel, ServiceProperties());
         
         m_panel.data()->show();
     }
@@ -62,7 +62,7 @@ private:
         delete(m_panel);
     }
 
-    QPointer<Panel> m_panel;
+    QPointer<PanelImpl> m_panel;
     QPointer<SidePanel> m_sidePanel;
 };
 US_EXPORT_MODULE_ACTIVATOR(presentation_panel, Activator)
