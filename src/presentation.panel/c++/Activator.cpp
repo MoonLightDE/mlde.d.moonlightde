@@ -20,6 +20,7 @@
 
 #include "PanelImpl.h"
 #include "SidePanel.h"
+#include "WidgetsTracker.h"
 
 #include "presentation.panel/Panel.h"
 #include "panel/ISidePanel.h"
@@ -44,13 +45,15 @@ private:
      * @param context the framework context for the module.
      */
     void Load(ModuleContext* context) {
-        m_sidePanel = new SidePanel();
-        context->RegisterService<ISidePanel>(m_sidePanel, ServiceProperties());
+        m_SidePanel = new SidePanel();
+        context->RegisterService<ISidePanel>(m_SidePanel, ServiceProperties());
 
-        m_panel = new PanelImpl();
-        context->RegisterService<presentation_panel::Panel>(m_panel, ServiceProperties());
-        
-        m_panel.data()->show();
+        m_Panel = new PanelImpl();
+        context->RegisterService<presentation_panel::Panel>(m_Panel, ServiceProperties());
+
+        m_Panel->show();
+
+        m_PanelWidgetsTracker = new WidgetsTracker(context, m_Panel);
     }
 
     /**
@@ -59,10 +62,13 @@ private:
      * @param context the framework context for the module.
      */
     void Unload(ModuleContext* context) {
-        delete(m_panel);
+        delete (m_Panel);
+        delete (m_PanelWidgetsTracker);
+        delete (m_SidePanel);
     }
 
-    QPointer<PanelImpl> m_panel;
-    QPointer<SidePanel> m_sidePanel;
+    PanelImpl *m_Panel;
+    SidePanel *m_SidePanel;
+    WidgetsTracker *m_PanelWidgetsTracker;
 };
 US_EXPORT_MODULE_ACTIVATOR(presentation_panel, Activator)
