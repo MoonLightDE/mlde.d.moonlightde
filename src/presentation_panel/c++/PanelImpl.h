@@ -1,8 +1,7 @@
 /*
- * Copyright (C) 2014 Moonlight Desktop Environment Team
+ * Copyright (C) 2015 Moonlight Desktop Environment Team
  * Authors:
  *      Alexis López Zubieta
- *      Jorge Fernández Sánchex
  * This file is part of Moonlight Desktop Environment.
  *
  * Moonlight Desktop Environment is free software: you can redistribute it and/or modify
@@ -19,57 +18,58 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LAUNCHER_H
-#define LAUNCHER_H
+#ifndef PANELIMPL_H
+#define PANELIMPL_H
 
-#include "panel/IPanel.h"
+#include "presentation_panel/Panel.h"
+#include "presentation_panel/Widget.h"
 
 #include <usModuleContext.h>
 
-#include <QFrame>
+#include <QWidget>
 #include <QRect>
 #include <usServiceTracker.h>
-
-namespace Ui {
-    class Panel;
-}
-
-class Panel : public QFrame, public IPanel {
+/**
+ * A very static implementation of a desktop panel.
+ */
+class PanelImpl : public QWidget, public presentation_panel::Panel {
     Q_OBJECT
 
 public:
-    explicit Panel(QWidget *parent = 0);
+    explicit PanelImpl(QWidget *parent = 0);
 
-    ~Panel();
+    ~PanelImpl();
+
+    virtual int desktop();
+    virtual void setDesktop(int desktop);
+
+    void addWidget(QWidget * widget);
+    void removeWidget(QWidget * widget);
+
+    virtual QRect geometry();
+    virtual void setGeometry(QRect geometry);
 
 public slots:
     void setupWindowFlags();
     void adjustSizeToScreen();
     void requestExclusiveScreenArea();
 
-    void startButtonClicked();
 
 protected:
     bool event(QEvent *event);
-
-
-    template<class Interface> inline QWidget *getPanelWidget(us::ModuleContext * context);
+    void updateLayout();
 
 private:
-    Ui::Panel *ui;
-    
-    us::ServiceTracker<ILauncherFactory> *m_launcherTracker;
-    QWidget *quicklauncher;
-    QWidget *taskBar;
-    QWidget *sysTray;
-    QWidget *clock;
+    // Static widgets
+    QWidget *m_MainMenuButton;
+    QWidget *m_UserTasks;
+    QWidget *m_Indicators;
+    QWidget *m_DateTime;
 
     /* Panel properties */
-    int mHeight;
-
-    //jfsanchez@estudiantes.uci.cu
-    bool visibleDash;
+    QRect m_Geometry;
+    int m_Desktop;
     
 };
 
-#endif // LAUNCHER_H
+#endif // PANELIMPL_H

@@ -17,7 +17,7 @@
 #    along with Moonlight Desktop Environment.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-project(panel)
+project(presentation_panel)
 
 ## --------------------------------------------------------------
 ## Sources
@@ -51,6 +51,9 @@ message(STATUS ----------- ${CMAKE_CURRENT_SOURCE_DIR})
 find_package(LXQT-QT5 REQUIRED )
 include(${LXQT_USE_FILE})
 
+## KWindowSystem
+find_package(KF5WindowSystem)
+
 ## Inter-module dependencies
 set(${PROJECT_NAME}_DEPENDS )
 
@@ -75,11 +78,16 @@ set (${PROJECT_NAME}_SOURCES
     ${${PROJEC_NAME}_QRC_SOURCES}
 )
 
-MoonLightDE_CreateModule(${PROJECT_NAME} ${${PROJECT_NAME}_SOURCES})
+m_create_module(
+	NAME ${PROJECT_NAME}
+	SOURCES ${${PROJECT_NAME}_SOURCES}
+)
 
-target_link_libraries(moonlightDE-${PROJECT_NAME} 
+target_link_libraries(${MOONLIGHTDE_PREFIX}_${PROJECT_NAME}
     ${CppMicroServices_LIBRARIES}
     ${LXQT_LIBRARIES}
+
+    KF5::WindowSystem
 
     Qt5::Core
     Qt5::Widgets

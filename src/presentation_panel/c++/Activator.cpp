@@ -18,10 +18,11 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Panel.h"
+#include "PanelImpl.h"
 #include "SidePanel.h"
+#include "WidgetsTracker.h"
 
-#include "panel/IPanel.h"
+#include "presentation_panel/Panel.h"
 #include "panel/ISidePanel.h"
 
 #include <usModuleActivator.h>
@@ -30,7 +31,6 @@
 
 #include <QDebug>
 #include <QPointer>
-#include <qt5/QtCore/qpointer.h>
 
 US_USE_NAMESPACE
 /**
@@ -44,13 +44,15 @@ private:
      * @param context the framework context for the module.
      */
     void Load(ModuleContext* context) {
-        m_sidePanel = new SidePanel();
-        context->RegisterService<ISidePanel>(m_sidePanel, ServiceProperties());
+        m_SidePanel = new SidePanel();
+        context->RegisterService<ISidePanel>(m_SidePanel, ServiceProperties());
 
-        m_panel = new Panel();
-        context->RegisterService<IPanel>(m_panel, ServiceProperties());
-        
-        m_panel.data()->show();
+        m_Panel = new PanelImpl();
+        context->RegisterService<presentation_panel::Panel>(m_Panel, ServiceProperties());
+
+        m_Panel->show();
+
+        m_PanelWidgetsTracker = new WidgetsTracker(context, m_Panel);
     }
 
     /**
@@ -59,10 +61,13 @@ private:
      * @param context the framework context for the module.
      */
     void Unload(ModuleContext* context) {
-        delete(m_panel);
+        delete (m_Panel);
+        delete (m_PanelWidgetsTracker);
+        delete (m_SidePanel);
     }
 
-    QPointer<Panel> m_panel;
-    QPointer<SidePanel> m_sidePanel;
+    PanelImpl *m_Panel;
+    SidePanel *m_SidePanel;
+    WidgetsTracker *m_PanelWidgetsTracker;
 };
-US_EXPORT_MODULE_ACTIVATOR(panel, Activator)
+US_EXPORT_MODULE_ACTIVATOR(presentation_panel, Activator)
