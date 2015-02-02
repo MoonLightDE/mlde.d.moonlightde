@@ -11,20 +11,20 @@
 #
 
 function(m_create_module)
-	include (CMakeParseArguments)
-	cmake_parse_arguments(MOONLIGHTDE_MODULE "" "NAME;DESCRIPTOR;INTERFACES" "SOURCES;DEPENDENCIES" ${ARGN})
+    include (CMakeParseArguments)
+    cmake_parse_arguments(MOONLIGHTDE_MODULE "" "NAME;DESCRIPTOR" "INTERFACES;SOURCES;DEPENDENCIES" ${ARGN})
 	
-	# Validate arguments
-	if(NOT MOONLIGHTDE_MODULE_NAME)
-		message(FATAL_ERROR "NAME argument is mandatory.")
-	endif()
-	if ( NOT MOONLIGHTDE_MODULE_SOURCES )
-		message(FATAL_ERROR "SOURCES argument is mandatory.")
-	endif()
-	
-	# Ensure CppMicroServices is present
-	find_package(CppMicroServices NO_MODULE REQUIRED)
-	include_directories(${CppMicroServices_INCLUDE_DIRS})
+    # Validate arguments
+    if(NOT MOONLIGHTDE_MODULE_NAME)
+            message(FATAL_ERROR "NAME argument is mandatory.")
+    endif()
+    if ( NOT MOONLIGHTDE_MODULE_SOURCES )
+            message(FATAL_ERROR "SOURCES argument is mandatory.")
+    endif()
+
+    # Ensure CppMicroServices is present
+    find_package(CppMicroServices NO_MODULE REQUIRED)
+    include_directories(${CppMicroServices_INCLUDE_DIRS})
 
     usFunctionGenerateModuleInit(MOONLIGHTDE_MODULE_SOURCES
         NAME ${MOONLIGHTDE_MODULE_NAME}
@@ -33,10 +33,20 @@ function(m_create_module)
     
     add_library(${MOONLIGHTDE_PREFIX}_${MOONLIGHTDE_MODULE_NAME} SHARED ${MOONLIGHTDE_MODULE_SOURCES})
     
-    target_include_directories(${MOONLIGHTDE_PREFIX}_${MOONLIGHTDE_MODULE_NAME} PUBLIC ${MOONLIGHTDE_MODULE_INTERFACES})
+    target_include_directories(${MOONLIGHTDE_PREFIX}_${MOONLIGHTDE_MODULE_NAME} PUBLIC  
+        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include/${MOONLIGHTDE_MODULE_NAME}>  
+        $<INSTALL_INTERFACE:include/${MOONLIGHTDE_PREFIX}/${MOONLIGHTDE_MODULE_NAME}>  
+    )
+
     target_link_libraries(${MOONLIGHTDE_PREFIX}_${MOONLIGHTDE_MODULE_NAME}
 	${CppMicroServices_LIBRARIES}
 	${MOONLIGHTDE_MODULE_DEPENDENCIES}
+    )
+
+    set_target_properties(${MOONLIGHTDE_PREFIX}_${MOONLIGHTDE_MODULE_NAME} 
+        PROPERTIES
+        PUBLIC_HEADER "${MOONLIGHTDE_MODULE_INTERFACES}"
+        DESCRIPTOR "${MOONLIGHTDE_MODULE_DESCRIPTOR}"
     )
 
     # Create module configuration header
@@ -66,14 +76,15 @@ function(m_create_module)
 		"${PROJECT_SOURCE_DIR}/${MOONLIGHTDE_MODULE_DESCRIPTOR}"
 		"${PROJECT_BINARY_DIR}/${MOONLIGHTDE_MODULE_NAME}.desktop" )
 
-    # Install 
-    #~ INSTALL(TARGETS moonlightDE-${_name}
-        #~ RUNTIME DESTINATION bin
-        #~ LIBRARY DESTINATION lib/${_name}
-        #~ ARCHIVE DESTINATION lib/static
-        #~ PUBLIC_HEADER include/${MOONLIGHTDE_MODULE_NAME}
-    #~ )
-#~ 
-    #~ INSTALL(FILES ${${_name}_PUBLIC_HEADERS} DESTINATION include/moonlightDE/${_name} )
-    #~ INSTALL(FILES ${${MoonLightDE_DESCRIPTORS_OUTPUT_DIRECTORY}/moonlightDE-${_name}.desktop} DESTINATION share/moonlightDE/descriptors )
+    # Install
+    install(TARGETS ${MOONLIGHTDE_PREFIX}_${MOONLIGHTDE_MODULE_NAME} 
+        EXPORT ${MOONLIGHTDE_MODULE_NAME} DESTINATION lib/${MOONLIGHTDE_PREFIX}
+        PUBLIC_HEADER DESTINATION include/${MOONLIGHTDE_PREFIX}/${MOONLIGHTDE_MODULE_NAME}
+        RESOURCE DESTINATION share/${MOONLIGHTDE_PREFIX}/descriptors/${MOONLIGHTDE_MODULE_NAME}
+    )
+
+    install(EXPORT ${MOONLIGHTDE_MODULE_NAME} DESTINATION share/${MOONLIGHTDE_PREFIX}/cmake/)
+ 
+    INSTALL(FILES ${${_name}_PUBLIC_HEADERS} DESTINATION include/moonlightDE/${_name} )
+#    INSTALL(FILES ${${MoonLightDE_DESCRIPTORS_OUTPUT_DIRECTORY}/moonlightDE-${_name}.desktop} DESTINATION share/moonlightDE/descriptors )
 endfunction()
