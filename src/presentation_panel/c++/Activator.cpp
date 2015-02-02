@@ -22,7 +22,7 @@
 #include "SidePanel.h"
 #include "WidgetsTracker.h"
 
-#include "presentation.panel/Panel.h"
+#include "presentation_panel/Panel.h"
 #include "panel/ISidePanel.h"
 
 #include <usModuleActivator.h>
@@ -31,7 +31,6 @@
 
 #include <QDebug>
 #include <QPointer>
-#include <qt5/QtCore/qpointer.h>
 
 US_USE_NAMESPACE
 /**

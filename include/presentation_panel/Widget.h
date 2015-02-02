@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Moonlight Desktop Environment Team
+ * Copyright (C) 2015 Moonlight Desktop Environment Team
  * Authors:
  *      Alexis López Zubieta
  * 
@@ -19,29 +19,41 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PANEL_H
-#define	PANEL_H
+
+#ifndef WIDGET_H
+#define	WIDGET_H
 
 #include <QWidget>
-#include <QString>
-#include <usServiceInterface.h>
 
 namespace presentation_panel {
 
-    class Panel {
+    // Predefined Widget names
+    static const char * MAINMENUBUTTON = "MainMenuButton";
+    static const char * USERTASKS = "UserTasks";
+    static const char * INDICATORS = "Indicators";
+    static const char * DATETIME = "DateTime";
+    
+    class Widget : public QWidget {
     public:
 
-        virtual ~Panel() {
-        };
-        virtual void addWidget(QWidget * widget) = 0;
-        virtual void removeWidget(QWidget * widget) = 0;
-        virtual int desktop() = 0;
-        virtual void setDesktop(int desktop) = 0;
-        virtual QRect geometry() = 0;
-        virtual void setGeometry(QRect geometry) = 0;
-    };
-};
-US_DECLARE_SERVICE_INTERFACE(presentation_panel::Panel, "org.moonlightde.panel.presentation.Panel/1.0")
+        virtual ~Widget() {
+        }
 
-#endif	/* PANEL_H */
+        /**
+         * The widget provides a custumization UI ?
+         * @return 
+         */
+        virtual bool isCustomizable() = 0;
+        /**
+         * Resolve the customization widget for the current PanelWidget.
+         * @return 
+         */
+        virtual QWidget * custimizationWidget() = 0;
+
+    };
+}
+
+US_DECLARE_SERVICE_INTERFACE(presentation_panel::Widget, "org.moonlightde.presentation.panel.Widget/1.0")
+
+#endif	/* WIDGET_H */
 

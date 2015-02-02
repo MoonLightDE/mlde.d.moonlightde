@@ -21,8 +21,8 @@
 #ifndef PANELIMPL_H
 #define PANELIMPL_H
 
-#include "presentation.panel/Panel.h"
-#include "presentation.panel/Widget.h"
+#include "presentation_panel/Panel.h"
+#include "presentation_panel/Widget.h"
 
 #include <usModuleContext.h>
 

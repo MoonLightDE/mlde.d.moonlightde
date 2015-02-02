@@ -23,7 +23,7 @@
 
 #include "PanelImpl.h"
 
-#include "presentation.panel/Widget.h"
+#include "presentation_panel/Widget.h"
 
 #include <usServiceTracker.h>
 #include <usServiceTrackerCustomizer.h>
