@@ -1,8 +1,23 @@
 /*
- * File:   Dash.cpp
- * Author: alexis
+ * Copyright (C) 2014 Moonlight Desktop Environment Team
+ * Authors:
+ *      Alexis López Zubieta
+ *      Jorge Fernández Sánchez
+ *      Jorge Alberto Díaz Orozco
+ * This file is part of Moonlight Desktop Environment.
  *
- * Created on 10 de septiembre de 2014, 16:21
+ * Moonlight Desktop Environment is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Moonlight Desktop Environment is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "Dash.h"
@@ -42,20 +57,11 @@
 #include <QThread>
 
 #include <usGetModuleContext.h>
+#include <qt5xdg/XdgIcon>
+
 
 
 QTextStream cout(stdout);
-
-/**
- * As XdgDesktopFile doesn't provides the opperator < we must implement it here.
- */
-struct XdgDesktopFileComparisonFunctor {
-
-    bool
-    operator()(const XdgDesktopFile * __x, const XdgDesktopFile * __y) const {
-        return __x->name() < __y->name();
-    }
-};
 
 Dash::Dash() : m_settings("panel-dash_xdg") {
     startDashModel = NULL;
@@ -63,6 +69,7 @@ Dash::Dash() : m_settings("panel-dash_xdg") {
     settingsDashModel = NULL;
 
     m_ui.setupUi(this);
+
     setWindowFlags(Qt::Popup);
     setFrameStyle(QFrame::NoFrame);
     built = false;
@@ -70,39 +77,55 @@ Dash::Dash() : m_settings("panel-dash_xdg") {
     monitor = new QFileSystemWatcher();
     monitor->addPath("/usr/share/applications");
     connect(m_ui.lineEdit, SIGNAL(textChanged(QString)), SLOT(searchEditChanged(QString)));
+    connect(m_ui.lineEdit, SIGNAL(returnPressed()), SLOT(onReturnPressed()));
     connect(monitor, SIGNAL(directoryChanged(QString)), SLOT(onApplicationsFolderChanged()));
     appListGenerator = new DesktopFileCollection();
     getFavorites();
     appIndex = -1;
+    //    EditEventFilter* editeventfilter = new EditEventFilter();
+    //    m_ui.lineEdit->installEventFilter(editeventfilter);
+    m_ui.lineEdit->installEventFilter(this);
+    m_ui.tabs->installEventFilter(this);
+    m_ui.StartView->installEventFilter(this);
+    m_ui.AppView->installEventFilter(this);
+    m_ui.SettingsView->installEventFilter(this);
+    XdgIcon::setThemeName("FaenzaFlattr");
 }
 
 Dash::~Dash() {
 }
 
 void Dash::configView(QListView* view) {
+    view->setItemDelegate(new DashViewItemDelegate());
     view->setViewMode(QListView::IconMode);
-    view->setSpacing(20);
+    view->setSpacing(26);
     view->setIconSize(QSize(48, 48));
 
     // TODO: Implement an item delegate to give an apropiated size to the
     //  items.
     view->setUniformItemSizes(true);
     view->setWrapping(true);
-    view->setSelectionMode(QAbstractItemView::NoSelection);
+    view->setSelectionMode(QAbstractItemView::SingleSelection);
     view->setSelectionBehavior(QAbstractItemView::SelectItems);
 
-    view->setTextElideMode(Qt::ElideMiddle);
+    view->setTextElideMode(Qt::ElideLeft);
+
     view->setWordWrap(true);
 
     view->setMovement(QListView::Static);
     view->setResizeMode(QListView::Adjust);
-    //    view->setSelectionMode(QAbstractItemView::ContiguousSelection);
 
     view->setLayoutMode(QListView::Batched);
-    view->setBatchSize(20);
+    const QRect screenGeometry = QApplication::desktop()->screenGeometry(this);
+    //volver a calcular esto
+    if (screenGeometry.width() >= 1360) {
+        view->setBatchSize(84); //para 1366X768
+    } else {
+        view->setBatchSize(56); //para 1024x768
+    }
 
     view->setContextMenuPolicy(Qt::CustomContextMenu);
-    view->setItemDelegate(new DashViewItemDelegate());
+
 }
 
 void Dash::build() {
@@ -122,11 +145,14 @@ void Dash::build() {
     settingsDashModel = new DashViewModel(settingsList);
     m_ui.SettingsView->setModel(settingsDashModel);
 
-    connect(m_ui.AppView, SIGNAL(clicked(const QModelIndex&)), SLOT(onAppItemTrigerred(const QModelIndex&)));
-    connect(m_ui.SettingsView, SIGNAL(clicked(const QModelIndex&)), SLOT(onSettingsItemTrigerred(const QModelIndex&)));
-    connect(m_ui.StartView, SIGNAL(clicked(const QModelIndex&)), SLOT(onStartItemTrigerred(const QModelIndex&)));
+    connect(m_ui.AppView, SIGNAL(activated(const QModelIndex&)), SLOT(onItemTrigerred(const QModelIndex&)));
+    connect(m_ui.SettingsView, SIGNAL(activated(const QModelIndex&)), SLOT(onItemTrigerred(const QModelIndex&)));
+    connect(m_ui.StartView, SIGNAL(activated(const QModelIndex&)), SLOT(onItemTrigerred(const QModelIndex&)));
 
     connect(m_ui.AppView, SIGNAL(customContextMenuRequested(QPoint)),
+            SLOT(showContextMenuForApp(QPoint)));
+
+    connect(m_ui.SettingsView, SIGNAL(customContextMenuRequested(QPoint)),
             SLOT(showContextMenuForApp(QPoint)));
 
     connect(m_ui.StartView, SIGNAL(customContextMenuRequested(QPoint)),
@@ -134,9 +160,75 @@ void Dash::build() {
 
 }
 
+bool Dash::eventFilter(QObject *obj, QEvent *event) {
+    if (obj == m_ui.lineEdit) {
+        if (event->type() == QEvent::KeyPress) {
+            QKeyEvent *keyEvent = static_cast<QKeyEvent *> (event);
+            if (keyEvent->key() == Qt::Key_Down) {
+                if (m_ui.tabs->currentIndex() == 0) {
+                    m_ui.StartView->setFocus();
+                    m_ui.StartView->setCurrentIndex(startDashModel->index(0, 0));
+                } else if (m_ui.tabs->currentIndex() == 1) {
+                    m_ui.AppView->setFocus();
+                    m_ui.AppView->setCurrentIndex(appDashModel->index(0, 0));
+                } else if (m_ui.tabs->currentIndex() == 2) {
+                    m_ui.SettingsView->setFocus();
+                    m_ui.SettingsView->setCurrentIndex(settingsDashModel->index(0, 0));
+                }
+
+                qDebug() << "Down key pressed";
+                return true;
+            } else {
+                return QObject::eventFilter(obj, event);
+            }
+
+        } else {
+            // standard event processing
+            return QObject::eventFilter(obj, event);
+        }
+    } else {
+        if (event->type() == QEvent::KeyPress) {
+            QKeyEvent *keyEvent = static_cast<QKeyEvent *> (event);
+            if (keyEvent->key() == Qt::Key_Return) {
+                qDebug() << "esto es un enter";
+                return QObject::eventFilter(obj, event);
+            } else if (keyEvent->key() != Qt::Key_Down
+                    && keyEvent->key() != Qt::Key_Up
+                    && keyEvent->key() != Qt::Key_Right
+                    && keyEvent->key() != Qt::Key_Left
+                    && keyEvent->key() != Qt::Key_Return) {
+                qDebug() << "ahora se va pal edit";
+                m_ui.lineEdit->setFocus();
+                m_ui.lineEdit->setText(keyEvent->text());
+                return QObject::eventFilter(obj, event);
+            }
+        } else {
+            return QObject::eventFilter(obj, event);
+        }
+    }
+
+}
+
+void Dash::onReturnPressed() {
+    qDebug() << "Return pressed";
+    if (m_ui.lineEdit->text().length() > 0 && startDashModel->rowCount() > 0) {
+        startDashModel->getDesktop(0)->startDetached();
+        m_ui.StartView->clearSelection();
+        getFavorites();
+    }
+}
+
 void Dash::showContextMenuForApp(QPoint pos) {
     qDebug() << "showContextMenuForApp " << pos.x() << " " << pos.y();
-    appIndex = m_ui.AppView->indexAt(mapFromGlobal(pos)).row() - 1; //esto no mapea bien la posicion
+    if (m_ui.tabs->currentIndex() == 1) {
+        if (m_ui.AppView->selectionModel()->selectedIndexes().length() >= 1) {
+            appIndex = m_ui.AppView->selectionModel()->selectedIndexes().at(0).row();
+        }
+    } else {
+        if (m_ui.SettingsView->selectionModel()->selectedIndexes().length() >= 1) {
+            appIndex = m_ui.SettingsView->selectionModel()->selectedIndexes().at(0).row();
+        }
+    }
     qDebug() << appIndex;
 
     if (appIndex >= 0) {
@@ -149,24 +241,38 @@ void Dash::showContextMenuForApp(QPoint pos) {
 }
 
 void Dash::showContextMenuForStart(QPoint pos) {
-    if (m_ui.lineEdit->text().length() == 0) {
-        qDebug() << "showContextMenuForApp " << pos.x() << " " << pos.y();
-        appIndex = m_ui.StartView->indexAt(mapFromGlobal(pos)).row() - 1;
-        qDebug() << appIndex;
+    qDebug() << "showContextMenuForApp " << pos.x() << " " << pos.y();
+    //    appIndex = m_ui.StartView->indexAt(mapFromGlobal(pos)).row() - 1;
+    if (m_ui.StartView->selectionModel()->selectedIndexes().length() >= 1) {
+        appIndex = m_ui.StartView->selectionModel()->selectedIndexes().at(0).row();
+    }
+    qDebug() << appIndex;
 
-        if (appIndex >= 0) {
-            QMenu* contextMenu = new QMenu();
-            QAction* addAction = new QAction(tr("Remove from favorites"), this);
+    if (appIndex >= 0) {
+        QMenu* contextMenu = new QMenu();
+        QAction* addAction;
+        if (m_ui.lineEdit->text().length() == 0) {
+            addAction = new QAction(tr("Remove from favorites"), this);
             connect(addAction, SIGNAL(triggered()), SLOT(removeFavorite()));
-            contextMenu->addAction(addAction);
-            contextMenu->exec(mapToGlobal(pos));
+        } else {
+            addAction = new QAction(tr("Add to favorites"), this);
+            connect(addAction, SIGNAL(triggered()), SLOT(addFavorite()));
         }
+        contextMenu->addAction(addAction);
+        contextMenu->exec(mapToGlobal(pos));
     }
 }
 
 void Dash::addFavorite() {
     if (appIndex >= 0) {
-        XdgDesktopFile* theApp = appDashModel->getDesktop(appIndex);
+        XdgDesktopFile* theApp;
+        if (m_ui.tabs->currentIndex() == 1) {
+            theApp = appDashModel->getDesktop(appIndex);
+        } else if (m_ui.tabs->currentIndex() == 2) {
+            theApp = settingsDashModel->getDesktop(appIndex);
+        } else {
+            theApp = startDashModel->getDesktop(appIndex);
+        }
         qDebug() << "app" << appIndex << " -->> " << theApp->name();
         addFavorites(theApp);
         getFavorites();
@@ -211,30 +317,35 @@ void Dash::buildSearch(QString search) {
     m_ui.StartView->setModel(startDashModel);
 }
 
-void Dash::onAppItemTrigerred(const QModelIndex& item) {
-    qDebug() << "AppItemTrigerred" << item.row();
-    qDebug() << appDashModel->getDesktop(item.row())->name();
-    appDashModel->getDesktop(item.row())->startDetached();
-    m_ui.AppView->clearSelection();
+void Dash::onItemTrigerred(const QModelIndex& item) {
+    DashViewModel* themodel;
+    QListView *theview;
+
+    if (m_ui.tabs->currentIndex() == 0) {
+        qDebug() << "StartItemTrigerred" << item.row();
+        themodel = startDashModel;
+        theview = m_ui.StartView;
+    } else if (m_ui.tabs->currentIndex() == 1) {
+        qDebug() << "AppItemTrigerred" << item.row();
+        themodel = appDashModel;
+        theview = m_ui.AppView;
+    } else if (m_ui.tabs->currentIndex() == 2) {
+        qDebug() << "SettingsItemTrigerred" << item.row();
+        themodel = settingsDashModel;
+        theview = m_ui.SettingsView;
+    }
+
+
+    qDebug() << themodel->getDesktop(item.row())->name();
+    themodel->getDesktop(item.row())->startDetached();
+    theview->clearSelection();
+
+    if (m_ui.tabs->currentIndex() == 0) {
+        getFavorites();
+    }
+
+    hide();
 }
-
-void Dash::onSettingsItemTrigerred(const QModelIndex& item) {
-    qDebug() << "SettingsItemTrigerred" << item.row();
-    settingsDashModel->getDesktop(item.row())->startDetached();
-    m_ui.SettingsView->clearSelection();
-}
-
-void Dash::onStartItemTrigerred(const QModelIndex& item) {
-    qDebug() << "StartItemTrigerred" << item.row();
-    startDashModel->getDesktop(item.row())->startDetached();
-    m_ui.StartView->clearSelection();
-}
-
-// taken from libqtxdg: XdgMenuWidget
-
-
-
-// taken from libqtxdg: XdgMenuWidget
 
 void Dash::addFavorites(XdgDesktopFile* app) {
     us::ModuleContext* context = us::GetModuleContext();
@@ -245,16 +356,16 @@ void Dash::addFavorites(XdgDesktopFile* app) {
     dir->mkdir("favs");
     QFile* file = new QFile(appName);
     if (file->copy(dir->absolutePath() + "/favs/" + app->name().toLower())) {
-        qDebug() << "Archivo copiado";
+        qDebug() << "Archivo copiado a favoritos";
     } else {
-        qDebug() << "Error";
+        qDebug() << "Error copiando archivo a favoritos";
     }
 }
 
 //Get all favorite apps in the directory and paint them on start widget
 
 void Dash::getFavorites() {
-
+    m_ui.lineEdit->clear();
     us::ModuleContext* context = us::GetModuleContext();
     const QString ruta(ModuleSettings::getModuleDataLocation(context) + "/favs");
 
@@ -316,30 +427,6 @@ void Dash::removeFavorites(XdgDesktopFile* app) {
     }
 }
 
-void Dash::handleMouseMoveEvent(QMouseEvent *event) {
-    //    if (!(event->buttons() & Qt::LeftButton))
-    //        return;
-    //
-    //    if ((event->pos() - mDragStartPosition).manhattanLength() < QApplication::startDragDistance())
-    //        return;
-    //
-    //    XdgCachedMenuAction *a = qobject_cast<XdgCachedMenuAction*>(actionAt(event->pos()));
-    //    if (!a)
-    //        return;
-    //
-    //    QList<QUrl> urls;
-    //    char* desktop_file = menu_cache_item_get_file_path(a->item());
-    //    urls << QUrl(desktop_file);
-    //    g_free(desktop_file);
-    //
-    //    QMimeData *mimeData = new QMimeData();
-    //    mimeData->setUrls(urls);
-    //
-    //    QDrag *drag = new QDrag(this);
-    //    drag->setMimeData(mimeData);
-    //    drag->exec(Qt::CopyAction | Qt::LinkAction);
-}
-
 void Dash::showEvent(QShowEvent * event) {
     qDebug() << "Show event";
 
@@ -348,13 +435,14 @@ void Dash::showEvent(QShowEvent * event) {
         built = true;
     } else {
         //no recuerdo pa q era esto
-        cleanApps();
-        build();
+        //            cleanApps();
+        //            build();
         getFavorites();
     }
 
     m_ui.tabs->setCurrentWidget(m_ui.tabStart);
     m_ui.lineEdit->setFocus();
+
     show();
 }
 
@@ -370,6 +458,8 @@ void Dash::searchEditChanged(QString asearch) {
         qDebug() << "searching for " << asearch;
         m_ui.tabs->setCurrentIndex(0);
         buildSearch(asearch);
+
+        m_ui.StartView->setCurrentIndex(startDashModel->index(0, 0));
     } else {
         getFavorites();
     }
