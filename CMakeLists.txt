@@ -69,14 +69,14 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 add_subdirectory(src/core)
 
 ## CMake build scripts
-include(src/utils.cmake/create-module.cmake)
+include(src/utils_cmake/create-module.cmake)
 
 ##
 ## MoonLightDE Modules Comment comment to disable build.
 ##
 
 
-add_subdirectory(src/presentation.panel)
+add_subdirectory(src/presentation_panel)
 #add_subdirectory(src/panel-clasic-menu)
 #add_subdirectory(src/panel-dash_xdg)
 #
