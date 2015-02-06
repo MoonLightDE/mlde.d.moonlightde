@@ -25,6 +25,7 @@ set(${PROJECT_NAME}_PATCH_VERSION "0")
 
 set(${PROJECT_NAME}_VERSION '${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION}.${${PROJECT_NAME}_PATCH_VERSION}')
 
+set(LIBS_PREFIX "lib${PROJECT_NAME}_")
 # ------------------------------------------------------------------------------
 # Configuration
 # ------------------------------------------------------------------------------
