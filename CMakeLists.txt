@@ -17,7 +17,8 @@
 #    along with Moonlight Desktop Environment.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-project(moonlightde)
+project(moonlightde) # The project name will be prefixed all targets.
+
 set(${PROJECT_NAME}_MAJOR_VERSION "0")
 set(${PROJECT_NAME}_MINOR_VERSION "7")
 set(${PROJECT_NAME}_PATCH_VERSION "0")
@@ -47,22 +48,23 @@ message(STATUS "Build config: ${PROJECT_NAME} ${${PROJECT_NAME}_VERSION} ${CMAKE
 # Default install directories
 #-------------------------------------------------------------------------------
 
-set(PREFIX ${PROJECT_NAME})
-
-set(MODULES_INSTALL_DIR "lib/${PREFIX}")
-set(DESCRIPTORS_INSTALL_DIR "lib/${PREFIX}/descriptors")
-set(RESOURCES_INSTALL_DIR "share/${PREFIX}")
-set(PUBLIC_HEADERS_INSTALL_DIR "include/${PREFIX}")
-set(CMAKE_FILES_INSTALL_DIR "share/${PREFIX}/cmake")
+set(MODULES_INSTALL_DIR "lib/${CMAKE_PROJECT_NAME}")
+set(DESCRIPTORS_INSTALL_DIR "lib/${CMAKE_PROJECT_NAME}/descriptors")
+set(RESOURCES_INSTALL_DIR "share/${CMAKE_PROJECT_NAME}")
+set(PUBLIC_HEADERS_INSTALL_DIR "include/${CMAKE_PROJECT_NAME}")
+set(CMAKE_FILES_INSTALL_DIR "share/${CMAKE_PROJECT_NAME}/cmake")
 
 ## --------------------------------------------------------------
 ## MoonlightDE modules,  comment to disable build.
 ## --------------------------------------------------------------
-include(src/utils_cmake/create-module.cmake) # every module depends on this, don't disable!
+include(src/utils_cmake/build-module.cmake)  # every module depends on this, don't disable!
+include(src/utils_cmake/deploy-module.cmake) # every module depends on this, don't disable!
 
 add_subdirectory(src/core)
 
-add_subdirectory(src/presentation_panel)
+add_subdirectory(src/utils_module_skel)
+
+#add_subdirectory(src/presentation_panel)
 #add_subdirectory(src/panel-clasic-menu)
 #add_subdirectory(src/panel-dash_xdg)
 #

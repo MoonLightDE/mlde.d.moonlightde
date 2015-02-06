@@ -1,0 +1,4 @@
+[Desktop Entry]
+Type=@CMAKE_PROJECT_NAME@_module_generic
+Name=@FULL_MODULE_NAME@
+Comment=Edit the module description at res/descriptor.in
