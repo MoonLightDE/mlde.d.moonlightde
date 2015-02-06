@@ -45,7 +45,6 @@ find_package(Qt5X11Extras   REQUIRED)
 ## CppMicroServices
 find_package(CppMicroServices NO_MODULE REQUIRED)
 include_directories(${CppMicroServices_INCLUDE_DIRS})
-message(STATUS ----------- ${CMAKE_CURRENT_SOURCE_DIR})
 
 ## LXQT -- depends on QT5XDG
 find_package(LXQT-QT5 REQUIRED )
@@ -78,13 +77,12 @@ set (${PROJECT_NAME}_SOURCES
     ${${PROJEC_NAME}_QRC_SOURCES}
 )
 
-m_create_module(
+m_build_module(
 	NAME ${PROJECT_NAME}
 	SOURCES ${${PROJECT_NAME}_SOURCES}
 )
 
-target_link_libraries(${MOONLIGHTDE_PREFIX}_${PROJECT_NAME}
-    ${CppMicroServices_LIBRARIES}
+target_link_libraries(${TARGET_NAME}
     ${LXQT_LIBRARIES}
 
     KF5::WindowSystem
@@ -95,3 +93,5 @@ target_link_libraries(${MOONLIGHTDE_PREFIX}_${PROJECT_NAME}
     Qt5::DBus
     Qt5::X11Extras
 )
+
+m_deploy_module(${TARGET_NAME})
