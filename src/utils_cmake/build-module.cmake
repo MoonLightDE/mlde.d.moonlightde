@@ -27,8 +27,7 @@ function(m_build_module)
             message(FATAL_ERROR "SOURCES argument is mandatory.")
     endif()
 
-    set(MODULE_FULL_NAME "${CMAKE_PROJECT_NAME}_${MOONLIGHTDE_MODULE_NAME}")
-    message(STATUS "Building module lib: ${MODULE_FULL_NAME}")
+    message(STATUS "Building module lib: ${MOONLIGHTDE_MODULE_NAME}")
 
     # Create module configuration header
     set(MODULE_CONFIGURATION_HEADER_TEMPLATE "${PROJECT_SOURCE_DIR}/c++/module_config.h.in")
@@ -67,11 +66,11 @@ function(m_build_module)
         LIBRARY_NAME ${MOONLIGHTDE_MODULE_NAME}
     )
 
-    add_library(${MODULE_FULL_NAME} SHARED ${MOONLIGHTDE_MODULE_SOURCES})
+    add_library(${MOONLIGHTDE_MODULE_NAME} SHARED ${MOONLIGHTDE_MODULE_SOURCES})
 
     ## Include public headers
     if (EXISTS ${CMAKE_SOURCE_DIR}/include/${MOONLIGHTDE_MODULE_NAME})
-        target_include_directories(${MODULE_FULL_NAME} PUBLIC  
+        target_include_directories(${MOONLIGHTDE_MODULE_NAME} PUBLIC  
             $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include> 
             $<INSTALL_INTERFACE:${PUBLIC_HEADERS_INSTALL_DIR}>  
         )
@@ -80,33 +79,34 @@ function(m_build_module)
                 "${CMAKE_SOURCE_DIR}/include/${MOONLIGHTDE_MODULE_NAME}")
     endif()
     
-    target_link_libraries(${MODULE_FULL_NAME}  ${CppMicroServices_LIBRARIES} )
+    target_link_libraries(${MOONLIGHTDE_MODULE_NAME}  ${CppMicroServices_LIBRARIES} )
 
     # Build module descriptor
     set(MODULE_DESCRIPTOR_TEMPLATE "${PROJECT_SOURCE_DIR}/res/descriptor.desktop.in" )
 
     if(NOT EXISTS ${MODULE_DESCRIPTOR_TEMPLATE})
         message(STATUS "No module descriptor found at ${MODULE_DESCRIPTOR_TEMPLATE}, generating a new one.")
-        m_generate_module_descriptor_template(${MODULE_FULL_NAME}  ${MODULE_DESCRIPTOR_TEMPLATE})
+        m_generate_module_descriptor_template(${MOONLIGHTDE_MODULE_NAME}  ${MODULE_DESCRIPTOR_TEMPLATE})
     endif()
     
     set(MODULE_DESCRIPTOR "${PROJECT_BINARY_DIR}/${MOONLIGHTDE_MODULE_NAME}.desktop")    
     configure_file( ${MODULE_DESCRIPTOR_TEMPLATE} ${MODULE_DESCRIPTOR} )
     
     file(GLOB PUBLIC_HEADERS ${CMAKE_SOURCE_DIR}/include/${MOONLIGHTDE_MODULE_NAME}/*.h)
-    set_target_properties(${MODULE_FULL_NAME} 
+    set_target_properties(${MOONLIGHTDE_MODULE_NAME} 
         PROPERTIES
         PUBLIC_HEADER "${PUBLIC_HEADERS}"
         DESCRIPTOR "${MODULE_DESCRIPTOR}"
+        PREFIX  ${LIBS_PREFIX}
     )
 
-    set(TARGET_NAME "${MODULE_FULL_NAME}" PARENT_SCOPE)
+    set(TARGET_NAME "${MOONLIGHTDE_MODULE_NAME}" PARENT_SCOPE)
 endfunction()
 
 function(m_generate_module_descriptor_template MODULE_NAME TARGET)
     file(WRITE ${TARGET}
         "[Desktop Entry]\n"
-        "Type=${CMAKE_PROJECT_NAME}_generic\n"
-        "Name=${MODULE_NAME}\n"
-        "Comment=No description privided.\n")
+        "Type=\@CMAKE_PROJECT_NAME\@_generic\n"
+        "Name=\@MOONLIGHTDE_MODULE_NAME\@\n"
+        "Comment=Edit the file res/descriptor.desktop.in to provide a description for this module.\n")
 endfunction()
