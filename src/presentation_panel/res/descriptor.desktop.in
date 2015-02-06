@@ -1,4 +1,4 @@
 [Desktop Entry]
-Type=moonlightde_generic
-Name=moonlightde_presentation_panel
-Comment=No description privided.
+Type=@CMAKE_PROJECT_NAME@_generic
+Name=@MOONLIGHTDE_MODULE_NAME@
+Comment=Edit the file res/descriptor.desktop.in to provide a description for this module.
