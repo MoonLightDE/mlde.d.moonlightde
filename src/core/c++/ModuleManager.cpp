@@ -32,6 +32,7 @@
 #include <set>
 
 #include <QDir>
+#include <QRegExp>
 #include <QFile>
 #include <QDebug>
 #include <QSettings>
@@ -69,13 +70,15 @@ bool ModuleManager::load(const QString &name) {
         if (module->IsLoaded()) {
             qDebug() << "Module " << name << " already loaded.";
         } else { // Reload module
-            try {
-                SharedLibrary *libHandle;
+            SharedLibrary *libHandle;
+            try {    
                 if (libs.contains(name)) {
                     libHandle = libs.value(name);
                 } else {
                     QString modulePath = QString::fromStdString(module->GetLocation());
-                    libHandle = new SharedLibrary(modulePath.toStdString());
+                    libHandle = new SharedLibrary();
+                    libHandle->SetPrefix(LIBS_PREFIX);
+                    libHandle->SetFilePath(modulePath.toStdString());
                 }
 
                 libHandle->Load();
@@ -86,13 +89,20 @@ bool ModuleManager::load(const QString &name) {
             } catch (const std::exception& ex) {
                 err_msg.append("\n\t");
                 err_msg.append(ex.what());
+                
+                delete libHandle;
             }
         }
     } else { // Load module from scratch
 
         foreach(QString path, qApp->libraryPaths()) {
+            SharedLibrary *libHandle;
             try {
-                SharedLibrary *libHandle = new SharedLibrary(path.toStdString(), name.toStdString());
+                libHandle = new SharedLibrary();
+                libHandle->SetPrefix(LIBS_PREFIX);
+                libHandle->SetLibraryPath(path.toStdString());
+                libHandle->SetName(name.toStdString());
+
                 libHandle->Load();
 
                 libs.insert(name, libHandle);
@@ -101,6 +111,8 @@ bool ModuleManager::load(const QString &name) {
             } catch (const std::exception& ex) {
                 err_msg.append("\n\t");
                 err_msg.append(ex.what());
+                
+                delete libHandle;
             }
         }
 
@@ -111,13 +123,13 @@ bool ModuleManager::load(const QString &name) {
 
 bool ModuleManager::unload(const QString &name) {
     QString err_msg;
-
     Module * const module = ModuleRegistry::GetModule(name.toStdString());
     if (module) {
+        SharedLibrary *libHandle;
         try {
-            SharedLibrary *libHandle;
             if (libs.contains(name)) {
                 libHandle = libs.value(name);
+                libs.remove(name);
             } else {
                 libHandle = new SharedLibrary(module->GetLocation());
             }
@@ -138,6 +150,8 @@ bool ModuleManager::unload(const QString &name) {
             qDebug() << "Fail to unload: " << name;
             qDebug() << "\n\t" << e.what();
         }
+        
+        delete libHandle;
     }
     qDebug() << "Module " << name << " wasn't loaded, nothing to do.";
     return true;
@@ -146,18 +160,18 @@ bool ModuleManager::unload(const QString &name) {
 QList<QString> ModuleManager::getAviableModules() {
     QList<QString> list;
     QStringList nameFilters;
-    nameFilters << "libmoonlightDE-*.so";
+    nameFilters << LIBS_PREFIX"*.so";
 
     foreach(QString path, qApp->libraryPaths()) {
         QDir dir(path);
         dir.setFilter(QDir::Files | QDir::NoDotAndDotDot);
         dir.setNameFilters(nameFilters);
-        QStringList filesList = dir.entryList();
+        QFileInfoList filesList = dir.entryInfoList();
 
-        foreach(QString fileName, filesList) {
-            fileName.chop(3); // remove "lib" preffix
-            fileName.remove(0, 3); // remove ".so" suffix
-            list.append(fileName);
+        foreach(QFileInfo fileInfo, filesList) {
+            QString descriptorFile = fileInfo.baseName();
+            descriptorFile.remove(LIBS_PREFIX);
+            list.append(descriptorFile);
         }
     }
     return list;
@@ -165,17 +179,8 @@ QList<QString> ModuleManager::getAviableModules() {
 
 QList<QString> ModuleManager::getActiveModules() {
     QList<QString> list;
-    QStringList nameFilters;
-    nameFilters << "libmoonlightDE-*.so";
-
     foreach(Module * module, ModuleRegistry::GetLoadedModules()) {
-        QFileInfo fileInfo(QString::fromStdString(module->GetLocation()));
-        QString name = fileInfo.fileName();
-        if (QDir::match(nameFilters, name)) {
-            name.chop(3); // remove "lib" preffix
-            name.remove(0, 3); // remove ".so" suffix
-            list.append(name);
-        }
+        list.append(QString::fromStdString(module->GetName()));
     }
     return list;
 }

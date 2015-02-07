@@ -17,13 +17,15 @@
 #    along with Moonlight Desktop Environment.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-project(moonlightDE)
-set(${PROJECT_NAME}_MAJOR_VERSION 0)
-set(${PROJECT_NAME}_MINOR_VERSION 7)
-set(${PROJECT_NAME}_PATCH_VERSION 0)
+project(moonlightde) # The project name will be prefixed all targets.
 
-set(${PROJECT_NAME}_VERSION ${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION}.${${PROJECT_NAME}_PATCH_VERSION})
+set(${PROJECT_NAME}_MAJOR_VERSION "0")
+set(${PROJECT_NAME}_MINOR_VERSION "7")
+set(${PROJECT_NAME}_PATCH_VERSION "0")
 
+set(${PROJECT_NAME}_VERSION '${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION}.${${PROJECT_NAME}_PATCH_VERSION}')
+
+set(LIBS_PREFIX "lib${PROJECT_NAME}_")
 # ------------------------------------------------------------------------------
 # Configuration
 # ------------------------------------------------------------------------------
@@ -31,9 +33,8 @@ cmake_minimum_required(VERSION 2.8)
 
 ## Build Type
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-    message(STATUS "Setting build type to 'Debug' as none was specified.")
     set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build." FORCE)
-    
+
     set(CMAKE_CXX_FLAGS_DEBUG "-g3 -gdwarf-2")
     message(STATUS "Using CXX_FLAGS: ${CMAKE_CXX_FLAGS_DEBUG}")
 
@@ -42,41 +43,29 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
         STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
+message(STATUS "Build config: ${PROJECT_NAME} ${${PROJECT_NAME}_VERSION} ${CMAKE_BUILD_TYPE}")
+
 #-------------------------------------------------------------------------------
-# Init output directories
+# Default install directories
 #-------------------------------------------------------------------------------
 
-set(MOONLIGHTDE_PREFIX moonlightde)
-set(MoonLightDE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib")
-set(MoonLightDE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib")
-set(MoonLightDE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
-set(MoonLightDE_HEADERS_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/include")
-set(MoonLightDE_DESCRIPTORS_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/share/moonlightDE/descriptors")
-
-set(DBUS_INTERFACES_INSTALL_DIR "share/dbus-1/interfaces")
-
-foreach(_type ARCHIVE LIBRARY RUNTIME HEADERS)
-  if(NOT CMAKE_${_type}_OUTPUT_DIRECTORY)
-    set(CMAKE_${_type}_OUTPUT_DIRECTORY ${MoonLightDE_${_type}_OUTPUT_DIRECTORY})
-  endif()
-endforeach()
-
-include_directories(${CMAKE_SOURCE_DIR}/include)
+set(MODULES_INSTALL_DIR "lib/${CMAKE_PROJECT_NAME}")
+set(DESCRIPTORS_INSTALL_DIR "lib/${CMAKE_PROJECT_NAME}/descriptors")
+set(RESOURCES_INSTALL_DIR "share/${CMAKE_PROJECT_NAME}")
+set(PUBLIC_HEADERS_INSTALL_DIR "include/${CMAKE_PROJECT_NAME}")
+set(CMAKE_FILES_INSTALL_DIR "share/${CMAKE_PROJECT_NAME}/cmake")
 
 ## --------------------------------------------------------------
-## Modules
+## MoonlightDE modules,  comment to disable build.
 ## --------------------------------------------------------------
+include(src/utils_cmake/build-module.cmake)  # every module depends on this, don't disable!
+include(src/utils_cmake/deploy-module.cmake) # every module depends on this, don't disable!
+
 add_subdirectory(src/core)
 
-## CMake build scripts
-include(src/utils_cmake/create-module.cmake)
+add_subdirectory(src/utils_module_skel)
 
-##
-## MoonLightDE Modules Comment comment to disable build.
-##
-
-
-add_subdirectory(src/presentation_panel)
+#add_subdirectory(src/presentation_panel)
 #add_subdirectory(src/panel-clasic-menu)
 #add_subdirectory(src/panel-dash_xdg)
 #

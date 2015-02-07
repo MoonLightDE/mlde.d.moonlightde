@@ -70,17 +70,27 @@ usFunctionGenerateExecutableInit(${PROJECT_NAME}_SOURCES
 
 configure_file( c++/MoonLightDECoreConfig.h.in ${CMAKE_CURRENT_BINARY_DIR}/MoonLightDECoreConfig.h)
 
-add_executable(${CMAKE_PROJECT_NAME}-${PROJECT_NAME} 
+add_executable(${CMAKE_PROJECT_NAME}_${PROJECT_NAME} 
     ${${PROJECT_NAME}_HEADERS}
     ${${PROJECT_NAME}_SOURCES}
     ${${PROJEC_NAME}_UI_HEADERS}
     ${${PROJEC_NAME}_QRC_SOURCES}
 )
 
-qt5_use_modules(${CMAKE_PROJECT_NAME}-${PROJECT_NAME} Core Gui Widgets)
+    set_target_properties(${CMAKE_PROJECT_NAME}_${PROJECT_NAME} 
+        PROPERTIES
+        PUBLIC_HEADER "${${PROJECT_NAME}_PUBLIC_HEADERS}"
+    )
+
+target_include_directories(${CMAKE_PROJECT_NAME}_${PROJECT_NAME}  PUBLIC  
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include/${MOONLIGHTDE_MODULE_NAME}>  
+    $<INSTALL_INTERFACE:${PUBLIC_HEADERS_INSTALL_DIR}/${MOONLIGHTDE_MODULE_NAME}>  
+)
+
+qt5_use_modules(${CMAKE_PROJECT_NAME}_${PROJECT_NAME} Core Gui Widgets)
 
 # Link the CppMicroServices library
-target_link_libraries(${CMAKE_PROJECT_NAME}-${PROJECT_NAME} 
+target_link_libraries(${CMAKE_PROJECT_NAME}_${PROJECT_NAME} 
     CppMicroServices
     ${LXQT_LIBRARIES}
     ${QTXDG_LIBRARIES}
@@ -89,11 +99,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME}-${PROJECT_NAME}
 ## --------------------------------------------------------------
 ## Install
 ## --------------------------------------------------------------
-
-
-INSTALL(TARGETS ${CMAKE_PROJECT_NAME}-${PROJECT_NAME}
+INSTALL(TARGETS ${CMAKE_PROJECT_NAME}_${PROJECT_NAME}
     RUNTIME DESTINATION bin
-    LIBRARY DESTINATION MODULES_OUTPUT_DIR
-    ARCHIVE DESTINATION lib/static)
-
-INSTALL(FILES ${${PROJECT_NAME}_PUBLIC_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/${PROJECT_NAME})
+    PUBLIC_HEADER DESTINATION ${PUBLIC_HEADERS_INSTALL_DIR}/${PROJECT_NAME}
+)
