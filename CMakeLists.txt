@@ -65,7 +65,8 @@ add_subdirectory(src/core)
 
 add_subdirectory(src/utils_module_skel)
 
-#add_subdirectory(src/presentation_panel)
+add_subdirectory(src/presentation_panel)
+add_subdirectory(src/presentation_panel_dash)
 #add_subdirectory(src/panel-clasic-menu)
 #add_subdirectory(src/panel-dash_xdg)
 #

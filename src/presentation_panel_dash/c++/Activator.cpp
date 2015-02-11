@@ -21,21 +21,36 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "panel/IPanel.h"
-#include "DashFactory.h"
+
+#include "Dash.h"
+#include "presentation_panel/WidgetFactory.h"
 
 #include <usModuleActivator.h>
 #include <usModuleContext.h>
 #include <usServiceProperties.h>
 
+#include <QObject>
+#include <QPushButton>
 #include <QDebug>
-#include <QPointer>
 
 US_USE_NAMESPACE
 /**
  */
-class Activator : public ModuleActivator {
+class Activator : public ModuleActivator, public presentation_panel::WidgetFactory {
 private:
+
+    virtual QWidget* build(const QString& prefix, QWidget* parent) {
+        QPushButton *bttn = new QPushButton("&Start", parent);
+        bttn->setObjectName(presentation_panel::MAINMENUBUTTON);
+
+        QObject::connect(bttn, SIGNAL(clicked()), &m_Dash, SLOT(show()));
+
+        return bttn;
+    }
+
+    virtual QString name() {
+        return presentation_panel::MAINMENUBUTTON;
+    }
 
     /**
      * Implements ModuleActivator::Load().
@@ -44,17 +59,17 @@ private:
      */
     void Load(ModuleContext* context) {
         ServiceProperties props;
-        context->RegisterService<ILauncherFactory>(&factory, props);
+        context->RegisterService<presentation_panel::WidgetFactory>(this, props);
     }
 
     /**
      * Implements ModuleActivator::Unload().
      *
-     * @param context the framework context for the module.QPointer<
+     * @param context the framework context for the module.
      */
     void Unload(ModuleContext* context) {
     }
 
-    DashFactory factory;
+    Dash m_Dash;
 };
-US_EXPORT_MODULE_ACTIVATOR(panel_dash_xdg, Activator)
+US_EXPORT_MODULE_ACTIVATOR(presentation_panel_dash, Activator)
