@@ -1,0 +1,4 @@
+#ifndef presentation_panel_dash_H
+#define presentation_panel_dash_H
+#define MODULE_NAME "presentation_panel_dash" 
+#endif // presentation_panel_dash_H

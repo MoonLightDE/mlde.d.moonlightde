@@ -49,7 +49,7 @@
 using namespace us;
 
 PanelImpl::PanelImpl(QWidget *parent) :
-QWidget(parent), m_Desktop(-1) {
+QWidget(parent), m_Desktop(-1), m_WidgetTracker(this) {
 
 
     adjustSizeToScreen();
@@ -92,11 +92,11 @@ void PanelImpl::adjustSizeToScreen() {
     m_Geometry.moveBottomLeft(screenGeometry.bottomLeft());
 
     QWidget::setGeometry(m_Geometry);
-    
+
     qDebug() << MODULE_NAME << ": Adjusting size to: " << m_Geometry.size();
     qDebug() << MODULE_NAME << ": Adjusting position to: " << m_Geometry.topLeft();
     qDebug() << MODULE_NAME << ": resulting geometry: " << geometry();
-    
+
     // Update reserved screen area on resize
     requestExclusiveScreenArea();
 }
@@ -134,60 +134,44 @@ void PanelImpl::requestExclusiveScreenArea() {
             );
 }
 
-void PanelImpl::addWidget(QWidget* widget) {
+void PanelImpl::addWidgetFactory(presentation_panel::WidgetFactory* widgetFactory) {
+    if (widgetFactory == NULL) {
+        qWarning() << MODULE_NAME << " : adding a NULL object widget factory.";
+        return;
+    }
+
+    QString name = widgetFactory->name();
+    if (m_Widgets.contains(name)) {
+        qDebug() << MODULE_NAME << " : " << name << " already registered.";
+        return;
+    }
+
+    QWidget * widget = widgetFactory->build(MODULE_NAME, this);
     if (widget == NULL) {
-        qWarning() << MODULE_NAME << ": traing to add a NULL widget.";
+        qDebug() << MODULE_NAME << " : " << name << " widget wasn't built.";
         return;
     }
-    if (widget->objectName() == "MainMenuButton") {
-        m_MainMenuButton = widget;
-        updateLayout();
-        return;
-    }
-    if (widget->objectName() == "UserTasks") {
-        m_UserTasks = widget;
-        updateLayout();
-        return;
-    }
-    if (widget->objectName() == "Indicators") {
-        m_Indicators = widget;
-        updateLayout();
-        return;
-    }
-    if (widget->objectName() == "DateTime") {
-        m_DateTime = widget;
-        updateLayout();
-        return;
-    }
-    
-    qWarning() << MODULE_NAME << ": not supported widget: " << widget->objectName();
+
+    m_Widgets.insert(name, widget);
+    m_Factories.insert(name, widgetFactory);
+
+    updateLayout();
 }
 
-void PanelImpl::removeWidget(QWidget* widget) {
-    if (widget == NULL) {
-        qWarning() << MODULE_NAME << ": traing to remove a NULL widget.";
+void PanelImpl::removeWidgetFactory(presentation_panel::WidgetFactory* widgetFactory) {
+    if (widgetFactory == NULL) {
+        qWarning() << MODULE_NAME << ": traing to remove a NULL widget factory.";
         return;
     }
-    if (widget->objectName() == "MainMenuButton") {
-        m_MainMenuButton = NULL;
-        updateLayout();
-        return;
-    }
-    if (widget->objectName() == "UserTasks") {
-        m_UserTasks = NULL;
-        updateLayout();
-        return;
-    }
-    if (widget->objectName() == "Indicators") {
-        m_Indicators = NULL;
-        updateLayout();
-        return;
-    }
-    if (widget->objectName() == "DateTime") {
-        m_DateTime = NULL;
-        updateLayout();
-        return;
-    }
+    QString name = widgetFactory->name();
+    QWidget * widget = m_Widgets.value(name);
+
+    m_Widgets.remove(name);
+    m_Factories.remove(name);
+
+    widget->deleteLater();
+
+    updateLayout();
 }
 
 void PanelImpl::updateLayout() {
@@ -195,11 +179,12 @@ void PanelImpl::updateLayout() {
     delete layout();
 
     QHBoxLayout * newLayout = new QHBoxLayout(this);
-    newLayout->addWidget(m_MainMenuButton);
-    newLayout->addWidget(m_UserTasks);
+
+    newLayout->addWidget(m_Widgets.value(presentation_panel::MAINMENUBUTTON, NULL));
+    newLayout->addWidget(m_Widgets.value(presentation_panel::USERTASKS, NULL));
     newLayout->addSpacing(0);
-    newLayout->addWidget(m_Indicators);
-    newLayout->addWidget(m_DateTime);
+    newLayout->addWidget(m_Widgets.value(presentation_panel::INDICATORS, NULL));
+    newLayout->addWidget(m_Widgets.value(presentation_panel::DATETIME, NULL));
     setLayout(newLayout);
 }
 

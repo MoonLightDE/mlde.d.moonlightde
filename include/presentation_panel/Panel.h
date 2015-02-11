@@ -28,13 +28,15 @@
 
 namespace presentation_panel {
 
+    class WidgetFactory;
+
     class Panel {
     public:
 
         virtual ~Panel() {
         };
-        virtual void addWidget(QWidget * widget) = 0;
-        virtual void removeWidget(QWidget * widget) = 0;
+        virtual void addWidgetFactory(WidgetFactory * widgetFactory) = 0;
+        virtual void removeWidgetFactory(WidgetFactory * widgetFactory) = 0;
         virtual int desktop() = 0;
         virtual void setDesktop(int desktop) = 0;
         virtual QRect geometry() = 0;

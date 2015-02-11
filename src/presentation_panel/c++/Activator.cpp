@@ -28,6 +28,8 @@
 #include <usModuleActivator.h>
 #include <usModuleContext.h>
 #include <usServiceProperties.h>
+#include <usServiceReference.h>
+#include <usServiceEvent.h>
 
 #include <QDebug>
 #include <QPointer>
@@ -51,8 +53,6 @@ private:
         context->RegisterService<presentation_panel::Panel>(m_Panel, ServiceProperties());
 
         m_Panel->show();
-
-        m_PanelWidgetsTracker = new WidgetsTracker(context, m_Panel);
     }
 
     /**
@@ -62,12 +62,10 @@ private:
      */
     void Unload(ModuleContext* context) {
         delete (m_Panel);
-        delete (m_PanelWidgetsTracker);
         delete (m_SidePanel);
     }
 
     PanelImpl *m_Panel;
     SidePanel *m_SidePanel;
-    WidgetsTracker *m_PanelWidgetsTracker;
 };
 US_EXPORT_MODULE_ACTIVATOR(presentation_panel, Activator)

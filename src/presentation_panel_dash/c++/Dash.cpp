@@ -22,8 +22,6 @@
 
 #include "Dash.h"
 #include "AppButton.h"
-#include "GridLayoutHExpanding.h"
-#include "GridLayoutVExpanding.h"
 #include "DesktopFileCollection.h"
 
 #include "qevent.h"
@@ -463,4 +461,11 @@ void Dash::searchEditChanged(QString asearch) {
     } else {
         getFavorites();
     }
+}
+
+void Dash::toggle() {
+    if (isVisible())
+        hide();
+    else
+        show();
 }

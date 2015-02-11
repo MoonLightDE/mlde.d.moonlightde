@@ -21,7 +21,7 @@
 
 
 
-project(panel_dash_xdg)
+project(presentation_panel_dash)
 
 ## --------------------------------------------------------------
 ## Sources
@@ -86,12 +86,13 @@ set (${PROJECT_NAME}_SOURCES
     ${${PROJEC_NAME}_QRC_SOURCES}
 )
 
-MoonLightDE_CreateModule(${PROJECT_NAME} ${${PROJECT_NAME}_SOURCES})
+m_build_module(
+    NAME ${PROJECT_NAME}
+    SOURCES ${${PROJECT_NAME}_SOURCES}
+)
 
-target_link_libraries(moonlightDE-${PROJECT_NAME} 
-    ${CppMicroServices_LIBRARIES}
+target_link_libraries(${TARGET_NAME}
     ${LXQT_LIBRARIES}
-    ${MENU_CACHE_LIBRARIES}
 
     Qt5::Core
     Qt5::Widgets
@@ -99,3 +100,5 @@ target_link_libraries(moonlightDE-${PROJECT_NAME}
     Qt5::DBus
     Qt5::X11Extras
 )
+
+m_deploy_module(${TARGET_NAME})
