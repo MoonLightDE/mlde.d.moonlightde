@@ -18,24 +18,27 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "module_config.h"
+
+
 #include "WidgetsTracker.h"
+#include "PanelImpl.h"
+#include "module_config.h"
 
 #include <usModuleContext.h>
 #include <usGetModuleContext.h>
 
 #include <QDebug>
 
-WidgetsTracker::WidgetsTracker(us::ModuleContext* context, PanelImpl *panel) {
-    m_Context = context;
-    
+WidgetsTracker::WidgetsTracker(PanelImpl *panel) {
+    m_Context = us::GetModuleContext();
+
     if (panel == NULL)
-        qCritical() << MODULE_NAME  << ": invalid widget service tracker initialization.";
+        qCritical() << MODULE_NAME << ": invalid widget service tracker initialization.";
     else {
         m_Panel = panel;
-        m_tracker = new us::ServiceTracker<presentation_panel::Widget>(m_Context, this);
+        m_tracker = new us::ServiceTracker<presentation_panel::WidgetFactory>(m_Context, this);
         m_tracker->Open();
-        
+
         qDebug() << MODULE_NAME << ": panel widgets tracker up and running.";
     }
 }
@@ -44,25 +47,26 @@ WidgetsTracker::~WidgetsTracker() {
     m_tracker->Close();
 }
 
-presentation_panel::Widget* WidgetsTracker::AddingService(const us::ServiceReference<presentation_panel::Widget>& reference) {
-    presentation_panel::Widget * widget = m_Context->GetService(reference);
+presentation_panel::WidgetFactory* WidgetsTracker::AddingService(const us::ServiceReference<presentation_panel::WidgetFactory>& reference) {
+    presentation_panel::WidgetFactory * factory = m_Context->GetService(reference);
 
-    if (m_Panel == NULL) {
+    if (m_Panel.isNull()) {
         qCritical() << MODULE_NAME << ": widget service tracker not initialized.";
-        return widget;
+        return factory;
     }
 
-    m_Panel->addWidget(widget);
+    m_Panel->addWidgetFactory(factory);
+    return factory;
 }
 
-void WidgetsTracker::ModifiedService(const us::ServiceReference<presentation_panel::Widget>&, presentation_panel::Widget *widget) {
+void WidgetsTracker::ModifiedService(const us::ServiceReference<presentation_panel::WidgetFactory>& reference, presentation_panel::WidgetFactory *service) {
     // do nothing
 }
 
-void WidgetsTracker::RemovedService(const us::ServiceReference<presentation_panel::Widget>& reference, presentation_panel::Widget *widget) {
-    if (m_Panel == NULL) {
+void WidgetsTracker::RemovedService(const us::ServiceReference<presentation_panel::WidgetFactory>& reference, presentation_panel::WidgetFactory *service) {
+    if (m_Panel.isNull()) {
         qCritical() << MODULE_NAME << ": widget service tracker not initialized.";
         return;
     }
-    m_Panel->removeWidget(widget);
+    m_Panel->removeWidgetFactory(service);
 }

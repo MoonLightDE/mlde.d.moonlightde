@@ -21,14 +21,19 @@
 #ifndef PANELIMPL_H
 #define PANELIMPL_H
 
+#include "WidgetsTracker.h"
+
 #include "presentation_panel/Panel.h"
-#include "presentation_panel/Widget.h"
+#include "presentation_panel/WidgetFactory.h"
 
 #include <usModuleContext.h>
-
-#include <QWidget>
-#include <QRect>
 #include <usServiceTracker.h>
+
+#include <QMap>
+#include <QRect>
+#include <QWidget>
+
+
 /**
  * A very static implementation of a desktop panel.
  */
@@ -43,8 +48,10 @@ public:
     virtual int desktop();
     virtual void setDesktop(int desktop);
 
-    void addWidget(QWidget * widget);
-    void removeWidget(QWidget * widget);
+
+
+    virtual void addWidgetFactory(presentation_panel::WidgetFactory* widgetFactory);
+    virtual void removeWidgetFactory(presentation_panel::WidgetFactory* widgetFactory);
 
     virtual QRect geometry();
     virtual void setGeometry(QRect geometry);
@@ -60,16 +67,14 @@ protected:
     void updateLayout();
 
 private:
-    // Static widgets
-    QWidget *m_MainMenuButton;
-    QWidget *m_UserTasks;
-    QWidget *m_Indicators;
-    QWidget *m_DateTime;
-
+    QMap<QString, presentation_panel::WidgetFactory *> m_Factories;
+    QMap<QString, QWidget *> m_Widgets;
+    
     /* Panel properties */
     QRect m_Geometry;
     int m_Desktop;
     
+    WidgetsTracker m_WidgetTracker;
 };
 
 #endif // PANELIMPL_H

@@ -21,28 +21,30 @@
 #ifndef WIDGETSTRACKER_H
 #define	WIDGETSTRACKER_H
 
-#include "PanelImpl.h"
 
-#include "presentation_panel/Widget.h"
+#include "presentation_panel/WidgetFactory.h"
 
 #include <usServiceTracker.h>
 #include <usServiceTrackerCustomizer.h>
 
-class WidgetsTracker : public us::ServiceTrackerCustomizer<presentation_panel::Widget> {
+#include <QPointer>
+
+class PanelImpl;
+class WidgetsTracker : public us::ServiceTrackerCustomizer<presentation_panel::WidgetFactory> {
 public:
-    WidgetsTracker(us::ModuleContext* context, PanelImpl *panel);
+    WidgetsTracker(PanelImpl *panel);
     virtual ~WidgetsTracker();
 
-    virtual presentation_panel::Widget* AddingService(const us::ServiceReference<presentation_panel::Widget>& reference);
+    virtual presentation_panel::WidgetFactory* AddingService(const us::ServiceReference<presentation_panel::WidgetFactory>& reference);
 
-    virtual void ModifiedService(const us::ServiceReference<presentation_panel::Widget>& /*reference*/, presentation_panel::Widget* /*service*/);
+    virtual void ModifiedService(const us::ServiceReference<presentation_panel::WidgetFactory>& reference, presentation_panel::WidgetFactory *service);
 
-    virtual void RemovedService(const us::ServiceReference<presentation_panel::Widget>& reference, presentation_panel::Widget* /*service*/);
+    virtual void RemovedService(const us::ServiceReference<presentation_panel::WidgetFactory>& reference, presentation_panel::WidgetFactory *service);
 
 private:
-    PanelImpl *m_Panel;
+    QPointer<PanelImpl> m_Panel;
     us::ModuleContext* m_Context;
-    us::ServiceTracker<presentation_panel::Widget> * m_tracker;
+    us::ServiceTracker<presentation_panel::WidgetFactory> * m_tracker;
 };
 
 #endif	/* WIDGETSTRACKER_H */
