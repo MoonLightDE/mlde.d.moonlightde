@@ -1,0 +1,4 @@
+#ifndef panelTaskBar_H
+#define panelTaskBar_H
+#define MODULE_NAME "panelTaskBar" 
+#endif // panelTaskBar_H
