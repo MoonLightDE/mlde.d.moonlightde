@@ -29,6 +29,7 @@ file(GLOB ${PROJECT_NAME}_SOURCES c++/*.cpp)
 file(GLOB ${PROJECT_NAME}_UIS ui/*.ui)
 
 file(GLOB ${PROJECT_NAME}_RESOURCES res/*)
+list(REMOVE_ITEM ${PROJECT_NAME}_RESOURCES "${PROJECT_SOURCE_DIR}/res/descriptor.desktop.in")
 
 
 ## --------------------------------------------------------------
@@ -74,7 +75,7 @@ QT5_ADD_RESOURCES(${PROJEC_NAME}_QRC_SOURCES ${${PROJEC_NAME}_RESOURCES})
 set (${PROJECT_NAME}_SOURCES
     ${${PROJECT_NAME}_SOURCES}
     ${${PROJEC_NAME}_UI_HEADERS}
-    ${${PROJEC_NAME}_QRC_SOURCES}
+    ${${PROJECT_NAME}_RESOURCES}
 )
 
 m_build_module(
