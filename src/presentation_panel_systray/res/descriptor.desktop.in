@@ -1,0 +1,4 @@
+[Desktop Entry]
+Type=@CMAKE_PROJECT_NAME@_generic
+Name=@MOONLIGHTDE_MODULE_NAME@
+Comment=Edit the file res/descriptor.desktop.in to provide a description for this module.

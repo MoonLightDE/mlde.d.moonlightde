@@ -1,0 +1,4 @@
+#ifndef panelSysTray_H
+#define panelSysTray_H
+#define MODULE_NAME "panelSysTray" 
+#endif // panelSysTray_H
