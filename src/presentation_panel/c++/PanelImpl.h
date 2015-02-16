@@ -32,7 +32,7 @@
 #include <QMap>
 #include <QRect>
 #include <QWidget>
-
+#include <QPointer>
 
 /**
  * A very static implementation of a desktop panel.
@@ -68,12 +68,12 @@ protected:
 
 private:
     QMap<QString, presentation_panel::WidgetFactory *> m_Factories;
-    QMap<QString, QWidget *> m_Widgets;
-    
+    QMap<QString, QPointer<QWidget> > m_Widgets;
+
     /* Panel properties */
     QRect m_Geometry;
     int m_Desktop;
-    
+
     WidgetsTracker m_WidgetTracker;
 };
 

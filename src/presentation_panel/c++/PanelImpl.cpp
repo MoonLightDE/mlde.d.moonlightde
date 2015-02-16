@@ -51,7 +51,7 @@ using namespace us;
 PanelImpl::PanelImpl(QWidget *parent) :
 QWidget(parent), m_Desktop(-1), m_WidgetTracker(this) {
 
-
+    setWindowFlags(Qt::WindowDoesNotAcceptFocus);
     adjustSizeToScreen();
     setupWindowFlags();
 
@@ -164,12 +164,13 @@ void PanelImpl::removeWidgetFactory(presentation_panel::WidgetFactory* widgetFac
         return;
     }
     QString name = widgetFactory->name();
-    QWidget * widget = m_Widgets.value(name);
+    QPointer<QWidget> widget = m_Widgets.value(name);
 
     m_Widgets.remove(name);
     m_Factories.remove(name);
 
-    widget->deleteLater();
+    if (!widget.isNull())
+        delete widget;
 
     updateLayout();
 }
