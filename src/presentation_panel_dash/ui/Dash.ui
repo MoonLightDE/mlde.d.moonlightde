@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>Dash</class>
- <widget class="QFrame" name="Dash">
+ <widget class="QDialog" name="Dash">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,13 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Frame</string>
-  </property>
-  <property name="frameShape">
-   <enum>QFrame::StyledPanel</enum>
-  </property>
-  <property name="frameShadow">
-   <enum>QFrame::Raised</enum>
+   <string>Dash</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

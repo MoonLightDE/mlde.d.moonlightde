@@ -25,17 +25,18 @@
 
 #include "ui_Dash.h"
 
-#include <QFrame>
+#include <QDialog>
+#include <QWidget>
 #include <LXQt/Settings>
 #include <QFileSystemWatcher>
 #include "DesktopFileCollection.h"
 #include "DashViewModel.h"
 #include <QListView>
 
-class Dash : public QFrame {
+class Dash : public QDialog {
     Q_OBJECT
 public:
-    Dash();
+    Dash(QWidget * parent);
     virtual ~Dash();
 
     void build();

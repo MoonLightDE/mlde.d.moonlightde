@@ -61,15 +61,15 @@
 
 QTextStream cout(stdout);
 
-Dash::Dash() : m_settings("panel-dash_xdg") {
+Dash::Dash(QWidget * parent) : QDialog(parent), m_settings("panel-dash_xdg") {
     startDashModel = NULL;
     appDashModel = NULL;
     settingsDashModel = NULL;
 
     m_ui.setupUi(this);
 
-    setWindowFlags(Qt::Popup);
-    setFrameStyle(QFrame::NoFrame);
+    setWindowFlags( Qt::Dialog | Qt::WindowStaysOnTopHint | Qt::CustomizeWindowHint | Qt::Popup | Qt::X11BypassWindowManagerHint);
+
     built = false;
 
     monitor = new QFileSystemWatcher();
@@ -391,8 +391,9 @@ void Dash::getFavorites() {
 
 void Dash::hideEvent(QHideEvent *event) {
     qDebug() << "hideEvent()";
-    QThread::msleep(1);
-    QFrame::hideEvent(event);
+//    QThread::msleep(1);
+    QDialog::hideEvent(event);
+    parentWidget()->raise();
 }
 
 void Dash::putFavorites(QList<XdgDesktopFile*> favAppList) {

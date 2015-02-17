@@ -31,6 +31,7 @@
 
 #include <QObject>
 #include <QPushButton>
+#include <QPointer>
 #include <QDebug>
 
 US_USE_NAMESPACE
@@ -43,8 +44,11 @@ private:
         QPushButton *bttn = new QPushButton("&Start", parent);
         bttn->setObjectName(presentation_panel::MAINMENUBUTTON);
 
-        QObject::connect(bttn, SIGNAL(clicked()), &m_Dash, SLOT(show()));
+        if (m_Dash.isNull()) {
+            m_Dash = new Dash(bttn);
+        }
 
+        QObject::connect(bttn, SIGNAL(clicked()), m_Dash, SLOT(toggle()));
         return bttn;
     }
 
@@ -68,8 +72,9 @@ private:
      * @param context the framework context for the module.
      */
     void Unload(ModuleContext* context) {
+        delete m_Dash;
     }
 
-    Dash m_Dash;
+    QPointer<Dash> m_Dash;
 };
 US_EXPORT_MODULE_ACTIVATOR(presentation_panel_dash, Activator)
