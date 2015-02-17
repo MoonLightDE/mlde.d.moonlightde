@@ -1,0 +1,4 @@
+#ifndef presentation_panel_datetime_H
+#define presentation_panel_datetime_H
+#define MODULE_NAME "presentation_panel_datetime" 
+#endif // presentation_panel_datetime_H

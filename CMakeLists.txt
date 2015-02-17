@@ -69,11 +69,11 @@ add_subdirectory(src/presentation_panel)
 add_subdirectory(src/presentation_panel_dash)
 add_subdirectory(src/presentation_panel_tasksbar)
 add_subdirectory(src/presentation_panel_systray)
+add_subdirectory(src/presentation_panel_datetime)
 
 #add_subdirectory(src/panel-clasic-menu)
 #add_subdirectory(src/panel-dash_xdg)
 #
-#add_subdirectory(src/panel-clock)
 #add_subdirectory(src/panel-menu)
 
 #add_subdirectory(src/panel-quicklauchers)
