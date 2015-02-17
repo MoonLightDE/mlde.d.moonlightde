@@ -52,6 +52,7 @@ PanelImpl::PanelImpl(QWidget *parent) :
 QWidget(parent), m_Desktop(-1), m_WidgetTracker(this) {
 
     setWindowFlags(Qt::WindowDoesNotAcceptFocus);
+    setAttribute(Qt::WA_AlwaysShowToolTips);
     adjustSizeToScreen();
     setupWindowFlags();
 
@@ -183,7 +184,7 @@ void PanelImpl::updateLayout() {
 
     newLayout->addWidget(m_Widgets.value(presentation_panel::MAINMENUBUTTON, NULL));
     newLayout->addWidget(m_Widgets.value(presentation_panel::USERTASKS, NULL));
-    newLayout->addSpacing(0);
+    newLayout->addStretch(0);
     newLayout->addWidget(m_Widgets.value(presentation_panel::INDICATORS, NULL));
     newLayout->addWidget(m_Widgets.value(presentation_panel::DATETIME, NULL));
     setLayout(newLayout);
