@@ -27,6 +27,8 @@
 #include <usServiceInterface.h>
 
 namespace presentation_panel {
+    
+    class Panel;
 
     // List of well known panel widgets
     static const char * MAINMENUBUTTON = "MainMenuButton";
@@ -52,7 +54,7 @@ namespace presentation_panel {
          * Resolve the customization widget for the current Panel Widget.
          * @return 
          */
-        virtual QWidget * custimizationWidget(const QString &prefix) {
+        virtual QWidget * custimizationWidget(const QString &widgetName) {
             return NULL;
         }
 
@@ -64,11 +66,11 @@ namespace presentation_panel {
         /**
          * Creates a new instace of the widget. The user must take care of it's
          * release when no longer needed or when the service provider is gone.
-         * @param prefix provides a namespace for the widget settings.
+         * @param widgetName provides a namespace for the widget settings.
          * @param parent 
          * @return 
          */
-        virtual QWidget * build(const QString &prefix, QWidget *parent) = 0;
+        virtual QWidget * build(const QString &widgetName, Panel *parent) = 0;
     };
 };
 
