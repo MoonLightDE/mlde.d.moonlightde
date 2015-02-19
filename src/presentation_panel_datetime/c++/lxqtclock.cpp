@@ -30,6 +30,7 @@
 
 
 #include "lxqtclock.h"
+#include "module_config.h"
 
 #include <QDialog>
 #include <QLabel>
@@ -46,6 +47,7 @@
 
 // MoonLightDE Module settings de
 #include "core/ModuleSettings.h"
+#include "presentation_panel/WidgetFactory.h"
 #include <usGetModuleContext.h>
 
 /**
@@ -58,11 +60,14 @@
 /**
  * @brief constructor
  */
-LxQtClock::LxQtClock(/*const ILxQtPanelPluginStartupInfo &startupInfo*/) :
+LxQtClock::LxQtClock(const QString &widgetName/*const ILxQtPanelPluginStartupInfo &startupInfo*/) :
 QObject(),
+m_WidgetName(widgetName),
 /*ILxQtPanelPlugin(startupInfo),*/
 mAutoRotate(true) {
     mMainWidget = new QWidget();
+    mMainWidget->setObjectName(presentation_panel::DATETIME);
+
     mRotatedWidget = new LxQt::RotatedWidget(*(new QWidget()), mMainWidget);
     mContent = mRotatedWidget->content();
     mTimeLabel = new QLabel(mContent);
@@ -158,6 +163,7 @@ void LxQtClock::settingsChanged() {
     us::ModuleContext *context = us::GetModuleContext();
     QSettings *settings = ModuleSettings::getModuleSettings(context);
 
+    settings->beginGroup(m_WidgetName);
     //    mTimeFormat = settings()->value("timeFormat", QLocale::system().timeFormat(QLocale::ShortFormat).toUpper().contains("AP") ? "h:mm AP" : "HH:mm").toString();
     mTimeFormat = settings->value("timeFormat", QLocale::system().timeFormat(QLocale::ShortFormat).toUpper().contains("AP") ? "h:mm AP" : "HH:mm").toString();
 
@@ -183,6 +189,7 @@ void LxQtClock::settingsChanged() {
         realign();
     }
 
+    settings->endGroup();
 
     if (dateBeforeTime)
         mClockFormat = QString("%1 %2").arg(mDateFormat).arg(mTimeFormat);
@@ -339,7 +346,9 @@ QDialog * LxQtClock::configureDialog() {
     QSettings *settings = ModuleSettings::getModuleSettings(context);
 
     //    return new LxQtClockConfiguration(*settings());
-    return new LxQtClockConfiguration(*settings);
+    if (settings == NULL)
+        qWarning() <<  MODULE_NAME << " unable to retrieve settigns for the configuration dialog.";
+    return new LxQtClockConfiguration(settings, m_WidgetName);
 }
 
 bool LxQtClock::eventFilter(QObject *watched, QEvent *event) {
@@ -348,10 +357,18 @@ bool LxQtClock::eventFilter(QObject *watched, QEvent *event) {
             mMainWidget->setToolTip(QDateTime::currentDateTime().toString(Qt::DefaultLocaleLongDate));
 
         if (event->type() == QEvent::MouseButtonRelease) {
-            if (mCalendarPopup->isVisible())
-                mCalendarPopup->hide();
-            else
-                mCalendarPopup->show();
+            QMouseEvent *mouseEvent = static_cast<QMouseEvent *> (event);
+            if (mouseEvent->button() && Qt::RightButton) {
+                if (mCalendarPopup->isVisible())
+                    mCalendarPopup->hide();
+                else
+                    mCalendarPopup->show();
+            }
+            if (mouseEvent->button() & Qt::LeftButton) {
+                QDialog * configure = configureDialog();
+                configure->setAttribute( Qt::WA_DeleteOnClose, true );
+                configure->show();
+            }
         }
         return false;
     }

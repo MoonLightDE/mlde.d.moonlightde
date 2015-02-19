@@ -46,7 +46,7 @@ class LxQtClock : public QObject/*, public ILxQtPanelPlugin*/
 {
     Q_OBJECT
 public:
-    LxQtClock(/*const ILxQtPanelPluginStartupInfo &startupInfo*/);
+    LxQtClock(const QString &widgetName/*const ILxQtPanelPluginStartupInfo &startupInfo*/);
     ~LxQtClock();
 
 /*    virtual Flags flags() const { return PreferRightAlignment | HaveConfigDialog ; }*/
@@ -67,6 +67,9 @@ protected:
     bool eventFilter(QObject *watched, QEvent *event);
 
 private:
+    // Used to identify the widget in a panel
+    const QString m_WidgetName;
+    
     QTimer* mClockTimer;
     QWidget *mMainWidget;
     QWidget *mContent;

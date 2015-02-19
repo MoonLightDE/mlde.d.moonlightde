@@ -27,18 +27,19 @@
 
 
 #include <QInputDialog>
+#include <QDebug>
 
 #include "lxqtclockconfiguration.h"
 #include "ui_lxqtclockconfiguration.h"
 
-
-LxQtClockConfiguration::LxQtClockConfiguration(QSettings &settings, QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::LxQtClockConfiguration),
-    mSettings(settings),
-    oldSettings(settings),
-    mOldIndex(1)
-{
+LxQtClockConfiguration::LxQtClockConfiguration(QSettings *settings, const QString widgetName, QWidget *parent) :
+QDialog(parent),
+ui(new Ui::LxQtClockConfiguration),
+mSettings(settings),
+oldSettings(settings),
+mOldIndex(1),
+m_WidgetName(widgetName)
+ {
     setAttribute(Qt::WA_DeleteOnClose);
     setObjectName("ClockConfigurationWindow");
     ui->setupUi(this);
@@ -59,30 +60,28 @@ LxQtClockConfiguration::LxQtClockConfiguration(QSettings &settings, QWidget *par
     connect(ui->showDateAfterTimeRB, SIGNAL(clicked()), SLOT(saveSettings()));
     connect(ui->showDateBelowTimeRB, SIGNAL(clicked()), SLOT(saveSettings()));
 
-//    connect(ui->autorotateCB, SIGNAL(clicked()), SLOT(saveSettings()));
+    //    connect(ui->autorotateCB, SIGNAL(clicked()), SLOT(saveSettings()));
 }
 
-LxQtClockConfiguration::~LxQtClockConfiguration()
-{
+LxQtClockConfiguration::~LxQtClockConfiguration() {
     delete ui;
+    delete mSettings;
 }
 
 static int currentYear = QDate::currentDate().year();
 
-void LxQtClockConfiguration::addDateFormat(const QString &format)
-{
+void LxQtClockConfiguration::addDateFormat(const QString &format) {
     if (ui->dateFormatCOB->findData(QVariant(format)) == -1)
         ui->dateFormatCOB->addItem(QDate(currentYear, 1, 1).toString(format), QVariant(format));
 }
 
-void LxQtClockConfiguration::createDateFormats()
-{
+void LxQtClockConfiguration::createDateFormats() {
     ui->dateFormatCOB->clear();
 
     QString systemDateLocale = QLocale::system().dateFormat(QLocale::ShortFormat).toUpper();
 
     if (systemDateLocale.indexOf("Y") < systemDateLocale.indexOf("D"))
-    // Big-endian (year, month, day) -> in some Asia countires like China or Japan
+        // Big-endian (year, month, day) -> in some Asia countires like China or Japan
     {
         addDateFormat("MMM d");
         addDateFormat("MMMM d");
@@ -100,9 +99,8 @@ void LxQtClockConfiguration::createDateFormats()
         addDateFormat("yyyy MMMM dd");
         addDateFormat("yyyy MMM dd, ddd");
         addDateFormat("yyyy MMMM dd, dddd");
-    }
-    else if (systemDateLocale.indexOf("M") < systemDateLocale.indexOf("D"))
-    // Middle-endian (month, day, year) -> USA
+    } else if (systemDateLocale.indexOf("M") < systemDateLocale.indexOf("D"))
+        // Middle-endian (month, day, year) -> USA
     {
         addDateFormat("MMM d");
         addDateFormat("MMMM d");
@@ -120,9 +118,8 @@ void LxQtClockConfiguration::createDateFormats()
         addDateFormat("MMMM dd yyyy");
         addDateFormat("ddd, MMM dd yyyy");
         addDateFormat("dddd, MMMM dd yyyy");
-    }
-    else
-    // Little-endian (day, month, year) -> most of Europe
+    } else
+        // Little-endian (day, month, year) -> most of Europe
     {
         addDateFormat("d MMM");
         addDateFormat("d MMMM");
@@ -153,115 +150,108 @@ void LxQtClockConfiguration::createDateFormats()
         ui->dateFormatCOB->addItem(QString("Custom (%1) ...").arg(QDate(currentYear, 1, 1).toString(mCustomDateFormat)), QVariant(mCustomDateFormat));
 }
 
-void LxQtClockConfiguration::loadSettings()
-{
+void LxQtClockConfiguration::loadSettings() {
     QString systemDateLocale = QLocale::system().dateFormat(QLocale::ShortFormat).toUpper();
     QString systemTimeLocale = QLocale::system().timeFormat(QLocale::ShortFormat).toUpper();
 
-    QString timeFormat = mSettings.value("timeFormat", systemTimeLocale.contains("AP") ? "h:mm AP" : "HH:mm").toString();
+    mSettings->beginGroup(m_WidgetName);
+    QString timeFormat = mSettings->value("timeFormat", systemTimeLocale.contains("AP") ? "h:mm AP" : "HH:mm").toString();
 
     ui->showSecondsCB->setChecked(timeFormat.indexOf("ss") > -1);
 
     ui->ampmClockCB->setChecked(timeFormat.toUpper().indexOf("AP") > -1);
 
-    ui->useUtcCB->setChecked(mSettings.value("UTC", false).toBool());
+    ui->useUtcCB->setChecked(mSettings->value("UTC", false).toBool());
 
     ui->dontShowDateRB->setChecked(true);
-    ui->showDateBeforeTimeRB->setChecked(mSettings.value("showDate", "no").toString().toLower() == "before");
-    ui->showDateAfterTimeRB->setChecked(mSettings.value("showDate", "no").toString().toLower() == "after");
-    ui->showDateBelowTimeRB->setChecked(mSettings.value("showDate", "no").toString().toLower() == "below");
+    ui->showDateBeforeTimeRB->setChecked(mSettings->value("showDate", "no").toString().toLower() == "before");
+    ui->showDateAfterTimeRB->setChecked(mSettings->value("showDate", "no").toString().toLower() == "after");
+    ui->showDateBelowTimeRB->setChecked(mSettings->value("showDate", "no").toString().toLower() == "below");
 
-    mCustomDateFormat = mSettings.value("customDateFormat", QString()).toString();
-    QString dateFormat = mSettings.value("dateFormat", QLocale::system().dateFormat(QLocale::ShortFormat)).toString();
+    mCustomDateFormat = mSettings->value("customDateFormat", QString()).toString();
+    QString dateFormat = mSettings->value("dateFormat", QLocale::system().dateFormat(QLocale::ShortFormat)).toString();
 
+    mSettings->endGroup();
     createDateFormats();
 
     if (mCustomDateFormat == dateFormat)
         ui->dateFormatCOB->setCurrentIndex(ui->dateFormatCOB->count() - 1);
-    else
-    {
+    else {
         ui->dateFormatCOB->setCurrentIndex(ui->dateFormatCOB->findData(dateFormat));
         if (ui->dateFormatCOB->currentIndex() < 0)
             ui->dateFormatCOB->setCurrentIndex(1);
     }
     mOldIndex = ui->dateFormatCOB->currentIndex();
 
-//    ui->autorotateCB->setChecked(mSettings.value("autoRotate", true).toBool());
+    //    ui->autorotateCB->setChecked(mSettings.value("autoRotate", true).toBool());
 }
 
-void LxQtClockConfiguration::saveSettings()
-{
+void LxQtClockConfiguration::saveSettings() {
     QString timeFormat(ui->ampmClockCB->isChecked() ? "h:mm AP" : "HH:mm");
 
     if (ui->showSecondsCB->isChecked())
         timeFormat.insert(timeFormat.indexOf("mm") + 2, ":ss");
 
-    mSettings.setValue("timeFormat", timeFormat);
+    mSettings->beginGroup(m_WidgetName);
+    mSettings->setValue("timeFormat", timeFormat);
 
-    mSettings.setValue("UTC", ui->useUtcCB->isChecked());
+    mSettings->setValue("UTC", ui->useUtcCB->isChecked());
 
-    mSettings.setValue("showDate",
-        ui->showDateBeforeTimeRB->isChecked() ? "before" :
-        (ui->showDateAfterTimeRB->isChecked() ? "after" :
-        (ui->showDateBelowTimeRB->isChecked() ? "below" : "no" )));
+    mSettings->setValue("showDate",
+            ui->showDateBeforeTimeRB->isChecked() ? "before" :
+            (ui->showDateAfterTimeRB->isChecked() ? "after" :
+            (ui->showDateBelowTimeRB->isChecked() ? "below" : "no")));
 
-    mSettings.setValue("customDateFormat", mCustomDateFormat);
+    mSettings->setValue("customDateFormat", mCustomDateFormat);
     if (ui->dateFormatCOB->currentIndex() == (ui->dateFormatCOB->count() - 1))
-        mSettings.setValue("dateFormat", mCustomDateFormat);
+        mSettings->setValue("dateFormat", mCustomDateFormat);
     else
-        mSettings.setValue("dateFormat", ui->dateFormatCOB->itemData(ui->dateFormatCOB->currentIndex()));
+        mSettings->setValue("dateFormat", ui->dateFormatCOB->itemData(ui->dateFormatCOB->currentIndex()));
 
-//    mSettings.setValue("autoRotate", ui->autorotateCB->isChecked());
+    //    mSettings.setValue("autoRotate", ui->autorotateCB->isChecked());
+    mSettings->endGroup();
 }
 
-void LxQtClockConfiguration::dialogButtonsAction(QAbstractButton *btn)
-{
-    if (ui->buttons->buttonRole(btn) == QDialogButtonBox::ResetRole)
-    {
+void LxQtClockConfiguration::dialogButtonsAction(QAbstractButton *btn) {
+    if (ui->buttons->buttonRole(btn) == QDialogButtonBox::ResetRole) {
         oldSettings.loadToSettings();
         loadSettings();
-    }
-    else
-    {
+    } else {
         close();
     }
 }
 
-void LxQtClockConfiguration::dateFormatActivated(int index)
-{
-    if (index == ui->dateFormatCOB->count() - 1)
-    {
+void LxQtClockConfiguration::dateFormatActivated(int index) {
+    if (index == ui->dateFormatCOB->count() - 1) {
         bool ok;
         QString newCustomDateFormat = QInputDialog::getText(this, tr("Input custom date format"), tr(
-            "Interpreted sequences of date format are:\n"
-            "\n"
-            "d\tthe day as number without a leading zero (1 to 31)\n"
-            "dd\tthe day as number with a leading zero (01 to 31)\n"
-            "ddd\tthe abbreviated localized day name (e.g. 'Mon' to 'Sun').\n"
-            "dddd\tthe long localized day name (e.g. 'Monday' to 'Sunday').\n"
-            "M\tthe month as number without a leading zero (1-12)\n"
-            "MM\tthe month as number with a leading zero (01-12)\n"
-            "MMM\tthe abbreviated localized month name (e.g. 'Jan' to 'Dec').\n"
-            "MMMM\tthe long localized month name (e.g. 'January' to 'December').\n"
-            "yy\tthe year as two digit number (00-99)\n"
-            "yyyy\tthe year as four digit number\n"
-            "\n"
-            "All other input characters will be treated as text.\n"
-            "Any sequence of characters that are enclosed in single quotes (')\n"
-            "will also be treated as text and not be used as an expression.\n"
-            "\n"
-            "\n"
-            "Custom date format:"
-            ), QLineEdit::Normal, mCustomDateFormat, &ok);
-        if (ok)
-        {
+                "Interpreted sequences of date format are:\n"
+                "\n"
+                "d\tthe day as number without a leading zero (1 to 31)\n"
+                "dd\tthe day as number with a leading zero (01 to 31)\n"
+                "ddd\tthe abbreviated localized day name (e.g. 'Mon' to 'Sun').\n"
+                "dddd\tthe long localized day name (e.g. 'Monday' to 'Sunday').\n"
+                "M\tthe month as number without a leading zero (1-12)\n"
+                "MM\tthe month as number with a leading zero (01-12)\n"
+                "MMM\tthe abbreviated localized month name (e.g. 'Jan' to 'Dec').\n"
+                "MMMM\tthe long localized month name (e.g. 'January' to 'December').\n"
+                "yy\tthe year as two digit number (00-99)\n"
+                "yyyy\tthe year as four digit number\n"
+                "\n"
+                "All other input characters will be treated as text.\n"
+                "Any sequence of characters that are enclosed in single quotes (')\n"
+                "will also be treated as text and not be used as an expression.\n"
+                "\n"
+                "\n"
+                "Custom date format:"
+                ), QLineEdit::Normal, mCustomDateFormat, &ok);
+        if (ok) {
             mCustomDateFormat = newCustomDateFormat;
             mOldIndex = index;
             createDateFormats();
         }
         ui->dateFormatCOB->setCurrentIndex(mOldIndex);
-    }
-    else
+    } else
         mOldIndex = index;
 
     saveSettings();

@@ -19,12 +19,18 @@
  */
 
 #include "lxqtclock.h"
+#include "lxqtclockconfiguration.h"
+
 //#include "panel/IPanel.h"
 #include "presentation_panel/WidgetFactory.h"
+#include "presentation_panel/Panel.h"
+
+#include "core/ModuleSettings.h"
 
 #include <usModuleActivator.h>
 #include <usModuleContext.h>
 #include <usServiceProperties.h>
+#include <usGetModuleContext.h>
 
 #include <QDebug>
 #include <QPointer>
@@ -35,9 +41,9 @@ US_USE_NAMESPACE
 class Activator : public ModuleActivator, public presentation_panel::WidgetFactory {
 public:
 
-    virtual QWidget* build(const QString& prefix, QWidget* parent) {
+    virtual QWidget* build(const QString& widgetName, presentation_panel::Panel* parent) {
         if (m_clock.isNull()) {
-            m_clock = new LxQtClock();
+            m_clock = new LxQtClock(widgetName);
             m_clock->setObjectName(presentation_panel::DATETIME);
         }
         return m_clock->widget();
@@ -46,6 +52,15 @@ public:
     virtual QString name() {
         return presentation_panel::DATETIME;
     }
+
+    virtual bool isCustomizable() {
+        return true;
+    }
+
+    virtual QWidget* custimizationWidget(const QString& widgetName) {
+        return m_clock->configureDialog();
+    }
+
 
 
 private:
@@ -56,7 +71,7 @@ private:
      * @param context the framework context for the module.
      */
     void Load(ModuleContext* context) {
-        
+
         ServiceProperties props;
         context->RegisterService<presentation_panel::WidgetFactory>(this, props);
     }

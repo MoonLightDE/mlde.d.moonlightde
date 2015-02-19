@@ -41,38 +41,38 @@ namespace Ui {
     class LxQtClockConfiguration;
 }
 
-class LxQtClockConfiguration : public QDialog
-{
+class LxQtClockConfiguration : public QDialog {
     Q_OBJECT
 
 public:
-    explicit LxQtClockConfiguration(QSettings &settings, QWidget *parent = 0);
+    explicit LxQtClockConfiguration(QSettings *settings, const QString widgetName, QWidget *parent = 0);
     ~LxQtClockConfiguration();
 
 private:
     Ui::LxQtClockConfiguration *ui;
-    QSettings &mSettings;
+    QSettings * mSettings;
     LxQt::SettingsCache oldSettings;
 
     /*
       Read settings from conf file and put data into controls.
-    */
+     */
     void loadSettings();
 
     /*
       Creates a date formats consistent with the region read from locale.
-    */
+     */
     void createDateFormats();
 
 private slots:
     /*
       Saves settings in conf file.
-    */
+     */
     void saveSettings();
     void dialogButtonsAction(QAbstractButton *btn);
     void dateFormatActivated(int);
 
 private:
+    const QString m_WidgetName;
     int mOldIndex;
     QString mCustomDateFormat;
 
