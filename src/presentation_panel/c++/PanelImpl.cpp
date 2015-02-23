@@ -172,8 +172,11 @@ void PanelImpl::removeWidgetFactory(presentation_panel::WidgetFactory* widgetFac
 
 void PanelImpl::updateLayout() {
     // Destroy layout;
+    qDebug() << "Deleting old layout:";
     delete layout();
-
+    qDebug() << "Size of map:";
+    qDebug() << m_Widgets.size();
+    
     QHBoxLayout * newLayout = new QHBoxLayout(this);
 
     QMapIterator<QString, QPointer<QWidget> > i(m_Widgets);
