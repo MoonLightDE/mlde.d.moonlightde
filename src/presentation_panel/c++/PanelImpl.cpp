@@ -58,8 +58,7 @@ QWidget(parent), m_Desktop(-1), m_WidgetTracker(this) {
     moduleSettings->setValue("buttonMarginTop", 6);
     moduleSettings->setValue("buttonMarginRight", 10);
     moduleSettings->setValue("buttonMarginBottom", 6);
-    
-    qDebug() << moduleSettings->fileName();
+
     connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(adjustSizeToScreen()));
 }
 
