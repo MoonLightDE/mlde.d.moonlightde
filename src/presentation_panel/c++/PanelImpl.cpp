@@ -170,11 +170,8 @@ void PanelImpl::removeWidgetFactory(presentation_panel::WidgetFactory* widgetFac
 
 void PanelImpl::updateLayout() {
     // Destroy layout;
-    qDebug() << "Deleting old layout:";
     delete layout();
-    qDebug() << "Size of map:";
-    qDebug() << m_Widgets.size();
-    
+
     QHBoxLayout * newLayout = new QHBoxLayout(this);
     
     QString order = module_settings->value("widgetsOrder", "MainMenuButton,QuickLaunchers,UserTasks,Indicators,DateTime").toString();
