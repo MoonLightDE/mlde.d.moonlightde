@@ -183,7 +183,7 @@ void PanelImpl::updateLayout() {
     }
     
     QMargins widgetsMargins(moduleSettings->value("buttonMarginLeft").toInt(), moduleSettings->value("buttonMarginTop").toInt(), 
-                                            moduleSettings->value("buttonMarginRight").toInt(), moduleSettings->value("buttonMarginBottom").toInt());
+                                moduleSettings->value("buttonMarginRight").toInt(), moduleSettings->value("buttonMarginBottom").toInt());
     newLayout->setContentsMargins(widgetsMargins);
     
     setLayout(newLayout);
