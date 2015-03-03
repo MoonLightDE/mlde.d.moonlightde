@@ -36,12 +36,13 @@ function(m_build_module)
                 "${MODULE_CONFIGURATION_HEADER_TEMPLATE}" )
 
         file(WRITE "${MODULE_CONFIGURATION_HEADER_TEMPLATE}"
-            "#ifndef ${MOONLIGHTDE_MODULE_NAME}_H\n"
-            "#define ${MOONLIGHTDE_MODULE_NAME}_H\n"
+            "#ifndef \@MOONLIGHTDE_MODULE_NAME\@_H\n"
+            "#define \@MOONLIGHTDE_MODULE_NAME\@_H\n"
             
-            "#define MODULE_NAME \"${MOONLIGHTDE_MODULE_NAME}\" \n"
+            "#define MODULE_NAME \@MOONLIGHTDE_MODULE_NAME\@ \n"
+            "#define MODULE_NAME_STR \"\@MOONLIGHTDE_MODULE_NAME\@\" \n"
 
-            "#endif // ${MOONLIGHTDE_MODULE_NAME}_H\n"
+            "#endif // \@MOONLIGHTDE_MODULE_NAME\@_H\n"
             )
     endif()
     configure_file(
