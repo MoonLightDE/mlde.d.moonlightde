@@ -63,6 +63,7 @@ pkg_check_modules(MENU_CACHE REQUIRED
 include_directories(${MENU_CACHE_INCLUDE_DIRS})
 add_definitions(-DHAVE_MENU_CACHE=1)
 
+find_package(KF5WindowSystem REQUIRED)
 
 ## Inter-module dependencies
 set(${PROJECT_NAME}_DEPENDS )
@@ -94,6 +95,8 @@ m_build_module(
 
 target_link_libraries(${TARGET_NAME}
     ${LXQT_LIBRARIES}
+
+     KF5::WindowSystem
 
     Qt5::Core
     Qt5::Widgets
