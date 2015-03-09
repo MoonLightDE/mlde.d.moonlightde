@@ -73,7 +73,7 @@ bool PanelImpl::event(QEvent *event) {
             break;
         case QEvent::ContextMenu:
             break;
-
+                    
         case QEvent::LayoutRequest:
             qDebug() << MODULE_NAME << ": desktop layout changed.";
             adjustSizeToScreen();
@@ -147,7 +147,8 @@ void PanelImpl::addWidgetFactory(presentation_panel::WidgetFactory* widgetFactor
 
     m_Widgets.insert(name, widget);
     m_Factories.insert(name, widgetFactory);
-
+    
+    updateWidgetsOrder();
     updateLayout();
 }
 
@@ -207,4 +208,17 @@ void PanelImpl::setGeometry(QRect geometry) {
 }
 
 
+//TODO_TONIGHT:Comprobar que los widgets no esten guardados, entonces guardar la
+//conf, si estan guardados ver si el valor corresponde al orden que ya tiene.
+void PanelImpl::updateWidgetsOrder() {
+    qDebug() << "----------------Widgets order---------------------";
+    //moduleSettings->beginGroup("WidgetsOrder");
+    QMapIterator<QString, QPointer<QWidget> > iter(m_Widgets);
+    for (int i = 0; i < m_Widgets.size(); i++) {
+        iter.next();
+//        qDebug() << iter.key();
+        moduleSettings->setValue(iter.key(), i + 1);
+    }
+    qDebug() << "--------------------------------------------------";
+}
 

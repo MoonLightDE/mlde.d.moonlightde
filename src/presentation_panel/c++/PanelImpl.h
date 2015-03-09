@@ -51,7 +51,8 @@ public:
     virtual void setDesktop(int desktop);
 
 
-
+    void updateWidgetsOrder();
+    void writeWidgetsOrder();
     virtual void addWidgetFactory(presentation_panel::WidgetFactory* widgetFactory);
     virtual void removeWidgetFactory(presentation_panel::WidgetFactory* widgetFactory);
 
@@ -72,6 +73,7 @@ private:
     QMap<QString, presentation_panel::WidgetFactory *> m_Factories;
     QMap<QString, QPointer<QWidget> > m_Widgets;
 
+    
     /* Panel properties */
     QRect m_Geometry;
     int m_Desktop;
