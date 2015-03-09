@@ -53,12 +53,13 @@ QWidget(parent), m_Desktop(-1), m_WidgetTracker(this) {
     us::ModuleContext * context = us::GetModuleContext();
     
     moduleSettings = ModuleSettings::getModuleSettings(context);
-    //Write configurations in the configuratio file
+    //Write confs into configuration file
     moduleSettings->setValue("buttonMarginLeft", 10);
     moduleSettings->setValue("buttonMarginTop", 6);
     moduleSettings->setValue("buttonMarginRight", 10);
     moduleSettings->setValue("buttonMarginBottom", 6);
-
+    
+    qDebug() << moduleSettings->fileName();
     connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(adjustSizeToScreen()));
 }
 
@@ -211,14 +212,21 @@ void PanelImpl::setGeometry(QRect geometry) {
 //TODO_TONIGHT:Comprobar que los widgets no esten guardados, entonces guardar la
 //conf, si estan guardados ver si el valor corresponde al orden que ya tiene.
 void PanelImpl::updateWidgetsOrder() {
-    qDebug() << "----------------Widgets order---------------------";
-    //moduleSettings->beginGroup("WidgetsOrder");
     QMapIterator<QString, QPointer<QWidget> > iter(m_Widgets);
     for (int i = 0; i < m_Widgets.size(); i++) {
         iter.next();
-//        qDebug() << iter.key();
-        moduleSettings->setValue(iter.key(), i + 1);
+        if (!configExist(iter.key())) {
+            qDebug () << "Writing widget order..." << endl;
+            moduleSettings->setValue(iter.key(), i + 1);
+            qDebug() << moduleSettings->status();
+        } else {
+            
+        }
     }
-    qDebug() << "--------------------------------------------------";
+    moduleSettings->sync();
 }
 
+bool PanelImpl::configExist(QString key) {
+    
+    (moduleSettings->value(key).toInt() == 0) ? false : true;
+}

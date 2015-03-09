@@ -53,6 +53,7 @@ public:
 
     void updateWidgetsOrder();
     void writeWidgetsOrder();
+    bool configExist(QString key);
     virtual void addWidgetFactory(presentation_panel::WidgetFactory* widgetFactory);
     virtual void removeWidgetFactory(presentation_panel::WidgetFactory* widgetFactory);
 
