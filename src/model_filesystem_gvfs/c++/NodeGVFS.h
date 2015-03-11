@@ -81,7 +81,7 @@ private:
 
     GFile * m_File;
     GFileInfo *m_FileInfo;
-    bool m_IsValid;
+    
     
 };
 
