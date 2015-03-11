@@ -1,15 +1,29 @@
-/* 
- * File:   Node.h
- * Author: alexis
+/*
+ * Copyright (C) 2015 Moonlight Desktop Environment Team
+ * Authors:
+ *      Alexis López Zubieta
+ * 
+ * This file is part of Moonlight Desktop Environment.
  *
- * Created on 3 de marzo de 2015, 10:55
+ * Moonlight Desktop Environment is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Moonlight Desktop Environment is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef NODE_H
 #define	NODE_H
 
+#include <QDate>
 #include <QString>
-#include <QVariant>
 #include <QList>
 
 
@@ -17,17 +31,6 @@ namespace model_filesystem {
 
     class Node {
     public:
-
-        enum Property {
-            NAME = 0,
-            ICON_NAME,
-            MIMETYPE,
-            SIZE,
-            STORED_SIZE
-        };
-        
-
-        typedef QMap<Node::Property, QVariant> PropertyMap;
 
         Node(QString uri) : m_Uri(uri) {
         }
@@ -39,82 +42,31 @@ namespace model_filesystem {
         virtual ~Node() {
         }
 
-        // Dummy implementations
+        // Basic node properties
+        virtual QString name() = 0;
+        virtual void setName(const QString &name) = 0;
 
-        virtual Node parent() {
-            return Node(QString());
-        }
-
-        virtual QList<Node> children() {
-            return QList<Node>();
-        }
-
-        /**
-         * Get node property. This method will use cache data, if available to
-         * update the cache data use the method <code>queryProperty</code> else 
-         * it will call <code>queryProperty</code>.
-         * @param property
-         * @return 
-         */
-        virtual QVariant property(Property property) {
-            return QVariant();
-        }
-
-        /**
-         * Query the file system for node properties, this method updates the
-         * cache, see <code>property</code> to use cached data instead.
-         * @param property
-         * @return 
-         */
-        virtual QVariant queryProperty(Property property) {
-            return QVariant();
-        }
-
-        /**
-         * Sets a value for the given property.
-         * @param property
-         * @param value
-         */
-        virtual void setProperty(Property property, QVariant value) {
-        }
-
-        /**
-         * Get node properties. This method will use cache data, if available to
-         * update the cache data use the method <code>queryProperties</code> else 
-         * it will call <code>queryProperties</code>.
-         * @param properties
-         * @return 
-         */
-        virtual PropertyMap properties(QList<Property> properties) {
-            return PropertyMap();
-        }
-
-        /**
-         * Query the file system for node properties, this method updates the
-         * cache, see <code>property</code> to use cached data instead.
-         * @param properties
-         * @return 
-         */
-        virtual PropertyMap queryProperties(QList<Property> properties) {
-            return PropertyMap();
-        }
-
-        virtual void setProperties(PropertyMap properties) {
-        }
+        virtual QString iconName() = 0;
+        virtual QString mimetype() = 0;
 
         virtual bool isValid() {
             return m_Uri.isNull();
+        }
+
+        QString uri() {
+            return m_Uri;
         }
 
         void setUri(const QString &uri) {
             m_Uri = m_Uri;
         }
 
-        QString getUri() {
-            return m_Uri;
-        }
+        // Navigation functions
+        virtual Node* parent() = 0;
 
-    private:
+        virtual QList<Node*> children() = 0;
+
+    protected:
         QString m_Uri;
     };
 

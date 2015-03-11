@@ -40,12 +40,17 @@ private:
      * @param context the framework context for the module.
      */
     void Load(ModuleContext* context) {
-        item = new NodeGVFS("/etc/");
-
-        QList<model_filesystem::Node::Property> prop; /* = {model_filesystem::Node::NAME,
-            model_filesystem::Node::SIZE, model_filesystem::Node::MIMETYPE};*/
-        item->queryProperties(prop);
-        //        view.show();
+        item = new NodeGVFS("/usr/bin");
+        
+        qDebug() << "URI: " << item->uri() << ", name: " << item->name() << ", type: " << item->mimetype() << ", icon: " << item->iconName();
+        Node * parent = item->parent();
+        qDebug() << "URI: " << parent->uri() << ", name: " << parent->name() << ", type: " << parent->mimetype() << ", icon: " << parent->iconName();
+        
+        QList<Node *> children = item->children();
+        for (Node * child : children) {
+            qDebug() << "URI: " << child->uri() << ", name: " << child->name() << ", type: " << child->mimetype() << ", icon: " << child->iconName();
+        }
+        
     }
 
     /**

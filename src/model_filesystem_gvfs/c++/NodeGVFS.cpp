@@ -29,153 +29,128 @@
 #include <QDebug>
 #include <QStringList>
 
-const QMap<Node::Property, QString> NodeGVFS::mapPropertyToGVFS = {
-    {Node::NAME, "standard::name"},
-    {Node::ICON_NAME, "standard::icon"},
-    {Node::MIMETYPE, "standard::fast-content-type"},
-    {Node::SIZE, "standard::size"},
-    {Node::STORED_SIZE, "standard::allocated-size"}
-};
-
-const QMap<QString, Node::Property > NodeGVFS::mapPropertyFromGVFS = {
-    {"standard::name", Node::NAME},
-    {"standard::icon", Node::ICON_NAME},
-    {"standard::fast-content-type", Node::MIMETYPE},
-    {"standard::size", Node::SIZE},
-    {"standard::allocated-size", Node::STORED_SIZE}
-};
-
-NodeGVFS::NodeGVFS(QString uri) : model_filesystem::Node(uri), m_PropertiesCache() {
+NodeGVFS::NodeGVFS(QString uri) : model_filesystem::Node(uri) {
     m_File = g_file_new_for_path(uri.toLocal8Bit());
+    m_FileInfo = NULL;
 }
 
-NodeGVFS::NodeGVFS(const GFile *file) : model_filesystem::Node(""), m_PropertiesCache() {
+NodeGVFS::NodeGVFS(GFile *file) : model_filesystem::Node(QString()) {
     if (file == NULL)
         qWarning() << MODULE_NAME_STR << " node created from NULL GFile.";
 
-    const char * uri = g_file_get_uri(m_File);
-    model_filesystem::Node::setUri(uri);
+    m_Uri = g_file_get_uri(file);
+    m_File = g_file_dup(file);
+    m_FileInfo = NULL;
+}
 
-    m_File = g_file_new_for_uri(uri);
+NodeGVFS::NodeGVFS(GFile *parent, GFileInfo* info) : model_filesystem::Node(QString()) {
+    
+    const char * name = g_file_info_get_name(info);
+    m_File = g_file_get_child(parent, name);
+    m_FileInfo = g_file_info_dup(info);
+
+    m_Uri = g_file_get_uri(m_File);
 }
 
 NodeGVFS::NodeGVFS(const NodeGVFS & orig) : model_filesystem::Node(orig) {
+    m_Uri = orig.m_Uri;
     m_File = g_file_dup(orig.m_File);
-    m_PropertiesCache = orig.m_PropertiesCache;
+    m_FileInfo = g_file_info_dup(orig.m_FileInfo);
 }
 
 NodeGVFS::~NodeGVFS() {
+    g_object_unref(m_FileInfo);
     g_object_unref(m_File);
 }
 
-QVariant NodeGVFS::property(Property property) {
-    if (m_PropertiesCache.contains(property))
-        return m_PropertiesCache.value(property);
+QString NodeGVFS::name() {
+    if (m_FileInfo == NULL)
+        queryInfo(NULL);
 
-    return queryProperty(property);
-}
-
-QVariant NodeGVFS::queryProperty(Node::Property property) {
-    QList<Node::Property> prop = {property};
-    queryInfo(mapProperties(prop));
-    return m_PropertiesCache.value(property, QVariant());
-}
-
-Node::PropertyMap NodeGVFS::queryProperties(QList<Node::Property> properties) {
-    queryInfo(mapProperties(properties));
-
-    return m_PropertiesCache;
-}
-
-bool NodeGVFS::queryInfo(const char * attributes) {
-    GFileQueryInfoFlags flags;
-    GFileInfo *info;
-    GError *error;
-
-    if (m_File == NULL)
-        return FALSE;
-
-    //    if (attributes == "")
-    attributes = "*";
-
-    qDebug() << "[" << MODULE_NAME_STR << "] Getting info :" << attributes;
-    flags = G_FILE_QUERY_INFO_NONE;
-
-    error = NULL;
-
-    info = g_file_query_info(m_File, attributes, flags, NULL, &error);
-
-    if (info == NULL) {
-        qDebug() << "[" << MODULE_NAME_STR << "] [Error] getting info :" << error->message;
-        g_error_free(error);
-        return FALSE;
+    if (m_FileInfo == NULL) {
+        qWarning() << MODULE_NAME_STR << ": unable to resolve file info for " << m_Uri;
+        return QString();
     }
 
-
-    updateCache(info);
-
-    g_object_unref(info);
-
-    return TRUE;
+    QString name = g_file_info_get_display_name(m_FileInfo);
+    return name;
 }
 
-void NodeGVFS::updateCache(GFileInfo * info) {
-    char **attributes;
-    char *value;
-    attributes = g_file_info_list_attributes(info, NULL);
-    for (int i = 0; attributes[i] != NULL; i++) {
-        /* list the icons in order rather than displaying "GThemedIcon:0x8df7200" */
-        if (strcmp(attributes[i], "standard::icon") == 0 ||
-                strcmp(attributes[i], "standard::symbolic-icon") == 0) {
-            GIcon *icon;
-            int j;
-            const gchar * const * names = NULL;
+void NodeGVFS::setName(const QString& name) {
 
-            if (strcmp(attributes[i], "standard::symbolic-icon") == 0)
-                icon = g_file_info_get_symbolic_icon(info);
-            else
-                icon = g_file_info_get_icon(info);
+    GError *error = NULL;
+    GFile * new_file = g_file_set_display_name(m_File, name.toLocal8Bit(), NULL, &error);
 
-            /* only look up names if GThemedIcon */
-            if (G_IS_THEMED_ICON(icon)) {
-                names = g_themed_icon_get_names(G_THEMED_ICON(icon));
-            }
-            if (names != NULL) {
-                QVariantList nameVariants;
-                for (; (*names) != NULL; names++) {
-                    QVariant str = QString::fromLocal8Bit((*names));
-                    nameVariants.append(str);
-                }
+    if (new_file == NULL) {
+        qWarning() << MODULE_NAME_STR << " " << error->message;
+        g_error_free(error);
+        error = NULL;
+    } else {
+        g_object_unref(m_File);
+        m_File = new_file;
 
-                m_PropertiesCache.insert(mapPropertyFromGVFS.value(attributes[i]), nameVariants);
-            }
+        // Clear info cache
+        g_object_unref(m_FileInfo);
+        m_FileInfo = NULL;
+    }
+}
 
-        } else {
-            value = g_file_info_get_attribute_as_string(info, attributes[i]);
+bool NodeGVFS::isValid() {
+    // TODO: Improve this
+    return !m_Uri.isEmpty();
+}
 
-            qDebug() << MODULE_NAME_STR << " " << attributes[i] << " mapped as " << mapPropertyFromGVFS.value(attributes[i]) << " value " << QString(value);
-            qDebug() << MODULE_NAME_STR << " contained: " << mapPropertyFromGVFS.contains(attributes[i]);
-            if (mapPropertyFromGVFS.contains(attributes[i]))
-                m_PropertiesCache.insert(mapPropertyFromGVFS.value(attributes[i]), value);
+QString NodeGVFS::mimetype() {
+    if (m_FileInfo == NULL)
+        queryInfo(NULL);
 
-            g_free(value);
+    if (m_FileInfo == NULL) {
+        qWarning() << MODULE_NAME_STR << ": unable to resolve file info for " << m_Uri;
+        return QString();
+    }
+
+    QString mimeType = g_file_info_get_content_type(m_FileInfo);
+    return mimeType;
+}
+
+QString NodeGVFS::iconName() {
+    if (m_FileInfo == NULL)
+        queryInfo(NULL);
+
+    if (m_FileInfo == NULL) {
+        qWarning() << MODULE_NAME_STR << ": unable to resolve file info for " << m_Uri;
+        return QString();
+    }
+
+    GIcon *icon = NULL;
+    int j;
+    const gchar * const * names = NULL;
+
+    icon = g_file_info_get_icon(m_FileInfo);
+
+    if (icon == NULL)
+        icon = g_file_info_get_symbolic_icon(m_FileInfo);
+
+    if (G_IS_THEMED_ICON(icon)) {
+        names = g_themed_icon_get_names(G_THEMED_ICON(icon));
+    }
+    if (names != NULL) {
+        // Just return the first icon
+        for (; (*names) != NULL; names++) {
+            return QString::fromLocal8Bit((*names));
         }
     }
-    qDebug() << MODULE_NAME_STR <<  " : properties cache update:  \n\n" << m_PropertiesCache;
-    g_strfreev(attributes);
+    return QString();
 }
 
-QByteArray NodeGVFS::mapProperties(QList<Node::Property> properties) {
-    QStringList props;
-
-    for (const Node::Property &key : properties)
-        props.append(mapPropertyToGVFS.value(key, QString()));
-
-    return props.join(",").toLocal8Bit();
+Node* NodeGVFS::parent() {
+    GFile * parent = g_file_get_parent(m_File);
+    return new NodeGVFS(parent);
+    g_object_unref(parent);
 }
 
-QList<Node> NodeGVFS::children() {
-    QList<Node> children;
+QList<Node*> NodeGVFS::children() {
+    QList<Node*> children;
 
     GFileEnumerator *enumerator;
     GFileInfo *info;
@@ -203,10 +178,7 @@ QList<Node> NodeGVFS::children() {
 
     res = TRUE;
     while ((info = g_file_enumerator_next_file(enumerator, NULL, &error)) != NULL) {
-        const char * childName = g_file_info_get_name(info);
-        const GFile * child = g_file_get_child(m_File, childName);
-        children.append(NodeGVFS(child));
-
+        children.append(new NodeGVFS(m_File, info));
         g_object_unref(info);
     }
 
@@ -225,4 +197,34 @@ QList<Node> NodeGVFS::children() {
     }
 
     return children;
+}
+
+bool NodeGVFS::queryInfo(const char * attributes) {
+    if (m_FileInfo)
+        g_object_unref(m_FileInfo);
+
+    GFileQueryInfoFlags flags;
+    GError *error;
+
+    if (m_File == NULL)
+        return FALSE;
+
+    // TODO: Extend query
+    //    attributes = "standard::name,standard::display-name,standard::icon,standard::content-type,standard::symbolic-icon";
+    attributes = "*";
+
+    qDebug() << "[" << MODULE_NAME_STR << "] Getting info :" << attributes;
+    flags = G_FILE_QUERY_INFO_NONE;
+
+    error = NULL;
+
+    m_FileInfo = g_file_query_info(m_File, attributes, flags, NULL, &error);
+
+    if (m_FileInfo == NULL) {
+        qDebug() << "[" << MODULE_NAME_STR << "] [Error] getting info :" << error->message;
+        g_error_free(error);
+        return FALSE;
+    }
+
+    return TRUE;
 }

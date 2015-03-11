@@ -19,32 +19,18 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FILESYSTEM_H
-#define	FILESYSTEM_H
+#ifndef MEASURABLE_H
+#define	MEASURABLE_H
 
-#include <QAction>
-#include <QString>
-#include <QList>
+class Measurable {
+public:
+    virtual unsigned long size() = 0;
+    virtual unsigned long storedSize() = 0;
 
-namespace model_filesystem {
+    virtual unsigned long storeSize();
+    virtual unsigned long storeUsedSpace();
+    virtual unsigned long storeFreeSpace();
+};
 
-    class Node;
-
-    class FileSystem {
-    public:
-
-        virtual ~FileSystem() {
-        }
-
-
-        virtual QStringList getSupportedUriScheme() = 0;
-        virtual Node getNode(QString path) = 0;
-        virtual QList<QAction> getActions(QList<Node> nodes) = 0;
-        
-        //TODO: Query file system info
-    private:
-
-    };
-}
-#endif	/* FILESYSTEM_H */
+#endif	/* MEASURABLE_H */
 

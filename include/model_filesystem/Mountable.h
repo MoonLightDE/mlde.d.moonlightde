@@ -19,32 +19,31 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FILESYSTEM_H
-#define	FILESYSTEM_H
+#ifndef MOUNTABLE_H
+#define	MOUNTABLE_H
 
-#include <QAction>
-#include <QString>
-#include <QList>
+#include <QObject>
 
 namespace model_filesystem {
 
-    class Node;
-
-    class FileSystem {
+    /**
+     * Used to describe and manage nodes that require especial mount & umount 
+     * operations, like smb shares, etc.
+     */
+    class Mountable {
     public:
+        virtual void mount() = 0;
+        virtual void unmount() = 0;
+        virtual void eject() = 0;
 
-        virtual ~FileSystem() {
-        }
-
-
-        virtual QStringList getSupportedUriScheme() = 0;
-        virtual Node getNode(QString path) = 0;
-        virtual QList<QAction> getActions(QList<Node> nodes) = 0;
-        
-        //TODO: Query file system info
-    private:
+    signals:
+        void mounted();
+        void unmounted();
+        void ejected();
 
     };
+
+    Q_DECLARE_INTERFACE(Mountable, "org.moonlightde.model_filesystem.Mountable/1.0")
 }
-#endif	/* FILESYSTEM_H */
+#endif	/* MOUNTABLE_H */
 

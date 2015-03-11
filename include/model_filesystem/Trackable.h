@@ -19,32 +19,18 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FILESYSTEM_H
-#define	FILESYSTEM_H
+#ifndef TRACKABLE_H
+#define	TRACKABLE_H
 
-#include <QAction>
-#include <QString>
-#include <QList>
+/**
+ * Used to query information about the time stamps of the nodes.
+ */
+class Trackable {
+public:
+    virtual QDate timeModified() = 0;
+    virtual QDate timeAccess() = 0;
+    virtual QDate timeChanged() = 0;
+};
 
-namespace model_filesystem {
-
-    class Node;
-
-    class FileSystem {
-    public:
-
-        virtual ~FileSystem() {
-        }
-
-
-        virtual QStringList getSupportedUriScheme() = 0;
-        virtual Node getNode(QString path) = 0;
-        virtual QList<QAction> getActions(QList<Node> nodes) = 0;
-        
-        //TODO: Query file system info
-    private:
-
-    };
-}
-#endif	/* FILESYSTEM_H */
+#endif	/* TRACKABLE_H */
 

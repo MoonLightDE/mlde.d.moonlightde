@@ -28,44 +28,45 @@
 
 #include "model_filesystem/Node.h"
 
-#include <QMap>
 #include <QString>
 #include <QVariant>
 
 
 using namespace model_filesystem;
 
-class NodeGVFS : public Node {
+class NodeGVFS : public model_filesystem::Node {
 public:
     NodeGVFS(QString uri);
-    NodeGVFS(const GFile *file);
+    NodeGVFS(GFile *parent, GFileInfo* info);
+    NodeGVFS(GFile *file);
     NodeGVFS(const NodeGVFS& orig);
     virtual ~NodeGVFS();
 
-    virtual QVariant property(Property property);
+    virtual Node* parent();
+    virtual QList<Node*> children();
 
-    virtual QVariant queryProperty(Node::Property property);
-
-    virtual PropertyMap queryProperties(QList<Node::Property> properties);
-
-
-    virtual QList<Node> children();
+    virtual QString name();
+    virtual void setName(const QString& name);
 
 
-    static const QMap<Property, QString> mapPropertyToGVFS;
-    static const QMap<QString, Property> mapPropertyFromGVFS;
+    virtual bool isValid();
+    
+    virtual QString mimetype();
+
+    
+    virtual QString iconName();
+
+
 
 private:
-    inline QByteArray mapProperties(QList<Node::Property> properties);
-
     // This functions where inspired by GVFS-bin
     bool queryInfo(const char * attributes);
     void updateCache(GFileInfo *info);
 
     GFile * m_File;
-
-    // Cache
-    PropertyMap m_PropertiesCache;
+    GFileInfo *m_FileInfo;
+    
+    
 };
 
 #endif	/* NODEGVFS_H */
