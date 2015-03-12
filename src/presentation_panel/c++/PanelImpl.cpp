@@ -20,6 +20,7 @@
 
 #include "module_config.h"
 #include "PanelImpl.h"
+#include "core/ModuleSettings.h"
 
 #include <qt5xdg/XdgMenu>
 
@@ -33,6 +34,7 @@
 #include <QDebug>
 #include <QMenu>
 #include <QWidget>
+#include <QMargins>
 #include <QWindow>
 #include <QX11Info>
 #include <QPointer>
@@ -55,11 +57,20 @@ QWidget(parent), m_Desktop(-1), m_WidgetTracker(this) {
     setAttribute(Qt::WA_AlwaysShowToolTips);
     adjustSizeToScreen();
     setupWindowFlags();
+    us::ModuleContext * context = us::GetModuleContext();
+    
+    moduleSettings = ModuleSettings::getModuleSettings(context);
+    //Write configurations in the configuratio file
+    moduleSettings->setValue("buttonMarginLeft", 10);
+    moduleSettings->setValue("buttonMarginTop", 6);
+    moduleSettings->setValue("buttonMarginRight", 10);
+    moduleSettings->setValue("buttonMarginBottom", 6);
 
     connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(adjustSizeToScreen()));
 }
 
 PanelImpl::~PanelImpl() {
+    delete moduleSettings;
 }
 
 bool PanelImpl::event(QEvent *event) {
@@ -182,11 +193,18 @@ void PanelImpl::updateLayout() {
 
     QHBoxLayout * newLayout = new QHBoxLayout(this);
 
-    newLayout->addWidget(m_Widgets.value(presentation_panel::MAINMENUBUTTON, NULL));
-    newLayout->addWidget(m_Widgets.value(presentation_panel::USERTASKS, NULL));
-    newLayout->addStretch(0);
-    newLayout->addWidget(m_Widgets.value(presentation_panel::INDICATORS, NULL));
-    newLayout->addWidget(m_Widgets.value(presentation_panel::DATETIME, NULL));
+    QMapIterator<QString, QPointer<QWidget> > i(m_Widgets);
+    while (i.hasNext()) {
+        i.next();
+        QWidget* actualWidget = i.value().data();
+        actualWidget->setGeometry(actualWidget->x(), actualWidget->y(), actualWidget->width(), this->height());
+        newLayout->addWidget(actualWidget);
+    }
+    
+    QMargins widgetsMargins(moduleSettings->value("buttonMarginLeft").toInt(), moduleSettings->value("buttonMarginTop").toInt(), 
+                                            moduleSettings->value("buttonMarginRight").toInt(), moduleSettings->value("buttonMarginBottom").toInt());
+    newLayout->setContentsMargins(widgetsMargins);
+    
     setLayout(newLayout);
 }
 

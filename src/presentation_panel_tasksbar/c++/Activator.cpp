@@ -47,7 +47,7 @@ public:
     }
 
     virtual QString name() {
-        return presentation_panel::MAINMENUBUTTON;
+        return presentation_panel::USERTASKS;
     }
 
     virtual bool isCustomizable() {

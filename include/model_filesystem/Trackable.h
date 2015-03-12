@@ -21,16 +21,18 @@
 
 #ifndef TRACKABLE_H
 #define	TRACKABLE_H
+namespace model_filesystem {
 
-/**
- * Used to query information about the time stamps of the nodes.
- */
-class Trackable {
-public:
-    virtual QDate timeModified() = 0;
-    virtual QDate timeAccess() = 0;
-    virtual QDate timeChanged() = 0;
-};
+    /**
+     * Used to query information about the time stamps of the nodes.
+     */
+    class Trackable {
+    public:
+        virtual QDate timeModified() = 0;
+        virtual QDate timeAccess() = 0;
+        virtual QDate timeChanged() = 0;
+    };
+}
 
 #endif	/* TRACKABLE_H */
 

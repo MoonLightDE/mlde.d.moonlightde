@@ -21,16 +21,17 @@
 
 #ifndef MEASURABLE_H
 #define	MEASURABLE_H
+namespace model_filesystem {
 
-class Measurable {
-public:
-    virtual unsigned long size() = 0;
-    virtual unsigned long storedSize() = 0;
+    class Measurable {
+    public:
+        virtual unsigned long size() = 0;
+        virtual unsigned long storedSize() = 0;
 
-    virtual unsigned long storeSize();
-    virtual unsigned long storeUsedSpace();
-    virtual unsigned long storeFreeSpace();
-};
-
+        virtual unsigned long storeSize();
+        virtual unsigned long storeUsedSpace();
+        virtual unsigned long storeFreeSpace();
+    };
+}
 #endif	/* MEASURABLE_H */
 
