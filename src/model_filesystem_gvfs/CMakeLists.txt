@@ -23,6 +23,9 @@ project(model_filesystem_gvfs)
 ## Sources
 ## --------------------------------------------------------------
 file(GLOB ${PROJECT_NAME}_SOURCES c++/*.cpp)
+set(${PROJECT_NAME}_SOURCES ${${PROJECT_NAME}_SOURCES}
+    
+)
 
 file(GLOB ${PROJECT_NAME}_UIS ui/*.ui)
 

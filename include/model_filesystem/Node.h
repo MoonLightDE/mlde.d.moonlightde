@@ -22,7 +22,7 @@
 #ifndef NODE_H
 #define	NODE_H
 
-#include <QDate>
+#include <QUrl>
 #include <QString>
 #include <QList>
 
@@ -32,7 +32,10 @@ namespace model_filesystem {
     class Node {
     public:
 
-        Node(QString uri) : m_Uri(uri) {
+        Node(QString path) : m_Uri(path) {
+        }
+
+        Node(QUrl uri) : m_Uri(uri) {
         }
 
         Node(const Node& orig) {
@@ -50,24 +53,26 @@ namespace model_filesystem {
         virtual QString mimetype() = 0;
 
         virtual bool isValid() {
-            return m_Uri.isNull();
+            return m_Uri.isEmpty();
         }
 
-        QString uri() {
+        /**
+         * Attempts to map the node as a file in the system file system in order
+         * to make it available for all system applications.
+         * @return Local file system path or NULL QString.
+         */
+        virtual QString localPath() = 0;
+
+        virtual QUrl uri() {
             return m_Uri;
-        }
-
-        void setUri(const QString &uri) {
-            m_Uri = m_Uri;
         }
 
         // Navigation functions
         virtual Node* parent() = 0;
-
         virtual QList<Node*> children() = 0;
 
     protected:
-        QString m_Uri;
+        QUrl m_Uri;
     };
 
 

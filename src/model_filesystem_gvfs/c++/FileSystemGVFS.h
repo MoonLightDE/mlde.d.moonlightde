@@ -18,35 +18,31 @@
  * You should have received a copy of the GNU General Public License
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
+#ifndef FILESYSTEMGVFS_H
+#define	FILESYSTEMGVFS_H
 
-#ifndef FILESYSTEM_H
-#define	FILESYSTEM_H
+#include "model_filesystem/FileSystem.h"
+using namespace model_filesystem;
 
-#include <QAction>
-#include <QString>
-#include <QList>
-#include <usServiceInterface.h>
+class FileSystemGVFS : public model_filesystem::FileSystem {
+public:
+    FileSystemGVFS();
+    virtual ~FileSystemGVFS();
+    
 
-namespace model_filesystem {
+    virtual QStringList getSupportedUriScheme();
 
-    class Node;
+    virtual Node* getNode(QString path);
+    
 
-    class FileSystem {
-    public:
+    virtual QList<QAction> getActions(QList<Node*> nodes);
+    
+    
 
-        virtual ~FileSystem() {
-        }
+private:
+    QStringList m_SupportedUriSchemes;
+    GVfs * m_GVfs;
+};
 
-
-        virtual QStringList getSupportedUriScheme() = 0;
-        virtual Node* getNode(QString path) = 0;
-        virtual QList<QAction> getActions(QList<Node*> nodes) = 0;
-        
-        //TODO: Query file system info
-    private:
-
-    };
-}
-US_DECLARE_SERVICE_INTERFACE(model_filesystem::FileSystem, "org.moonlightde.panel.model_filesystem.FileSystem/1.0")
-#endif	/* FILESYSTEM_H */
+#endif	/* FILESYSTEMGVFS_H */
 

@@ -19,17 +19,19 @@
  */
 
 #include "module_config.h"
+
 #include "NodeGVFS.h"
+#include "FileSystemGVFS.h"
+
+#include <QApplication>
 
 #include <usModuleActivator.h>
 #include <usModuleContext.h>
 #include <usServiceProperties.h>
 
-#include <QDebug>
-#include <QListView>
 
 US_USE_NAMESPACE
-/**g_object_unref(child);
+/**
  */
 class Activator : public ModuleActivator {
 private:
@@ -40,17 +42,7 @@ private:
      * @param context the framework context for the module.
      */
     void Load(ModuleContext* context) {
-        item = new NodeGVFS("/usr/bin");
-        
-        qDebug() << "URI: " << item->uri() << ", name: " << item->name() << ", type: " << item->mimetype() << ", icon: " << item->iconName();
-        Node * parent = item->parent();
-        qDebug() << "URI: " << parent->uri() << ", name: " << parent->name() << ", type: " << parent->mimetype() << ", icon: " << parent->iconName();
-        
-        QList<Node *> children = item->children();
-        for (Node * child : children) {
-            qDebug() << "URI: " << child->uri() << ", name: " << child->name() << ", type: " << child->mimetype() << ", icon: " << child->iconName();
-        }
-        
+        context->RegisterService<model_filesystem::FileSystem>(&m_FS, ServiceProperties());
     }
 
     /**
@@ -59,11 +51,9 @@ private:
      * @param context the framework context for the module.
      */
     void Unload(ModuleContext* context) {
-        delete item;
     }
 
-    QListView view;
-    NodeGVFS *item;
+    FileSystemGVFS m_FS;
 
 };
 US_EXPORT_MODULE_ACTIVATOR(model_filesystem_gvfs, Activator)

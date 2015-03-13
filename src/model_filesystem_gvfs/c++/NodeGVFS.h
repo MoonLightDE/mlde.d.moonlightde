@@ -28,6 +28,7 @@
 
 #include "model_filesystem/Node.h"
 
+#include <QUrl>
 #include <QString>
 #include <QVariant>
 
@@ -36,8 +37,22 @@ using namespace model_filesystem;
 
 class NodeGVFS : public model_filesystem::Node {
 public:
-    NodeGVFS(QString uri);
+    NodeGVFS(QString path);
+    NodeGVFS(QUrl uri);
+    /**
+     * Create child NODE using the parent GFile and the child info. This function
+     * takes control over the child info, so you must not release it, if it 
+     * belongs to other object copy it before calling.
+     * @param parent
+     * @param info is not duplicated, please be carefull
+     */
     NodeGVFS(GFile *parent, GFileInfo* info);
+    /**
+     * Create a NODE using the GFile. This function takes control over the GFile
+     * recieved, so you must not release it, if it belongs to other object copy 
+     * it before calling.
+     * @param file
+     */
     NodeGVFS(GFile *file);
     NodeGVFS(const NodeGVFS& orig);
     virtual ~NodeGVFS();
@@ -57,15 +72,16 @@ public:
     virtual QString iconName();
 
 
+    virtual QString localPath();
+
 
 private:
     // This functions where inspired by GVFS-bin
     bool queryInfo(const char * attributes);
-    void updateCache(GFileInfo *info);
 
     GFile * m_File;
     GFileInfo *m_FileInfo;
-    
+    bool m_IsValid;
     
 };
 
