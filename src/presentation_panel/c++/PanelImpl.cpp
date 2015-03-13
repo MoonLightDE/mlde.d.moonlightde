@@ -52,18 +52,20 @@ QWidget(parent), m_Desktop(-1), m_WidgetTracker(this) {
     setupWindowFlags();
     us::ModuleContext * context = us::GetModuleContext();
     
-    moduleSettings = ModuleSettings::getModuleSettings(context);
+    module_settings = ModuleSettings::getModuleSettings(context);
     //Write confs into configuration file
-    moduleSettings->setValue("buttonMarginLeft", 10);
-    moduleSettings->setValue("buttonMarginTop", 6);
-    moduleSettings->setValue("buttonMarginRight", 10);
-    moduleSettings->setValue("buttonMarginBottom", 6);
-
+    module_settings->setValue("buttonMarginLeft", 10);
+    module_settings->setValue("buttonMarginTop", 6);
+    module_settings->setValue("buttonMarginRight", 10);
+    module_settings->setValue("buttonMarginBottom", 6);
+    //Writing widget's orders
+    module_settings->setValue("widgetsOrder", "MainMenuButton,UserTasks,DateTime");
+    
     connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(adjustSizeToScreen()));
 }
 
 PanelImpl::~PanelImpl() {
-    delete moduleSettings;
+    delete module_settings;
 }
 
 bool PanelImpl::event(QEvent *event) {
@@ -148,7 +150,6 @@ void PanelImpl::addWidgetFactory(presentation_panel::WidgetFactory* widgetFactor
     m_Widgets.insert(name, widget);
     m_Factories.insert(name, widgetFactory);
     
-    updateWidgetsOrder();
     updateLayout();
 }
 
@@ -177,17 +178,22 @@ void PanelImpl::updateLayout() {
     qDebug() << m_Widgets.size();
     
     QHBoxLayout * newLayout = new QHBoxLayout(this);
-
-    QMapIterator<QString, QPointer<QWidget> > i(m_Widgets);
-    while (i.hasNext()) {
-        i.next();
-        QWidget* actualWidget = i.value().data();
-        actualWidget->setGeometry(actualWidget->x(), actualWidget->y(), actualWidget->width(), this->height());
-        newLayout->addWidget(actualWidget);
+    
+    QString order = module_settings->value("widgetsOrder").toString();
+    QStringList widgets_Order = order.split(",");
+    int i = 0;
+    while (i < widgets_Order.size()) {
+        qDebug() << widgets_Order.at(i) << endl;
+        QWidget* actualWidget = m_Widgets.value(widgets_Order.at(i)).data();
+        if (actualWidget != NULL) {
+            actualWidget->setGeometry(actualWidget->x(), actualWidget->y(), actualWidget->width(), this->height());
+            newLayout->addWidget(actualWidget);
+        }
+        i++;
     }
     
-    QMargins widgetsMargins(moduleSettings->value("buttonMarginLeft").toInt(), moduleSettings->value("buttonMarginTop").toInt(), 
-                                moduleSettings->value("buttonMarginRight").toInt(), moduleSettings->value("buttonMarginBottom").toInt());
+    QMargins widgetsMargins(module_settings->value("buttonMarginLeft").toInt(), module_settings->value("buttonMarginTop").toInt(), 
+                                module_settings->value("buttonMarginRight").toInt(), module_settings->value("buttonMarginBottom").toInt());
     newLayout->setContentsMargins(widgetsMargins);
     
     setLayout(newLayout);
@@ -210,25 +216,11 @@ void PanelImpl::setGeometry(QRect geometry) {
     qWarning() << MODULE_NAME << __PRETTY_FUNCTION__ << " not soported.";
 }
 
-
-//TODO_TONIGHT:Comprobar que los widgets no esten guardados, entonces guardar la
-//conf, si estan guardados ver si el valor corresponde al orden que ya tiene.
-void PanelImpl::updateWidgetsOrder() {
-    QMapIterator<QString, QPointer<QWidget> > iter(m_Widgets);
-    for (int i = 0; i < m_Widgets.size(); i++) {
-        iter.next();
-        if (!configExist(iter.key())) {
-            qDebug () << "Writing widget order..." << endl;
-            moduleSettings->setValue(iter.key(), i + 1);
-            qDebug() << moduleSettings->status();
-        } else {
-            
-        }
-    }
-    moduleSettings->sync();
-}
-
+/*Check if the widget's configuration is already set*/
 bool PanelImpl::configExist(QString key) {
     
-    (moduleSettings->value(key).toInt() == 0) ? false : true;
+    if(module_settings->value(key) == 0)
+        return false;
+    else
+        return true;
 }

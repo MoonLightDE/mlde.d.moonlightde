@@ -50,8 +50,6 @@ public:
     virtual int desktop();
     virtual void setDesktop(int desktop);
 
-
-    void updateWidgetsOrder();
     void writeWidgetsOrder();
     bool configExist(QString key);
     virtual void addWidgetFactory(presentation_panel::WidgetFactory* widgetFactory);
@@ -78,7 +76,7 @@ private:
     /* Panel properties */
     QRect m_Geometry;
     int m_Desktop;
-    QSettings *moduleSettings; 
+    QSettings *module_settings; 
     
     WidgetsTracker m_WidgetTracker;
 };
