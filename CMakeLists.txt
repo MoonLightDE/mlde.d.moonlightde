@@ -31,6 +31,11 @@ set(LIBS_PREFIX "lib${PROJECT_NAME}_")
 # ------------------------------------------------------------------------------
 cmake_minimum_required(VERSION 2.8)
 
+## C++ 11 Required
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
+
+
 ## Build Type
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build." FORCE)
@@ -71,6 +76,7 @@ add_subdirectory(src/presentation_panel_tasksbar)
 add_subdirectory(src/presentation_panel_systray)
 add_subdirectory(src/presentation_panel_datetime)
 
+add_subdirectory(src/model_filesystem_gvfs)
 #add_subdirectory(src/panel-clasic-menu)
 #add_subdirectory(src/panel-dash_xdg)
 #

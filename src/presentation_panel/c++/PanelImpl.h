@@ -28,11 +28,13 @@
 
 #include <usModuleContext.h>
 #include <usServiceTracker.h>
+#include <usGetModuleContext.h>
 
 #include <QMap>
 #include <QRect>
 #include <QWidget>
 #include <QPointer>
+#include <QSettings>
 
 /**
  * A very static implementation of a desktop panel.
@@ -73,7 +75,8 @@ private:
     /* Panel properties */
     QRect m_Geometry;
     int m_Desktop;
-
+    QSettings *moduleSettings; 
+    
     WidgetsTracker m_WidgetTracker;
 };
 

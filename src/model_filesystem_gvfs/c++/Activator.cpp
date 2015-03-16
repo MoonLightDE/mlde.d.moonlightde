@@ -18,52 +18,22 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "module_config.h"
 
-#include "lxqttaskbar.h"
-#include "lxqttaskbarconfiguration.h"
-#include "presentation_panel/WidgetFactory.h"
+#include "NodeGVFS.h"
+#include "FileSystemGVFS.h"
+
+#include <QApplication>
 
 #include <usModuleActivator.h>
 #include <usModuleContext.h>
 #include <usServiceProperties.h>
 
-#include <QDebug>
-#include <QPointer>
 
 US_USE_NAMESPACE
 /**
  */
-class Activator : public ModuleActivator, public presentation_panel::WidgetFactory {
-public:
-
-    virtual QWidget* build(const QString& prefix, QWidget* parent) {
-        
-        // Let's keep a single instance of tasks bar by the moment.
-        if (m_Taskbar.isNull()) {
-            m_Taskbar = new LxQtTaskBar(parent);
-            m_Taskbar->setObjectName(presentation_panel::USERTASKS);
-        }
-        return m_Taskbar;
-    }
-
-    virtual QString name() {
-        return presentation_panel::USERTASKS;
-    }
-
-    virtual bool isCustomizable() {
-        // TODO: Implement 
-        return false;
-    }
-
-    virtual QWidget* custimizationWidget(const QString& prefix) {
-        // TODO: Implement Tasksbar customization.
-        return NULL;
-    }
-
-
-
-
-
+class Activator : public ModuleActivator {
 private:
 
     /**
@@ -72,8 +42,7 @@ private:
      * @param context the framework context for the module.
      */
     void Load(ModuleContext* context) {
-        ServiceProperties props;
-        context->RegisterService<presentation_panel::WidgetFactory>(this, props);
+        context->RegisterService<model_filesystem::FileSystem>(&m_FS, ServiceProperties());
     }
 
     /**
@@ -82,9 +51,9 @@ private:
      * @param context the framework context for the module.
      */
     void Unload(ModuleContext* context) {
-        delete m_Taskbar;
     }
 
-    QPointer<LxQtTaskBar> m_Taskbar;
+    FileSystemGVFS m_FS;
+
 };
-US_EXPORT_MODULE_ACTIVATOR(presentation_panel_tasksbar, Activator)
+US_EXPORT_MODULE_ACTIVATOR(model_filesystem_gvfs, Activator)
