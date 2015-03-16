@@ -20,35 +20,33 @@
 
 #include "module_config.h"
 
-#include "presentation_panel/WidgetFactory.h" 
+#include <core/ICore.h> 
 
 #include <usModuleActivator.h>
 #include <usModuleContext.h>
 #include <usServiceProperties.h>
 
+#include "lxqtquicklaunch.h"
 #include <QPointer>
 #include <QDebug>
-
-#include "lxqttray.h"
+#include "presentation_panel/WidgetFactory.h"
 
 US_USE_NAMESPACE
 /**
  */
-class Activator : public ModuleActivator, public presentation_panel::WidgetFactory {
+class Activator : public ModuleActivator, public presentation_panel::WidgetFactory  {
 public:
     virtual QWidget* build(const QString& prefix, QWidget* parent) {
-        if (m_SysTray.isNull()) {
-            m_SysTray = new LxQtTray(parent);
-            m_SysTray->setObjectName(presentation_panel::INDICATORS);
-        } else
-            qWarning() << MODULE_NAME << " : having multiple systray areas is discouraged and can cause malfunction.";
-
-        return m_SysTray;
+        if (m_quicklaunchers.isNull()) {
+            m_quicklaunchers = new LxQtQuickLaunch(parent);
+            m_quicklaunchers->setObjectName(presentation_panel::QUICKLAUNCHS);
+        }
+        return m_quicklaunchers;
     }
-
     virtual QString name() {
-        return presentation_panel::INDICATORS;
+        return presentation_panel::QUICKLAUNCHS;
     }
+
 private:
 
     /**
@@ -58,8 +56,8 @@ private:
      */
     void Load(ModuleContext* context) {
         ServiceProperties props;
-        context->RegisterService<presentation_panel::WidgetFactory> (this, props);
-
+        context->RegisterService<presentation_panel::WidgetFactory>(this, props);
+        qDebug() << MODULE_NAME << ": loaded.";
     }
 
     /**
@@ -68,9 +66,11 @@ private:
      * @param context the framework context for the module.
      */
     void Unload(ModuleContext* context) {
-        delete (m_SysTray);
+        delete m_quicklaunchers;
+        qDebug() << MODULE_NAME << ": unloaded.";
     }
+    
+    QPointer<LxQtQuickLaunch> m_quicklaunchers;
 
-    QPointer<LxQtTray> m_SysTray;
 };
-US_EXPORT_MODULE_ACTIVATOR(presentation_panel_systray, Activator)
+US_EXPORT_MODULE_ACTIVATOR(presentation_panel_quicklaunchers, Activator)

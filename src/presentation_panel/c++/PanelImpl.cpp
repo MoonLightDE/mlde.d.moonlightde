@@ -58,8 +58,6 @@ QWidget(parent), m_Desktop(-1), m_WidgetTracker(this) {
     module_settings->setValue("buttonMarginTop", 6);
     module_settings->setValue("buttonMarginRight", 10);
     module_settings->setValue("buttonMarginBottom", 6);
-    //Writing widget's orders
-    module_settings->setValue("widgetsOrder", "MainMenuButton,UserTasks,DateTime");
     
     connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(adjustSizeToScreen()));
 }
@@ -179,7 +177,7 @@ void PanelImpl::updateLayout() {
     
     QHBoxLayout * newLayout = new QHBoxLayout(this);
     
-    QString order = module_settings->value("widgetsOrder").toString();
+    QString order = module_settings->value("widgetsOrder", "MainMenuButton,QuickLaunchers,UserTasks,Indicators,DateTime").toString();
     QStringList widgets_Order = order.split(",");
     int i = 0;
     while (i < widgets_Order.size()) {

@@ -33,6 +33,7 @@ namespace presentation_panel {
     static const char * USERTASKS = "UserTasks";
     static const char * INDICATORS = "Indicators";
     static const char * DATETIME = "DateTime";
+    static const char * QUICKLAUNCHS = "QuickLaunchers";
 
     class WidgetFactory {
     public:

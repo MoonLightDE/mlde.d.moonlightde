@@ -76,6 +76,7 @@ mStyle(new ElidedButtonStyle()) {
     mPlaceHolder->setMinimumSize(1, 1);
     mPlaceHolder->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
     mPlaceHolder->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+//    setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
     mLayout->addWidget(mPlaceHolder);
 
     settingsChanged();
