@@ -359,8 +359,9 @@ void Dash::addFavorites(XdgDesktopFile* app) {
     QDir* dir = new QDir(ruta);
     dir->mkdir("favs");
     QFile* file = new QFile(appName);
-    //    if (file->copy(dir->absolutePath() + "/favs/" + app->name().toLower())) {
-    //        qDebug() <<  MODULE_NAME_STR << "Archivo copiado a favoritos";
+    bool result = file->copy(dir->absolutePath() + "/favs/" + app->name().toLower());
+    //    if (result) {
+    //        qDebug() <<  MODULE_NAME_STR << "File copy success";
     //    } else {
     //        qDebug() <<  MODULE_NAME_STR << "Error copiando archivo a favoritos";
     //    }
@@ -396,7 +397,7 @@ void Dash::getFavorites() {
  * Hide event, blame jfsanchez@estudiantes.uci.cu for this.
  * @param event
  */
-void Dash::hideEvent(QHideEvent *event) {
+void Dash::hideEvent(QHideEvent * event) {
     //    qDebug() <<  MODULE_NAME_STR << "hideEvent()";
     QDialog::hideEvent(event);
     QApplication::setActiveWindow(parentWidget());
@@ -410,7 +411,7 @@ void Dash::putFavorites(QList<XdgDesktopFile*> favAppList) {
 
 //TODO: Dinamically update the start widget showing|unshowing the favorites
 
-void Dash::removeFavorites(XdgDesktopFile* app) {
+void Dash::removeFavorites(XdgDesktopFile * app) {
     //    qDebug() <<  MODULE_NAME_STR << "Certainly YOU SHALL NOT PASS!!!!"; // What the hell!! Is this a debug message!!??
     us::ModuleContext* context = us::GetModuleContext();
     const QString ruta(ModuleSettings::getModuleDataLocation(context) + "/favs");

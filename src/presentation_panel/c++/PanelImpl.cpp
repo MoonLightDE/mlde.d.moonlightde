@@ -36,17 +36,10 @@
 #include <QWidget>
 #include <QMargins>
 #include <QWindow>
-#include <QX11Info>
 #include <QPointer>
 #include <QHBoxLayout>
 #include <QDesktopWidget>
 #include <QApplication>
-
-
-
-#include <LXQt/XfitMan>
-#include <X11/Xatom.h>
-
 
 using namespace us;
 
@@ -126,24 +119,12 @@ inline void PanelImpl::setupWindowFlags() {
 
 void PanelImpl::requestExclusiveScreenArea() {
     // TODO: Look for an alternate implementation inside the KF5.
-    Window wid = effectiveWinId();
+    WId wid = effectiveWinId();
     if (wid == 0 || !isVisible())
         return;
 
-    LxQt::XfitMan xf = LxQt::xfitMan();
     const QRect wholeScreen = QApplication::desktop()->geometry();
-    // NOTE: http://standards.freedesktop.org/wm-spec/wm-spec-latest.html
-    // Quote from the EWMH spec: " Note that the strut is relative to the screen edge, and not the edge of the xinerama monitor."
-    // So, we use the geometry of the whole screen to calculate the strut rather than using the geometry of individual monitors.
-    // Though the spec only mention Xinerama and did not mention XRandR, the rule should still be applied.
-    // At least openbox is implemented like this.
-
-    xf.setStrut(wid, 0, 0, 0, wholeScreen.bottom() - m_Geometry.y(),
-            /* Left   */ 0, 0,
-            /* Right  */ 0, 0,
-            /* Top    */ 0, 0,
-            /* Bottom */ m_Geometry.left(), m_Geometry.right()
-            );
+    KWindowSystem::setStrut(wid, 0, 0, 0,  wholeScreen.bottom() - m_Geometry.y());
 }
 
 void PanelImpl::addWidgetFactory(presentation_panel::WidgetFactory* widgetFactory) {
