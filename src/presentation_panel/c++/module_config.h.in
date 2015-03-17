@@ -1,4 +1,5 @@
-#ifndef presentation_panel_H
-#define presentation_panel_H
-#define MODULE_NAME "presentation_panel" 
-#endif // presentation_panel_H
+#ifndef @MOONLIGHTDE_MODULE_NAME@_H
+#define @MOONLIGHTDE_MODULE_NAME@_H
+#define MODULE_NAME @MOONLIGHTDE_MODULE_NAME@ 
+#define MODULE_NAME_STR "@MOONLIGHTDE_MODULE_NAME@" 
+#endif // @MOONLIGHTDE_MODULE_NAME@_H

@@ -75,12 +75,12 @@ bool PanelImpl::event(QEvent *event) {
             break;
                     
         case QEvent::LayoutRequest:
-            qDebug() << MODULE_NAME << ": desktop layout changed.";
+//            qDebug() << MODULE_NAME_STR << ": desktop layout changed.";
             adjustSizeToScreen();
             break;
 
         case QEvent::WinIdChange:
-            qDebug() << MODULE_NAME << ": Wid changed.";
+//            qDebug() << MODULE_NAME_STR << ": Wid changed.";
             setupWindowFlags();
             adjustSizeToScreen();
         default:
@@ -98,9 +98,9 @@ void PanelImpl::adjustSizeToScreen() {
 
     QWidget::setGeometry(m_Geometry);
 
-    qDebug() << MODULE_NAME << ": Adjusting size to: " << m_Geometry.size();
-    qDebug() << MODULE_NAME << ": Adjusting position to: " << m_Geometry.topLeft();
-    qDebug() << MODULE_NAME << ": resulting geometry: " << geometry();
+//    qDebug() << MODULE_NAME_STR << ": Adjusting size to: " << m_Geometry.size();
+//    qDebug() << MODULE_NAME_STR << ": Adjusting position to: " << m_Geometry.topLeft();
+//    qDebug() << MODULE_NAME_STR << ": resulting geometry: " << geometry();
 
     // Update reserved screen area on resize
     requestExclusiveScreenArea();
@@ -129,19 +129,19 @@ void PanelImpl::requestExclusiveScreenArea() {
 
 void PanelImpl::addWidgetFactory(presentation_panel::WidgetFactory* widgetFactory) {
     if (widgetFactory == NULL) {
-        qWarning() << MODULE_NAME << " : adding a NULL object widget factory.";
+        qWarning() << MODULE_NAME_STR << " : adding a NULL object widget factory.";
         return;
     }
 
     QString name = widgetFactory->name();
     if (m_Widgets.contains(name)) {
-        qDebug() << MODULE_NAME << " : " << name << " already registered.";
+        qDebug() << MODULE_NAME_STR << " : " << name << " already registered.";
         return;
     }
 
-    QWidget * widget = widgetFactory->build(MODULE_NAME, this);
+    QWidget * widget = widgetFactory->build(MODULE_NAME_STR, this);
     if (widget == NULL) {
-        qDebug() << MODULE_NAME << " : " << name << " widget wasn't built.";
+        qDebug() << MODULE_NAME_STR << " : " << name << " widget wasn't built.";
         return;
     }
 
@@ -153,7 +153,7 @@ void PanelImpl::addWidgetFactory(presentation_panel::WidgetFactory* widgetFactor
 
 void PanelImpl::removeWidgetFactory(presentation_panel::WidgetFactory* widgetFactory) {
     if (widgetFactory == NULL) {
-        qWarning() << MODULE_NAME << ": traing to remove a NULL widget factory.";
+        qWarning() << MODULE_NAME_STR << ": traing to remove a NULL widget factory.";
         return;
     }
     QString name = widgetFactory->name();
@@ -178,7 +178,7 @@ void PanelImpl::updateLayout() {
     QStringList widgets_Order = order.split(",");
     int i = 0;
     while (i < widgets_Order.size()) {
-        qDebug() << widgets_Order.at(i) << endl;
+//        qDebug() << widgets_Order.at(i) << endl;
         QWidget* actualWidget = m_Widgets.value(widgets_Order.at(i)).data();
         if (actualWidget != NULL) {
             actualWidget->setGeometry(actualWidget->x(), actualWidget->y(), actualWidget->width(), this->height());
@@ -208,7 +208,7 @@ QRect PanelImpl::geometry() {
 }
 
 void PanelImpl::setGeometry(QRect geometry) {
-    qWarning() << MODULE_NAME << __PRETTY_FUNCTION__ << " not soported.";
+    qWarning() << MODULE_NAME_STR << __PRETTY_FUNCTION__ << " not soported.";
 }
 
 /*Check if the widget's configuration is already set*/

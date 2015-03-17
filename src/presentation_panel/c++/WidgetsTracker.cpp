@@ -33,13 +33,13 @@ WidgetsTracker::WidgetsTracker(PanelImpl *panel) {
     m_Context = us::GetModuleContext();
 
     if (panel == NULL)
-        qCritical() << MODULE_NAME << ": invalid widget service tracker initialization.";
+        qCritical() << MODULE_NAME_STR << ": invalid widget service tracker initialization.";
     else {
         m_Panel = panel;
         m_tracker = new us::ServiceTracker<presentation_panel::WidgetFactory>(m_Context, this);
         m_tracker->Open();
 
-        qDebug() << MODULE_NAME << ": panel widgets tracker up and running.";
+        qDebug() << MODULE_NAME_STR << ": panel widgets tracker up and running.";
     }
 }
 
@@ -51,7 +51,7 @@ presentation_panel::WidgetFactory* WidgetsTracker::AddingService(const us::Servi
     presentation_panel::WidgetFactory * factory = m_Context->GetService(reference);
 
     if (m_Panel.isNull()) {
-        qCritical() << MODULE_NAME << ": widget service tracker not initialized.";
+        qCritical() << MODULE_NAME_STR << ": widget service tracker not initialized.";
         return factory;
     }
 
@@ -65,7 +65,7 @@ void WidgetsTracker::ModifiedService(const us::ServiceReference<presentation_pan
 
 void WidgetsTracker::RemovedService(const us::ServiceReference<presentation_panel::WidgetFactory>& reference, presentation_panel::WidgetFactory *service) {
     if (m_Panel.isNull()) {
-        qCritical() << MODULE_NAME << ": widget service tracker not initialized.";
+        qCritical() << MODULE_NAME_STR << ": widget service tracker not initialized.";
         return;
     }
     m_Panel->removeWidgetFactory(service);
