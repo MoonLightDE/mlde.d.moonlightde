@@ -72,12 +72,6 @@ Dash::Dash(QWidget * parent) : QDialog(parent), m_settings("panel-dash_xdg") {
 
     setWindowFlags(Qt::Dialog | Qt::WindowStaysOnTopHint | Qt::CustomizeWindowHint | Qt::Popup | Qt::X11BypassWindowManagerHint);
 
-    // Current monitor screen
-    QRect geometry = QApplication::desktop()->availableGeometry(this);
-    // Whole virtual screen
-    // QRect geometry = KWindowSystem::workArea();
-    this->setGeometry(geometry);
-
     built = false;
 
     monitor = new QFileSystemWatcher();
@@ -443,6 +437,13 @@ void Dash::showEvent(QShowEvent * event) {
         //            build();
         getFavorites();
     }
+
+    // Current monitor screen
+    QRect geometry = QApplication::desktop()->availableGeometry(this);
+    // Whole virtual screen
+    // QRect geometry = KWindowSystem::workArea();
+    this->setGeometry(geometry);
+
 
     m_ui.tabs->setCurrentWidget(m_ui.tabStart);
     m_ui.lineEdit->setFocus();
