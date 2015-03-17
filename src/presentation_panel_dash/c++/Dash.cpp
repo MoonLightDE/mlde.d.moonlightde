@@ -93,6 +93,11 @@ Dash::Dash(QWidget * parent) : QDialog(parent), m_settings("panel-dash_xdg") {
 }
 
 Dash::~Dash() {
+    delete monitor;
+    delete appDashModel;
+    delete settingsDashModel;
+    delete startDashModel;
+    delete appListGenerator;
 }
 
 void Dash::configView(QListView* view) {

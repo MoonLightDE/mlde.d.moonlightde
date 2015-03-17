@@ -4,6 +4,7 @@
  *      Alexis López Zubieta
  *      Jorge Fernández Sánchez
  *      Jorge Alberto Díaz Orozco
+ *      Rubén Salvador García San Juan
  * This file is part of Moonlight Desktop Environment.
  *
  * Moonlight Desktop Environment is free software: you can redistribute it and/or modify
@@ -85,6 +86,8 @@ private:
     bool built;
     int appIndex;
     DesktopFileCollection* appListGenerator;
+    
+    
     void putFavorites(QList<XdgDesktopFile*> favAppList);
 
 };
