@@ -68,9 +68,6 @@ void DashViewItemDelegate::paint(QPainter * painter, const QStyleOptionViewItem 
 
     QString newText = painter->fontMetrics().elidedText(name, Qt::ElideRight, widthUsed);
     painter->drawText(textRect, Qt::AlignCenter | Qt::AlignTop | Qt::TextWordWrap , newText);
-
-//    painter->drawText(textRect, Qt::TextWordWrap | Qt::AlignCenter, name);
-    painter->save();
 }
 
 QSize DashViewItemDelegate::sizeHint(const QStyleOptionViewItem & option, const QModelIndex & index) const {
