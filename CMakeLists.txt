@@ -73,7 +73,7 @@ add_subdirectory(src/utils_module_skel)
 add_subdirectory(src/presentation_panel)
 add_subdirectory(src/presentation_panel_dash)
 add_subdirectory(src/presentation_panel_tasksbar)
-#add_subdirectory(src/presentation_panel_systray)
+add_subdirectory(src/presentation_panel_systray)
 add_subdirectory(src/presentation_panel_datetime)
 add_subdirectory(src/presentation_panel_quicklaunchers)
 
