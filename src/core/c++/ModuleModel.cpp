@@ -46,6 +46,7 @@ ModuleModel::ModuleModel(QObject* parent)
 ModuleModel::~ModuleModel() {
 
     delete m_ModuleManagerTracker;
+    delete m_context;
 }
 
 QVariant ModuleModel::data(const QModelIndex& index, int role) const {
