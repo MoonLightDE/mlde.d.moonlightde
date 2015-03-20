@@ -477,8 +477,5 @@ void Dash::searchEditChanged(QString asearch) {
 }
 
 void Dash::toggle() {
-    if (isVisible())
-        hide();
-    else
-        show();
+    (isVisible()) ? hide() : show();
 }
