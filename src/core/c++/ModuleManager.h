@@ -61,8 +61,8 @@ private:
     QStringList m_descriptorsPaths;
     QHash<QString, SharedLibrary*> libs;
     
-    us::ModuleContext* m_context;
-    us::ServiceTracker<QSettings>* m_CoreSettingsTracker;
+    us::ModuleContext * m_context;
+    us::ServiceTracker<QSettings> * m_CoreSettingsTracker;
 };
 
 #endif	/* MODULEMANAGER_H */

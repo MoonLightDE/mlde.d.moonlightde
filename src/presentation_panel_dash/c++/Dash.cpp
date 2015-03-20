@@ -155,6 +155,9 @@ void Dash::build() {
 
     settingsDashModel = new DashViewModel(settingsList);
     m_ui.SettingsView->setModel(settingsDashModel);
+    
+    //Possibly memory leak
+    delete filters;
 
     connect(m_ui.AppView, SIGNAL(activated(const QModelIndex&)), SLOT(onItemTrigerred(const QModelIndex&)));
     connect(m_ui.SettingsView, SIGNAL(activated(const QModelIndex&)), SLOT(onItemTrigerred(const QModelIndex&)));
@@ -387,7 +390,10 @@ void Dash::getFavorites() {
 
     QFileInfoList list = favsDir->entryInfoList(QDir::Files, QDir::Name);
     QList<XdgDesktopFile*> favAppList;
-
+    
+    //Possibly memory leak
+    delete favsDir;
+    
     if (!list.empty()) {
         foreach(QFileInfo app, list) {
             const QString path(app.filePath());
