@@ -22,26 +22,43 @@
 #define	FILESYSTEMGVFS_H
 
 #include "model_filesystem/FileSystem.h"
+#include "GVFSDirectory.h"
+
+#include <QFuture>
+#include <QString>
+
 using namespace model_filesystem;
 
-class FileSystemGVFS : public model_filesystem::FileSystem {
+class FileSystemGVFS /*: public model_filesystem::FileSystem */{
 public:
     FileSystemGVFS();
     virtual ~FileSystemGVFS();
-    
+
 
     virtual QStringList getSupportedUriScheme();
+    
+    /**
+     * Retrieve a directory descriptor for the given uri. This function usually
+     * takes a while so it's recomended to run it with <code>QtConcurrent::Run</code>.
+     * @param uri
+     * @return 
+     */
+    virtual GVFSDirectory*  getDirectory(const QString &uri);
+    virtual void releaseDirectory(GVFSDirectory* dir);
 
-    virtual Node* getNode(QString path);
-    
-
-    virtual QList<QAction> getActions(QList<Node*> nodes);
-    
-    
+    //    virtual QList<QAction> getActions(QList<QString> paths);
 
 private:
+    /**
+     * Sanitises the path string in order to obtain a homogeneous representation.
+     * @param path
+     * @return 
+     */
+    QString cleanPath(const QString &path); 
     QStringList m_SupportedUriSchemes;
     GVfs * m_GVfs;
+    QHash<QString, GVFSDirectory*> m_Cache;
+    QHash<GVFSDirectory*, int> m_Refs;
 };
 
 #endif	/* FILESYSTEMGVFS_H */
