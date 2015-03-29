@@ -23,12 +23,12 @@
 
 #include "module_config.h"
 #include "FileSystemGVFS.h"
-#include "NodeGVFS.h"
+#include "GVFSDirectory.h"
 
 #include <QString>
 #include <QDebug>
 
-FileSystemGVFS::FileSystemGVFS() : model_filesystem::FileSystem(), m_SupportedUriSchemes() {
+FileSystemGVFS::FileSystemGVFS() : /* model_filesystem::FileSystem(),*/ m_SupportedUriSchemes() {
     m_GVfs = g_vfs_get_default();
     const gchar * const * schemes = g_vfs_get_supported_uri_schemes(m_GVfs);
     while (*schemes != NULL) {
@@ -44,18 +44,46 @@ QStringList FileSystemGVFS::getSupportedUriScheme() {
     return m_SupportedUriSchemes;
 }
 
-Node* FileSystemGVFS::getNode(QString path) {
-    QUrl url = QUrl::fromUserInput(path);
-    if (m_SupportedUriSchemes.contains(url.scheme())) {
-        Node * node = new NodeGVFS(url);
-        return node;
-    } else {
-        qDebug() << "[" << MODULE_NAME_STR << "] not supported scheme: " << path;
-        return NULL;
-    }
-    
-}
-
+/*
 QList<QAction> FileSystemGVFS::getActions(QList<Node*> nodes) {
     return QList<QAction>();
+}*/
+
+GVFSDirectory* FileSystemGVFS::getDirectory(const QString& uri) {
+    QString realUri = uri;
+    if (realUri.at(uri.size() - 1) != '/')
+        realUri.append('/');
+
+    qDebug() << "dirs in cache: "<< m_Cache.keys();
+    if (m_Cache.contains(realUri)) {
+        GVFSDirectory * dir = m_Cache.value(realUri);
+        m_Refs[dir]++;
+        qDebug() << MODULE_NAME_STR << realUri << "  fetched from cache with" << m_Refs[dir] << " references.";
+        return dir;
+    } else {
+        //TODO: Mount File System for path
+        // Create dir
+        GVFSDirectory * dir = new GVFSDirectory(realUri);
+        qDebug() << MODULE_NAME_STR << realUri << " fetched from fs." ;
+        m_Cache.insert(realUri, dir);
+        m_Refs.insert(dir, 1);
+        return dir;
+    }
 }
+
+void FileSystemGVFS::releaseDirectory(GVFSDirectory* dir) {
+    QString uri = dir->uri();
+
+    if (m_Refs.contains(dir)) {
+        m_Refs[dir]--;
+        qDebug() << MODULE_NAME_STR << " " << uri << " references decreased to: " << m_Refs[dir];
+        if (m_Refs[dir] <= 0) {
+            m_Refs.remove(dir);
+            delete m_Cache.take(uri);
+            qDebug() << MODULE_NAME_STR << " " << uri << " released.";
+        }
+    } else {
+        qDebug() << MODULE_NAME_STR << uri << " is not in cache.";
+    }
+}
+

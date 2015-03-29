@@ -41,6 +41,7 @@ list(REMOVE_ITEM ${PROJECT_NAME}_RESOURCES "${PROJECT_SOURCE_DIR}/res/descriptor
 find_package(Qt5Core  REQUIRED)
 find_package(Qt5Widgets  REQUIRED)
 find_package(Qt5Gui  REQUIRED)
+find_package(Qt5Concurrent  REQUIRED)
 
 find_package(PkgConfig)
 pkg_check_modules(SYSTEM_LIBS REQUIRED
@@ -93,6 +94,7 @@ target_link_libraries(${TARGET_NAME}
     Qt5::Core
     Qt5::Widgets
     Qt5::Gui
+    Qt5::Concurrent
 
     ${SYSTEM_LIBS_LIBRARIES}
     ${LIBFM_LIBRARIES}

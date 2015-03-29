@@ -65,10 +65,10 @@ public:
 
 
     virtual bool isValid();
-    
+
     virtual QString mimetype();
 
-    
+
     virtual QString iconName();
 
 
@@ -81,8 +81,9 @@ private:
 
     GFile * m_File;
     GFileInfo *m_FileInfo;
+    QList<GFileInfo *> m_ChildrenInfo;
     bool m_IsValid;
-    
+
 };
 
 #endif	/* NODEGVFS_H */
