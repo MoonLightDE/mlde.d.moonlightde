@@ -114,8 +114,16 @@ void Dash::configView(QListView* view) {
     view->setTextElideMode(Qt::ElideLeft);
 
     view->setWordWrap(true);
+    
+    view->setDragEnabled(true);
+    
+//    view->setAcceptDrops(true);
+//    view->viewport()->setAcceptDrops(true);
+    view->setDropIndicatorShown(true);
+    view->setDragDropMode(QAbstractItemView::DragOnly);
+//    qDebug() << "Dash - Drag 'n' drop enabled";
 
-    view->setMovement(QListView::Static);
+//    view->setMovement(QListView::Static);
     view->setResizeMode(QListView::Adjust);
 
     view->setLayoutMode(QListView::Batched);
@@ -381,7 +389,6 @@ void Dash::getFavorites() {
     QList<XdgDesktopFile*> favAppList;
 
     if (!list.empty()) {
-
         foreach(QFileInfo app, list) {
             const QString path(app.filePath());
             //You have to specify the absolute path to the file, otherwise it wont work
