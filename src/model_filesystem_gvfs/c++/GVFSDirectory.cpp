@@ -21,6 +21,7 @@
 
 #include "module_config.h"
 #include "GVFSDirectory.h"
+
 #include <QMutexLocker>
 #include <QFile>
 #include <QDebug>
@@ -28,6 +29,14 @@
 GVFSDirectory::GVFSDirectory(const QString &uri) : QObject() {
     m_uri = uri;
     m_File = g_file_new_for_uri(m_uri.toLocal8Bit());
+    m_FileInfo = NULL;
+
+    updateCache();
+}
+
+GVFSDirectory::GVFSDirectory(GFile * gfile) : QObject() {
+    m_File = G_FILE(gfile);
+    m_uri = g_file_get_uri(m_File);
     m_FileInfo = NULL;
 
     updateCache();

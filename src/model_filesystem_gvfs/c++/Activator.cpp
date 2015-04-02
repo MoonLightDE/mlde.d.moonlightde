@@ -1,7 +1,8 @@
 /*
- * Copyright (C) 2014 Moonlight Desktop Environment Team
+ * Copyright (C) 2015 Moonlight Desktop Environment Team
  * Authors:
- * Alexis López Zubieta
+ *  Alexis López Zubieta
+ * 
  * This file is part of Moonlight Desktop Environment.
  *
  * Moonlight Desktop Environment is free software: you can redistribute it and/or modify
@@ -22,8 +23,10 @@
 
 #include "NodeGVFS.h"
 #include "FileSystemGVFS.h"
+#include "GVFSVolumeManager.h"
 
 #include <QApplication>
+#include <QThread>
 #include <QDebug>
 
 #include <usModuleActivator.h>
@@ -43,7 +46,9 @@ private:
      */
     void Load(ModuleContext* context) {
         //        context->RegisterService<model_filesystem::FileSystem>(&m_FS, ServiceProperties());
-        runTests("file:///home");
+//        runTests("file:///home");
+//        m_VolumeManager.moveToThread(&m_Thread);
+//        m_Thread.start();
     }
 
     /**
@@ -52,6 +57,8 @@ private:
      * @param context the framework context for the module.
      */
     void Unload(ModuleContext* context) {
+        m_Thread.quit();
+        m_Thread.wait();
     }
 
     void runTests(QString path) {
@@ -79,5 +86,7 @@ private:
     }
 
     FileSystemGVFS m_FS;
+    GVFSVolumeManager m_VolumeManager;
+    QThread m_Thread;
 };
 US_EXPORT_MODULE_ACTIVATOR(model_filesystem_gvfs, Activator)

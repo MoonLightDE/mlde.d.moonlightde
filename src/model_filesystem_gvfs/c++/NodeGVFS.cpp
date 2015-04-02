@@ -146,14 +146,16 @@ QString NodeGVFS::iconName() {
     if (G_IS_THEMED_ICON(icon)) {
         names = g_themed_icon_get_names(G_THEMED_ICON(icon));
     }
+    QString name;
     if (names != NULL) {
         // Just return the first icon
         for (; (*names) != NULL; names++) {
-            return QString::fromLocal8Bit((*names));
+            name = QString::fromLocal8Bit(*names);
+            break;
         }
     }
     g_object_unref(icon);
-    return QString();
+    return name;
 }
 
 Node* NodeGVFS::parent() {
