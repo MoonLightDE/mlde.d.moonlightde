@@ -45,6 +45,8 @@ class GVFSDirectory : public QObject {
     Q_OBJECT
 public:
     GVFSDirectory(const QString &uri);
+    GVFSDirectory(GFile * gfile);
+    
     virtual ~GVFSDirectory();
 
     virtual QString name();
