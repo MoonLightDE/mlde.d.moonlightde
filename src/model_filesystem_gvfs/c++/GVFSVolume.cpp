@@ -22,6 +22,7 @@
 #include "GVFSVolume.h"
 #include "GVFSMount.h"
 #include <QFutureInterface>
+QThread GVFSVolume::m_Thread;
 
 GVFSVolume::GVFSVolume(GVolume * gvolume) : QObject(), m_GVolume(gvolume), m_FutureMount(NULL) {
     Q_ASSERT(m_GVolume);
@@ -66,6 +67,8 @@ QString GVFSVolume::iconName() {
 }
 
 QFuture<GVFSMount*> GVFSVolume::mount() {
+    m_FutureMount->moveToThread(&m_Thread);
+    m_Thread.start();
     if (m_FutureMount != NULL)
         return m_FutureMount->future();
 
@@ -119,9 +122,9 @@ void GVFSVolume::handleMountFinish(GObject* object, GAsyncResult* res, gpointer 
     succeeded = g_volume_mount_finish(gvolume, res, &error);
 
     if (!succeeded) {
-        volume->m_FutureMount->setProgressValueAndText(-1, QString("Unable to mount %1, due %2").arg(g_volume_get_identifier(gvolume, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE)).arg(error->message));
+//        volume->m_FutureMount->setProgressValueAndText(-1, QString("Unable to mount %1, due %2").arg(g_volume_get_name(gvolume)).arg(error->message));
         volume->m_FutureMount->reportFinished();
-        g_object_unref(error);
+        g_error_free(error);
     } else {
         GMount *gmount;
         
@@ -131,6 +134,7 @@ void GVFSVolume::handleMountFinish(GObject* object, GAsyncResult* res, gpointer 
         volume->m_FutureMount->reportFinished(&mount);
         volume->m_FutureMount = NULL;
     }
+    m_Thread.terminate();
 }
 
 QFuture<void> GVFSVolume::eject() {

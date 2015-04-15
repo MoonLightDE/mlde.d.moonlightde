@@ -32,39 +32,6 @@
 GVFSVolumeManager::GVFSVolumeManager() : QObject() {
     m_VolumeMonitor = g_volume_monitor_get();
     if (G_VOLUME_MONITOR(m_VolumeMonitor)) {
-        {
-            // Get existent volumes
-            GList* gvolumes = g_volume_monitor_get_volumes(m_VolumeMonitor);
-            GList* gvolumes_ptr = gvolumes;
-            qDebug() << MODULE_NAME_STR << "existent volumes:";
-            while (gvolumes_ptr != NULL) {
-                GVolume * gvolume = G_VOLUME(gvolumes_ptr->data);
-                gchar * volumeName = g_volume_get_name(gvolume);
-
-                m_Volumes.insert(QString(volumeName), gvolume);
-                qDebug() << MODULE_NAME_STR << '\t' << volumeName;
-
-                g_free(volumeName);
-                gvolumes_ptr = gvolumes_ptr->next;
-            }
-            g_list_free(gvolumes);
-        }
-        // Get existent volumes
-        GList* gmounts = g_volume_monitor_get_mounts(m_VolumeMonitor);
-        GList* gmounts_ptr = gmounts;
-        qDebug() << MODULE_NAME_STR << "existent mounts:";
-        while (gmounts_ptr != NULL) {
-            GMount * gmount = G_MOUNT(gmounts_ptr->data);
-            gchar * mountName = g_mount_get_name(gmount);
-
-            m_Mounts.insert(QString(mountName), gmount);
-            qDebug() << MODULE_NAME_STR << '\t' << mountName;
-
-            g_free(mountName);
-            gmounts_ptr = gmounts_ptr->next;
-        }
-        g_list_free(gmounts);
-
         g_signal_connect(m_VolumeMonitor, "mount-added", (GCallback) on_g_mount_added, this);
         g_signal_connect(m_VolumeMonitor, "mount-removed", (GCallback) on_g_mount_removed, this);
         g_signal_connect(m_VolumeMonitor, "mount-pre-unmount", (GCallback) on_g_mount_premount, this);
@@ -84,11 +51,49 @@ GVFSVolumeManager::GVFSVolumeManager() : QObject() {
 }
 
 GVFSVolumeManager::~GVFSVolumeManager() {
-    for (GVolume * gvolume : m_Volumes.values()) {
-        g_object_unref(gvolume);
-    }
-
     g_object_unref(m_VolumeMonitor);
+}
+
+QList<GVFSVolume*> GVFSVolumeManager::volumes() {
+    QList<GVFSVolume*> list;
+    if (G_VOLUME_MONITOR(m_VolumeMonitor)) {
+        // Get existent volumes
+        GList* gvolumes = g_volume_monitor_get_volumes(m_VolumeMonitor);
+        GList* gvolumes_ptr = gvolumes;
+        while (gvolumes_ptr != NULL) {
+            GVolume * gvolume = G_VOLUME(gvolumes_ptr->data);
+            GVFSVolume* volume = new GVFSVolume(gvolume);
+            list.append(volume);
+
+            gvolumes_ptr = gvolumes_ptr->next;
+        }
+        g_list_free(gvolumes);
+
+    } else {
+        qWarning() << MODULE_NAME_STR << " unable to get a G Volume Monitor instance.";
+    }
+    return list;
+}
+
+QList<GVFSMount*> GVFSVolumeManager::mounts() {
+    QList<GVFSMount*> list;
+    if (G_VOLUME_MONITOR(m_VolumeMonitor)) {
+        // Get existent mounts
+        GList* gmounts = g_volume_monitor_get_mounts(m_VolumeMonitor);
+        GList* gmounts_ptr = gmounts;
+        qDebug() << MODULE_NAME_STR << "existent mounts:";
+        while (gmounts_ptr != NULL) {
+            GMount * gmount = G_MOUNT(gmounts_ptr->data);
+            GVFSMount *mount = new GVFSMount(gmount);
+            list.append(mount);
+            
+            gmounts_ptr = gmounts_ptr->next;
+        }
+        g_list_free(gmounts);
+    } else {
+        qWarning() << MODULE_NAME_STR << " unable to get a G Volume Monitor instance.";
+    }
+    return list;
 }
 
 void GVFSVolumeManager::handle_mount_added(GMount* mount) {
