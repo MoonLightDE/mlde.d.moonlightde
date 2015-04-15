@@ -22,6 +22,9 @@
 #ifndef GVFSVOLUMEMANAGER_H
 #define	GVFSVOLUMEMANAGER_H
 
+#include "GVFSMount.h"
+#include "GVFSVolume.h"
+
 #include <gio/gio.h>
 
 #include <QHash>
@@ -34,18 +37,15 @@ public:
     GVFSVolumeManager();
     virtual ~GVFSVolumeManager();
 
-    /*virtual QList<QString> volumeList();
-    virtual QString volumeIconName(QString volumeName);
-    virtual QString volumeIconName(QString volumeName);
-    virtual void volumeMount(QString volumeName);
-    virtual void volumeUnmount(QString volumeName);*/
+    QList<GVFSVolume *> volumes();
+    QList<GVFSMount *> mounts();
 
 signals:
     void mountAdded(QString name);
     void mountRemoved(QString name);
     //void mount_changed(QString name);
     void mountPremount(QString name);
-    
+
     void volumeAdded(QString name);
     void volumeRemoved(QString name);
 
@@ -54,8 +54,8 @@ protected:
     static void on_g_mount_added(GVolumeMonitor *volume_monitor, GMount *mount, GVFSVolumeManager *volumeManager);
     void handle_mount_removed(GMount *gmount);
     static void on_g_mount_removed(GVolumeMonitor *volume_monitor, GMount *mount, GVFSVolumeManager *volumeManager);
-//    void handle_mount_changed(GMount *gmount);
-//    static void on_mount_changed(GVolumeMonitor *volume_monitor, GMount *mount, GVFSVolumeManager *volumeManager);
+    //    void handle_mount_changed(GMount *gmount);
+    //    static void on_mount_changed(GVolumeMonitor *volume_monitor, GMount *mount, GVFSVolumeManager *volumeManager);
     void handle_mount_premount(GMount *gmount);
     static void on_g_mount_premount(GVolumeMonitor *volume_monitor, GMount *mount, GVFSVolumeManager *volumeManager);
 
@@ -63,9 +63,9 @@ protected:
     static void on_g_volume_added(GVolumeMonitor *volume_monitor, GVolume *volume, GVFSVolumeManager *volumeManager);
     void handle_volume_removed(GVolume *volume);
     static void on_g_volume_removed(GVolumeMonitor *volume_monitor, GVolume *volume, GVFSVolumeManager *volumeManager);
-    
-//    void handle_volume_changed(GVolume *volume);
-//    static void on_g_volume_changed(GVolumeMonitor *volume_monitor, GVolume *volume, GVFSVolumeManager *volumeManager);
+
+    //    void handle_volume_changed(GVolume *volume);
+    //    static void on_g_volume_changed(GVolumeMonitor *volume_monitor, GVolume *volume, GVFSVolumeManager *volumeManager);
 
     // TODO: Check if it's necesary to handle the signals bellow
     /*
@@ -76,8 +76,8 @@ protected:
 
 private:
     GVolumeMonitor *m_VolumeMonitor;
-    QHash<QString, GVolume * > m_Volumes;
-    QHash<QString, GMount * > m_Mounts;
+//    QHash<QString, GVolume * > m_Volumes;
+//    QHash<QString, GMount * > m_Mounts;
 
 };
 

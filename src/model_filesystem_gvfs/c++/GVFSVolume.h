@@ -55,6 +55,7 @@ private:
     GVolume * m_GVolume;
     QFutureInterface<GVFSMount*> * m_FutureMount;
     QFutureInterface<void> * m_FutureEject;
+    static QThread m_Thread;
 };
 
 #endif	/* GVFSVOLUME_H */
