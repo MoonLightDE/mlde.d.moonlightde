@@ -38,7 +38,7 @@ class GVFSMount : public QObject {
     friend class MountVolumeOp;
 public:
     /**
-     * Takes ownership over the gmount object.
+     * Takes ownership over the GMount object.
      * @param gmount
      */
     GVFSMount(GMount * gmount);
@@ -53,7 +53,6 @@ public:
 
     virtual QFuture<void> unmount();
 
-    virtual QFuture<void> eject();
 
     virtual bool removable();
     virtual bool ejectable();
@@ -61,8 +60,6 @@ public:
     
 private:
     GMount * m_GMount;
-
-    QFutureInterface<void> *m_Operation;
 };
 
 #endif	/* GVFSMOUNT_H */

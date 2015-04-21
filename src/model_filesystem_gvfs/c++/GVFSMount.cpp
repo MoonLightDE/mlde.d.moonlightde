@@ -28,7 +28,7 @@
 #include <QFutureInterface>
 #include <QDebug>
 
-GVFSMount::GVFSMount(GMount * gmount) : QObject(), m_Operation(NULL) {
+GVFSMount::GVFSMount(GMount * gmount) : QObject() {
     m_GMount = G_MOUNT(gmount);
 }
 
@@ -82,24 +82,6 @@ QFuture<void> GVFSMount::unmount() {
     return umountOp->run();
 }
 
-QFuture<void> GVFSMount::eject() {
-    if (m_Operation != NULL)
-        return m_Operation->future();
-
-    m_Operation = new QFutureInterface<void>();
-
-    m_Operation->reportStarted();
-
-    GMountOperation * mount_op;
-
-    mount_op = g_mount_operation_new();
-
-    g_signal_connect(mount_op, "ask_password", G_CALLBACK(handleAskPassword), NULL);
-
-    g_mount_eject_with_operation(m_GMount, G_MOUNT_UNMOUNT_NONE, mount_op, NULL, handleEjectFinish, this);
-    g_object_unref(mount_op);
-}
-
 bool GVFSMount::removable() {
     return g_mount_can_unmount(m_GMount);
 }
@@ -107,70 +89,3 @@ bool GVFSMount::removable() {
 bool GVFSMount::ejectable() {
     return g_mount_can_eject(m_GMount);
 }
-
-void GVFSMount::handleAskPassword(GMountOperation* op, gchar* message, gchar* default_user, gchar* default_domain, GAskPasswordFlags flags, GVFSMount * volume) {
-    volume->m_Operation->setProgressValueAndText(-1, "Requesting autentication.");
-    // TODO: Conect to the authentication service
-    qDebug() << __PRETTY_FUNCTION__ << " not implemented yet";
-}
-
-void GVFSMount::handleUmountFinish(GObject* object, GAsyncResult* res, gpointer userdata) {
-    GVFSMount * mount = static_cast<GVFSMount *> (userdata);
-    if (!mount) {
-        qWarning() << __PRETTY_FUNCTION__ << " unable to cast from gpointer";
-        return;
-    }
-    GError *error = NULL;
-    gboolean succeeded;
-    GMount * gmount = G_MOUNT(object);
-
-    succeeded = g_mount_unmount_with_operation_finish(gmount, res, &error);
-
-    if (!succeeded) {
-        mount->m_Operation->setProgressValueAndText(-1, QString("Unable to unmount %1, due %2").arg(g_mount_get_name(gmount)).arg(error->message));
-        mount->m_Operation->reportFinished();
-        g_object_unref(error);
-    } else
-        mount->m_Operation->reportFinished();
-}
-
-void GVFSMount::handleRemountFinish(GObject* object, GAsyncResult* res, gpointer userdata) {
-    GVFSMount * mount = static_cast<GVFSMount *> (userdata);
-    if (!mount) {
-        qWarning() << __PRETTY_FUNCTION__ << " unable to cast from gpointer";
-        return;
-    }
-    GError *error = NULL;
-    gboolean succeeded;
-    GMount * gmount = G_MOUNT(object);
-
-    succeeded = g_mount_remount_finish(gmount, res, &error);
-
-    if (!succeeded) {
-        mount->m_Operation->setProgressValueAndText(-1, QString("Unable to unmount %1, due %2").arg(g_mount_get_name(gmount)).arg(error->message));
-        mount->m_Operation->reportFinished();
-        g_object_unref(error);
-    } else
-        mount->m_Operation->reportFinished();
-}
-
-void GVFSMount::handleEjectFinish(GObject* object, GAsyncResult* res, gpointer userdata) {
-    GVFSMount * mount = static_cast<GVFSMount *> (userdata);
-    if (!mount) {
-        qWarning() << __PRETTY_FUNCTION__ << " unable to cast from gpointer";
-        return;
-    }
-    GError *error = NULL;
-    gboolean succeeded;
-    GMount * gmount = G_MOUNT(object);
-
-    succeeded = g_mount_eject_with_operation_finish(gmount, res, &error);
-
-    if (!succeeded) {
-        mount->m_Operation->setProgressValueAndText(-1, QString("Unable to unmount %1, due %2").arg(g_mount_get_name(gmount)).arg(error->message));
-        mount->m_Operation->reportFinished();
-        g_object_unref(error);
-    } else
-        mount->m_Operation->reportFinished();
-}
-
