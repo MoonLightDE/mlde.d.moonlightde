@@ -26,7 +26,7 @@
 #include "GVFSVolumeManager.h"
 
 #include <QApplication>
-#include <QThread>
+#include <QFutureWatcher>
 #include <QDebug>
 
 #include <usModuleActivator.h>
@@ -91,14 +91,33 @@ private:
             qDebug() << MODULE_NAME_STR << " volume icon" << volume->iconName();
             qDebug() << MODULE_NAME_STR << " volume automount?" << volume->automount();
             if (volume->automount()) {
-                auto futureMount = volume->mount();
-//                futureMount.waitForFinished();
-//                if (futureMount.result()) {
-//                    qDebug() << MODULE_NAME_STR << " volume automount result " << futureMount.result()->name();
-//                    auto futureUnmount = futureMount.result()->unmount();
-////                    futureUnmount.waitForFinished();
-//                } else
-//                    qDebug() << MODULE_NAME_STR << " volume automount result " << futureMount.progressText();
+                QFutureWatcher<GVFSMount*> * mountWatcher = new QFutureWatcher<GVFSMount*> ();
+                mountWatcher->setFuture(volume->mount());
+
+                QObject::connect(mountWatcher, &QFutureWatcher<GVFSMount*>::finished, [mountWatcher] () {
+                    qDebug() << MODULE_NAME_STR << " mount finished" << mountWatcher->progressText();
+                    delete mountWatcher;
+                });
+
+                GVFSMount * mount = volume->getMount();
+                if (mount != NULL) {
+                    QFutureWatcher<void> * unmountWatcher = new QFutureWatcher<void> ();
+                    unmountWatcher->setFuture(mount->unmount());
+
+                    QObject::connect(unmountWatcher, &QFutureWatcher<void>::finished, [unmountWatcher] () {
+                        qDebug() << MODULE_NAME_STR << " unmount finished" << unmountWatcher->progressText();
+                        delete unmountWatcher;
+                    });
+                }
+
+                QFutureWatcher<void> * ejectWatcher = new QFutureWatcher<void> ();
+                ejectWatcher->setFuture(volume->eject());
+
+                QObject::connect(ejectWatcher, &QFutureWatcher<void>::finished, [ejectWatcher] () {
+                    qDebug() << MODULE_NAME_STR << " volume ejected: " << ejectWatcher->progressText();
+                    delete ejectWatcher;
+                });
+
             }
 
         }

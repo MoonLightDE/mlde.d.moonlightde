@@ -19,51 +19,28 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GVFSMOUNT_H
-#define	GVFSMOUNT_H
+#ifndef UNMOUNTMOUNTOP_H
+#define	UNMOUNTMOUNTOP_H
+
 #include <gio/gio.h>
 
-class GVFSVolume;
-class GVFSDirectory;
-
-#include "GVFSVolume.h"
-#include "MountVolumeOp.h"
-
-#include <QObject>
 #include <QFuture>
-#include <QString>
+#include <QFutureInterface>
 
-class GVFSMount : public QObject {
-    Q_OBJECT
-    friend class MountVolumeOp;
+class UnmountMountOp {
 public:
-    /**
-     * Takes ownership over the gmount object.
-     * @param gmount
-     */
-    GVFSMount(GMount * gmount);
-    virtual ~GVFSMount();
+    UnmountMountOp(GMount * gmount);
+    virtual ~UnmountMountOp();
 
-    virtual QString name();
-    virtual QString uuid();
-    virtual QString iconName();
-
-    virtual GVFSDirectory* root();
-    virtual GVFSVolume* volume();
-
-    virtual QFuture<void> unmount();
-
-    virtual QFuture<void> eject();
-
-    virtual bool removable();
-    virtual bool ejectable();
-
-    
+    virtual QFuture<void> run();
 private:
-    GMount * m_GMount;
+    static void handleFinish(GObject *object, GAsyncResult *res, gpointer userdata);
 
-    QFutureInterface<void> *m_Operation;
+    GMount * m_GMount;
+    GMountOperation * m_MountOp;
+    QFutureInterface<void> m_FutureInterface;
+
 };
 
-#endif	/* GVFSMOUNT_H */
+#endif	/* UNMOUNTMOUNTOP_H */
 

@@ -19,51 +19,34 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GVFSMOUNT_H
-#define	GVFSMOUNT_H
-#include <gio/gio.h>
+#ifndef MOUNTVOLUMEOP_H
+#define	MOUNTVOLUMEOP_H
 
-class GVFSVolume;
-class GVFSDirectory;
 
 #include "GVFSVolume.h"
-#include "MountVolumeOp.h"
+#include "GVFSMount.h"
 
-#include <QObject>
-#include <QFuture>
-#include <QString>
+#include <gio/gio.h>
 
-class GVFSMount : public QObject {
+#include <QTimer>
+#include <QFutureInterface>
+
+
+class MountVolumeOp : public QObject {
     Q_OBJECT
-    friend class MountVolumeOp;
 public:
-    /**
-     * Takes ownership over the gmount object.
-     * @param gmount
-     */
-    GVFSMount(GMount * gmount);
-    virtual ~GVFSMount();
+    MountVolumeOp(GVolume * gvolume);
+    virtual ~MountVolumeOp();
 
-    virtual QString name();
-    virtual QString uuid();
-    virtual QString iconName();
+    virtual QFuture<GVFSMount*> run();
 
-    virtual GVFSDirectory* root();
-    virtual GVFSVolume* volume();
-
-    virtual QFuture<void> unmount();
-
-    virtual QFuture<void> eject();
-
-    virtual bool removable();
-    virtual bool ejectable();
-
-    
 private:
-    GMount * m_GMount;
+    static void handleAskPassword(GMountOperation *op, gchar *message, gchar *default_user, gchar *default_domain, GAskPasswordFlags flags, gpointer userdata);
+    static void handleFinish(GObject *object, GAsyncResult *res, gpointer userdata);
 
-    QFutureInterface<void> *m_Operation;
+    GVolume * m_GVolume;
+    QFutureInterface<GVFSMount*> m_futureInterface;
 };
 
-#endif	/* GVFSMOUNT_H */
+#endif	/* MOUNTVOLUMEOP_H */
 
