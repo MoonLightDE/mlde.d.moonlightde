@@ -21,10 +21,11 @@
 
 #include "GVFSVolume.h"
 #include "GVFSMount.h"
+#include "EjectVolumeOp.h"
 #include <QFutureInterface>
-QThread GVFSVolume::m_Thread;
+#include <glib-2.0/gio/gvolume.h>
 
-GVFSVolume::GVFSVolume(GVolume * gvolume) : QObject(), m_GVolume(gvolume), m_FutureMount(NULL) {
+GVFSVolume::GVFSVolume(GVolume * gvolume) : m_GVolume(gvolume) {
     Q_ASSERT(m_GVolume);
 }
 
@@ -66,29 +67,17 @@ QString GVFSVolume::iconName() {
     return name;
 }
 
+GVFSMount* GVFSVolume::getMount() {
+    GMount * gmount = g_volume_get_mount(m_GVolume);
+    if (gmount != NULL)
+        return new GVFSMount(gmount);
+
+    return NULL;
+}
+
 QFuture<GVFSMount*> GVFSVolume::mount() {
-    m_FutureMount->moveToThread(&m_Thread);
-    m_Thread.start();
-    if (m_FutureMount != NULL)
-        return m_FutureMount->future();
-
-    m_FutureMount = new QFutureInterface<GVFSMount*>();
-
-    GMountOperation *op;
-    op = g_mount_operation_new();
-
-    g_signal_connect(op, "ask_password", G_CALLBACK(handleAskPassword), NULL);
-
-    g_volume_mount(m_GVolume,
-            G_MOUNT_MOUNT_NONE,
-            op,
-            NULL,
-            handleMountFinish,
-            this);
-
-    m_FutureMount->reportStarted();
-
-    return m_FutureMount->future();
+    MountVolumeOp *op = new MountVolumeOp(m_GVolume);
+    return op->run();
 }
 
 bool GVFSVolume::mountable() {
@@ -103,40 +92,7 @@ bool GVFSVolume::automount() {
     return g_volume_should_automount(m_GVolume);
 }
 
-void GVFSVolume::handleAskPassword(GMountOperation* op, gchar* message, gchar* default_user, gchar* default_domain, GAskPasswordFlags flags, GVFSVolume * volume) {
-    volume->m_FutureMount->setProgressValueAndText(-1, "Requesting autentication.");
-    // TODO: Conect to the authentication service
-    qDebug() << __PRETTY_FUNCTION__ << " not implemented yet";
-}
-
-void GVFSVolume::handleMountFinish(GObject* object, GAsyncResult* res, gpointer userdata) {
-    GVFSVolume * volume = static_cast<GVFSVolume *> (userdata);
-    if (!volume) {
-        qWarning() << __PRETTY_FUNCTION__ <<  " unable to cast from gpointer";
-        return;
-    }
-    GError *error = NULL;
-    gboolean succeeded;
-    GVolume * gvolume = G_VOLUME(object);
-
-    succeeded = g_volume_mount_finish(gvolume, res, &error);
-
-    if (!succeeded) {
-//        volume->m_FutureMount->setProgressValueAndText(-1, QString("Unable to mount %1, due %2").arg(g_volume_get_name(gvolume)).arg(error->message));
-        volume->m_FutureMount->reportFinished();
-        g_error_free(error);
-    } else {
-        GMount *gmount;
-        
-        gmount = g_volume_get_mount(gvolume);
-        volume->m_FutureMount->setProgressValueAndText(1, "Mounted.");
-        GVFSMount * mount = new GVFSMount(gmount);
-        volume->m_FutureMount->reportFinished(&mount);
-        volume->m_FutureMount = NULL;
-    }
-    m_Thread.terminate();
-}
-
 QFuture<void> GVFSVolume::eject() {
-    qDebug()<< __PRETTY_FUNCTION__ << "not implemented yet.";
+    EjectVolumeOp *op = new EjectVolumeOp(m_GVolume);
+    return op->run();
 }

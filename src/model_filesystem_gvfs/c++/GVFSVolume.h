@@ -24,14 +24,12 @@
 
 #include <gio/gio.h>
 
-#include <QObject>
 #include <QFuture>
 #include <QThread>
 
 class GVFSMount;
 
-class GVFSVolume : public QObject {
-    Q_OBJECT
+class GVFSVolume {
 public:
     GVFSVolume(GVolume * gvolume);
     virtual ~GVFSVolume();
@@ -40,6 +38,7 @@ public:
     virtual QString uuid();
     virtual QString iconName();
 
+    virtual GVFSMount * getMount();
     virtual QFuture<GVFSMount*> mount();
     virtual QFuture<void> eject();
 
@@ -47,15 +46,8 @@ public:
     virtual bool ejectable();
     virtual bool automount();
 
-protected:
-    static void handleAskPassword(GMountOperation *op, gchar *message, gchar *default_user, gchar *default_domain, GAskPasswordFlags flags, GVFSVolume * volume);
-    static void handleMountFinish(GObject *object, GAsyncResult *res, gpointer userdata);
-
 private:
     GVolume * m_GVolume;
-    QFutureInterface<GVFSMount*> * m_FutureMount;
-    QFutureInterface<void> * m_FutureEject;
-    static QThread m_Thread;
 };
 
 #endif	/* GVFSVOLUME_H */

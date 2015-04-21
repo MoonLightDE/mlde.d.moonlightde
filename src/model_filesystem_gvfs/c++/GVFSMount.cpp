@@ -23,6 +23,7 @@
 
 #include "GVFSMount.h"
 #include "GVFSDirectory.h"
+#include "UnmountMountOp.h"
 
 #include <QFutureInterface>
 #include <QDebug>
@@ -77,37 +78,8 @@ GVFSVolume* GVFSMount::volume() {
 }
 
 QFuture<void> GVFSMount::unmount() {
-    if (m_Operation != NULL)
-        return m_Operation->future();
-    m_Operation = new QFutureInterface<void>();
-
-    m_Operation->reportStarted();
-
-    GMountOperation * mount_op;
-
-    mount_op = g_mount_operation_new();
-
-    g_signal_connect(mount_op, "ask_password", G_CALLBACK(handleAskPassword), NULL);
-
-    g_mount_unmount_with_operation(m_GMount, G_MOUNT_UNMOUNT_NONE, mount_op, NULL, handleUmountFinish, this);
-    g_object_unref(mount_op);
-}
-
-QFuture<void> GVFSMount::remount() {
-    if (m_Operation != NULL)
-        return m_Operation->future();
-    m_Operation = new QFutureInterface<void>();
-
-    m_Operation->reportStarted();
-
-    GMountOperation * mount_op;
-
-    mount_op = g_mount_operation_new();
-
-    g_signal_connect(mount_op, "ask_password", G_CALLBACK(handleAskPassword), NULL);
-
-    g_mount_remount(m_GMount, G_MOUNT_MOUNT_NONE, mount_op, NULL, handleRemountFinish, this);
-    g_object_unref(mount_op);
+    UnmountMountOp *umountOp = new UnmountMountOp(m_GMount);
+    return umountOp->run();
 }
 
 QFuture<void> GVFSMount::eject() {
