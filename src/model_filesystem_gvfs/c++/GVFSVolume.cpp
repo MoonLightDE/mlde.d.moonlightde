@@ -67,7 +67,7 @@ QString GVFSVolume::iconName() {
     return name;
 }
 
-GVFSMount* GVFSVolume::getMount() {
+Mount* GVFSVolume::getMount() {
     GMount * gmount = g_volume_get_mount(m_GVolume);
     if (gmount != NULL)
         return new GVFSMount(gmount);
@@ -75,7 +75,7 @@ GVFSMount* GVFSVolume::getMount() {
     return NULL;
 }
 
-QFuture<GVFSMount*> GVFSVolume::mount() {
+QFuture<Mount*> GVFSVolume::mount() {
     MountVolumeOp *op = new MountVolumeOp(m_GVolume);
     return op->run();
 }

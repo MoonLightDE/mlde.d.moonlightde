@@ -2,6 +2,8 @@
  * Copyright (C) 2015 Moonlight Desktop Environment Team
  * Authors:
  *      Alexis López Zubieta
+ *      Ruben Salvador San Juan
+ *      Jorge Damian Diaz Morejon 
  * 
  * This file is part of Moonlight Desktop Environment.
  *
@@ -31,7 +33,7 @@
 char GVFSDirectory::attributes[] = "standard::*,access::*,owner::*,time::*";
 bool GVFSDirectory::nofollow_symlinks = false;
 
-GVFSDirectory::GVFSDirectory(const QString &uri) : QObject() {
+GVFSDirectory::GVFSDirectory(const QString &uri)  {
     QUrl qurl = QUrl::fromUserInput(uri);
     m_uri = qurl.toString(QUrl::RemoveUserInfo | QUrl::PreferLocalFile | QUrl::StripTrailingSlash | QUrl::NormalizePathSegments);
 
@@ -45,7 +47,7 @@ GVFSDirectory::GVFSDirectory(const QString &uri) : QObject() {
     update();
 }
 
-GVFSDirectory::GVFSDirectory(GFile * gfile) : QObject() {
+GVFSDirectory::GVFSDirectory(GFile * gfile) {
     m_File = G_FILE(gfile);
     m_uri = g_file_get_uri(m_File);
     m_FileInfo = NULL;
@@ -126,7 +128,10 @@ QFlags<QFile::Permission> GVFSDirectory::permission(const QString& target) {
 //TODO: Fix this method because it's not recursive 
 //and it does not apply permissions to file
 
-void GVFSDirectory::setPermission(QFlags<QFile::Permission> permissions, const QString& target) {
+QFuture<void> GVFSDirectory::setPermission(QFlags<QFile::Permission> permissions, const QString& target) {
+    return QFuture<void>();
+
+    // TODO: Move current implementation to a separated Operation.
     if (m_ChildrenInfo.contains(target)) {
         GFileInfo* file = m_ChildrenInfo.value(target);
 
@@ -160,8 +165,13 @@ void GVFSDirectory::setPermission(QFlags<QFile::Permission> permissions, const Q
     }
 }
 
-unsigned long int GVFSDirectory::size(const QString& target, bool recursive) {
+QFuture<unsigned long int> GVFSDirectory::size(const QString& target, bool recursive) {
+    return QFuture<unsigned long int>();
+    // TODO: Move current implementation to a separated Operation.
 
+
+    // FIXME: Code bellow calls to GVFSDirectory destructor with out taking care of 
+    // the callbacks and signals conected to then and cause segmentation faults.
     long int sizes = 0;
     GVFSDirectory* current;
     if (target == ".") {
@@ -211,12 +221,16 @@ unsigned long int GVFSDirectory::size(const QString& target, bool recursive) {
 
     }
 
-    return sizes;
+//    return sizes;
 
 }
 
-unsigned long int GVFSDirectory::storedSize(const QString& target, bool recursive) {
-
+QFuture<unsigned long int> GVFSDirectory::storedSize(const QString& target, bool recursive) {
+    return QFuture<unsigned long int>();
+    // TODO: Move current implementation to a separated Operation.
+    
+    // FIXME: Code bellow calls to GVFSDirectory destructor with out taking care of 
+    // the callbacks and signals conected to then and cause segmentation faults.
     unsigned long int sizes = 0;
     GVFSDirectory* current;
     if (target == ".") {
@@ -266,7 +280,7 @@ unsigned long int GVFSDirectory::storedSize(const QString& target, bool recursiv
 
     }
 
-    return sizes;
+//    return sizes;
 }
 
 unsigned long int GVFSDirectory::timeAccess(const QString& target) {
@@ -381,10 +395,6 @@ QList<QString> GVFSDirectory::children() {
     return children;
 }
 
-int GVFSDirectory::uid() {
-    return qHash(m_uri);
-}
-
 void GVFSDirectory::update() {
     releaseCache();
     startMount();
@@ -416,10 +426,7 @@ void GVFSDirectory::startMount() {
     GMountOperation *op;
     op = g_mount_operation_new();
 
-    g_mount_operation_set_username(op, m_User.toLocal8Bit());
-    g_mount_operation_set_password(op, m_Password.toLocal8Bit());
-
-    g_signal_connect(op, "ask_password", G_CALLBACK(handleMountAskPassword), NULL);
+    g_signal_connect(op, "ask_password", G_CALLBACK(handleMountAskPassword), this);
 
     m_FutureInterface.reportStarted();
     m_FutureInterface.setProgressValueAndText(0, "Mounting file system.");
@@ -435,11 +442,11 @@ void GVFSDirectory::handleMountAskPassword(GMountOperation* op, gchar* message, 
     }
     directory->m_FutureInterface.setProgressValueAndText(1, "Waithing for user credentials.");
 
-    // TODO: Conect to the authentication service
-    qDebug() << __PRETTY_FUNCTION__ << " not implemented yet";
+    // TODO: Implement using the authentication service
+    g_mount_operation_set_username(op, directory->m_User.toLocal8Bit());
+    g_mount_operation_set_password(op, directory->m_Password.toLocal8Bit());
 
-    // call when cretentials were resolved
-    // g_mount_operation_reply(op, G_MOUNT_OPERATION_HANDLED);
+    g_mount_operation_reply(op, G_MOUNT_OPERATION_HANDLED);
 }
 
 void GVFSDirectory::handleMountDone(GObject* source_object, GAsyncResult* res, gpointer user_data) {
@@ -448,6 +455,7 @@ void GVFSDirectory::handleMountDone(GObject* source_object, GAsyncResult* res, g
         qWarning() << __PRETTY_FUNCTION__ << " unable to cast from gpointer";
         return;
     }
+    directory->name();
 
     GError *error = NULL;
     gboolean succeeded;
@@ -488,7 +496,7 @@ void GVFSDirectory::handleQueryFileInfoDone(GObject* source_object, GAsyncResult
     if (directory->m_FileInfo != NULL)
         directory->releaseCache();
 
-    GError *error;
+    GError *error = NULL;
     directory->m_FileInfo = g_file_query_info_finish(G_FILE(source_object), res, &error);
     if (directory->m_FileInfo == NULL) {
         directory->reportError(QString::fromLocal8Bit(error->message));
@@ -519,7 +527,7 @@ void GVFSDirectory::handleEnumerateChildrenDone(GObject* source_object, GAsyncRe
     }
 
     GFileEnumerator *enumerator;
-    GError *error;
+    GError *error = NULL;
 
     enumerator = g_file_enumerate_children_finish(G_FILE(source_object), res, &error);
 
@@ -560,6 +568,8 @@ void GVFSDirectory::handleEnumeratorNextFilesDone(GObject* source_object, GAsync
                 directory->m_ChildrenInfo.insert(QString::fromLocal8Bit(g_file_info_get_name(fileInfo)), fileInfo);
                 ptr = ptr->next;
             }
+
+            g_list_free(infoList);
             Q_EMIT(directory->changed());
             g_file_enumerator_next_files_async(enumerator, 20, 0, NULL, handleEnumeratorNextFilesDone, directory);
         }

@@ -19,20 +19,36 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRACKABLE_H
-#define	TRACKABLE_H
-namespace model_filesystem {
 
-    /**
-     * Used to query information about the time stamps of the nodes.
-     */
-    class Trackable {
+#ifndef VOLUME_H
+#define	VOLUME_H
+
+#include <usServiceInterface.h>
+
+#include <QString>
+#include <QFuture>
+
+namespace model_filesystem {
+    class Mount;
+
+    class Volume {
     public:
-        virtual QDate timeModified() = 0;
-        virtual QDate timeAccess() = 0;
-        virtual QDate timeChanged() = 0;
+
+        virtual ~Volume() {
+        };
+        virtual QString name() = 0;
+        virtual QString uuid() = 0;
+        virtual QString iconName() = 0;
+
+        virtual Mount * getMount() = 0;
+        virtual QFuture<Mount*> mount() = 0;
+        virtual QFuture<void> eject() = 0;
+
+        virtual bool mountable() = 0;
+        virtual bool ejectable() = 0;
+        virtual bool automount() = 0;
+
     };
 }
-
-#endif	/* TRACKABLE_H */
+#endif	/* VOLUME_H */
 

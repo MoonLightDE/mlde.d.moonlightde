@@ -22,14 +22,19 @@
 #ifndef GVFSVOLUME_H
 #define	GVFSVOLUME_H
 
-#include <gio/gio.h>
+#define QT_NO_KEYWORDS
+
+#include "model_filesystem/Volume.h"
+#include "model_filesystem/Mount.h"
 
 #include <QFuture>
 #include <QThread>
 
-class GVFSMount;
+#include <gio/gio.h>
 
-class GVFSVolume {
+using namespace model_filesystem;
+
+class GVFSVolume : public model_filesystem::Volume {
 public:
     GVFSVolume(GVolume * gvolume);
     virtual ~GVFSVolume();
@@ -38,8 +43,8 @@ public:
     virtual QString uuid();
     virtual QString iconName();
 
-    virtual GVFSMount * getMount();
-    virtual QFuture<GVFSMount*> mount();
+    virtual Mount* getMount();
+    virtual QFuture<Mount*> mount();
     virtual QFuture<void> eject();
 
     virtual bool mountable();

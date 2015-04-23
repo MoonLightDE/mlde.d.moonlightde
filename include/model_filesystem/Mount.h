@@ -19,19 +19,37 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MEASURABLE_H
-#define	MEASURABLE_H
+
+#ifndef MOUNT_H
+#define	MOUNT_H
+#include <usServiceInterface.h>
+
+#include <QFuture>
+#include <QString>
+
 namespace model_filesystem {
+    class Directory;
+    class Volume;
 
-    class Measurable {
+    class Mount {
     public:
-        virtual unsigned long size() = 0;
-        virtual unsigned long storedSize() = 0;
 
-        virtual unsigned long storeSize();
-        virtual unsigned long storeUsedSpace();
-        virtual unsigned long storeFreeSpace();
+        virtual ~Mount() {
+        };
+
+        virtual QString name() = 0;
+        virtual QString uuid() = 0;
+        virtual QString iconName() = 0;
+
+        virtual Directory* root() = 0;
+        virtual Volume* volume() = 0;
+
+        virtual QFuture<void> unmount() = 0;
+
+
+        virtual bool removable() = 0;
+        virtual bool ejectable() = 0;
     };
 }
-#endif	/* MEASURABLE_H */
+#endif	/* MOUNT_H */
 

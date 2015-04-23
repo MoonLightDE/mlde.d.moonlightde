@@ -31,24 +31,28 @@
 
 using namespace model_filesystem;
 
-class FileSystemGVFS /*: public model_filesystem::FileSystem */{
+class FileSystemGVFS : public FileSystem {
 public:
     FileSystemGVFS();
     virtual ~FileSystemGVFS();
 
 
     virtual QStringList getSupportedUriScheme();
-    
+
     /**
-     * Retrieve a directory descriptor for the given uri. This function usually
-     * takes a while so it's recomended to run it with <code>QtConcurrent::Run</code>.
+     * Retrieve a directory descriptor for the given uri.
      * @param uri
      * @return 
      */
-    virtual GVFSDirectory*  getDirectory(const QString &uri);
-    virtual void releaseDirectory(GVFSDirectory* dir);
+    virtual Directory* getDirectory(const QString &uri);
+    virtual void releaseDirectory(Directory* dir);
 
-    //    virtual QList<QAction> getActions(QList<QString> paths);
+    //    virtual QFuture<void> copy(QList<QString> sources, QString destination);
+    //    virtual QFuture<void> move(QList<QString> sources, QString destination);
+    //    virtual QFuture<void> trash(QList<QString> targets);
+    //    virtual QFuture<void> remove(QList<QString> targets);
+    //    
+    //    virtual QFuture<void> mkdir(QString target);
 
 private:
     /**
@@ -56,7 +60,7 @@ private:
      * @param path
      * @return 
      */
-    QString cleanPath(const QString &path); 
+    QString cleanPath(const QString &path);
     QStringList m_SupportedUriSchemes;
     GVfs * m_GVfs;
     QHash<QString, GVFSDirectory*> m_Cache;

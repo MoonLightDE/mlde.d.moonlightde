@@ -22,10 +22,9 @@ project(model_filesystem_gvfs)
 ## --------------------------------------------------------------
 ## Sources
 ## --------------------------------------------------------------
+file(GLOB ${PROJECT_NAME}_PUBLIC_HEADERS ${CMAKE_SOURCE_DIR}/include/model_filesystem/*.h)
+
 file(GLOB ${PROJECT_NAME}_SOURCES c++/*.cpp)
-set(${PROJECT_NAME}_SOURCES ${${PROJECT_NAME}_SOURCES}
-    
-)
 
 file(GLOB ${PROJECT_NAME}_UIS ui/*.ui)
 
@@ -80,6 +79,7 @@ QT5_ADD_RESOURCES(${PROJEC_NAME}_QRC_SOURCES ${${PROJEC_NAME}_RESOURCES})
 ## --------------------------------------------------------------
 set (${PROJECT_NAME}_SOURCES
     ${${PROJECT_NAME}_SOURCES}
+    ${${PROJECT_NAME}_PUBLIC_HEADERS}
     ${${PROJEC_NAME}_UI_HEADERS}
     ${${PROJECT_NAME}_RESOURCES}
 )

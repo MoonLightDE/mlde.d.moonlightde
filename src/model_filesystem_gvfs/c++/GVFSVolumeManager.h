@@ -22,6 +22,11 @@
 #ifndef GVFSVOLUMEMANAGER_H
 #define	GVFSVOLUMEMANAGER_H
 
+#define QT_NO_KEYWORDS
+#include "model_filesystem/VolumeManager.h"
+#include "model_filesystem/Volume.h"
+#include "model_filesystem/Mount.h"
+
 #include "GVFSMount.h"
 #include "GVFSVolume.h"
 
@@ -30,15 +35,16 @@
 #include <QHash>
 #include <QString>
 #include <QObject>
+#undef QT_NO_KEYWORDS
 
-class GVFSVolumeManager : public QObject {
+class GVFSVolumeManager : public model_filesystem::VolumeManager {
     Q_OBJECT
 public:
     GVFSVolumeManager();
     virtual ~GVFSVolumeManager();
 
-    QList<GVFSVolume *> volumes();
-    QList<GVFSMount *> mounts();
+    virtual QList<model_filesystem::Volume *> volumes();
+    virtual QList<model_filesystem::Mount *> mounts();
 
 Q_SIGNALS:
     void mountAdded(QString name);

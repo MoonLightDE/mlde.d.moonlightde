@@ -27,23 +27,33 @@
 #include <QList>
 #include <usServiceInterface.h>
 
-namespace model_filesystem {
+#include "Directory.h"
 
-    class Node;
+namespace model_filesystem {
 
     class FileSystem {
     public:
-
         virtual ~FileSystem() {
-        }
+        };
 
 
         virtual QStringList getSupportedUriScheme() = 0;
-        virtual Node* getNode(QString path) = 0;
-        virtual QList<QAction> getActions(QList<Node*> nodes) = 0;
-        
-        //TODO: Query file system info
-    private:
+
+        /**
+         * Retrieve a directory descriptor for the given uri. The result must be
+         * released later with <code>releaseDirectory</code>
+         * @param uri
+         * @return 
+         */
+        virtual Directory* getDirectory(const QString &uri) = 0;
+        virtual void releaseDirectory(Directory* dir) = 0;
+
+        //    virtual QFuture<void> copy(QList<QString> sources, QString destination);
+        //    virtual QFuture<void> move(QList<QString> sources, QString destination);
+        //    virtual QFuture<void> trash(QList<QString> targets);
+        //    virtual QFuture<void> remove(QList<QString> targets);
+        //    
+        //    virtual QFuture<void> mkdir(QString target);
 
     };
 }

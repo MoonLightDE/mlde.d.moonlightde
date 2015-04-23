@@ -24,6 +24,8 @@
 #define	GVFSDIRECTORY_H
 
 #define QT_NO_KEYWORDS
+#include "model_filesystem/Directory.h"
+
 #include <QFile>
 #include <QObject>
 #include <QList>
@@ -47,8 +49,9 @@
  * order to retrieve information relevant to it and to monitor the changes on
  * the data.
  */
-class GVFSDirectory : public QObject {
+class GVFSDirectory : public model_filesystem::Directory {
     Q_OBJECT
+    Q_INTERFACES(model_filesystem::Directory)
 public:
     GVFSDirectory(const QString &uri);
     GVFSDirectory(GFile * gfile);
@@ -58,8 +61,6 @@ public:
     virtual QString name();
     virtual QString uri();
     virtual QString parentUri();
-
-    virtual int uid();
 
     // Childs data quering 
     /**
@@ -89,7 +90,7 @@ public:
      * @param permissions
      * @param target
      */
-    virtual void setPermission(QFlags<QFile::Permission> permissions, const QString &target = ".");
+    virtual QFuture<void> setPermission(QFlags<QFile::Permission> permissions, const QString &target = ".");
 
     /**
      * Resolve the target size. By default returns the current folder size else
@@ -99,7 +100,7 @@ public:
      * @param recursive Calculate folders size recursively?
      * @return 
      */
-    virtual unsigned long int size(const QString &target = ".", bool recursive = false);
+    virtual QFuture<unsigned long int> size(const QString &target = ".", bool recursive = false);
     /**
      * Resolve the target size in the device. By default returns the current folder size else
      * returns the size of the file specified by "target". If the target points
@@ -108,7 +109,7 @@ public:
      * @param recursive Calculate folders size recursively?
      * @return 
      */
-    virtual unsigned long int storedSize(const QString &target = ".", bool recursive = false);
+    virtual QFuture<unsigned long int> storedSize(const QString &target = ".", bool recursive = false);
 
     /**
      * Resolve the last access time to the target. By default returns the last
@@ -172,7 +173,7 @@ private:
     GFile * m_File;
     GFileInfo *m_FileInfo;
     QHash<QString, GFileInfo *> m_ChildrenInfo;
-    
+
     static char attributes[];
     static bool nofollow_symlinks;
 };
