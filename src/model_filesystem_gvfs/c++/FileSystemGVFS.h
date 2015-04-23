@@ -21,6 +21,8 @@
 #ifndef FILESYSTEMGVFS_H
 #define	FILESYSTEMGVFS_H
 
+#include <gio/gio.h>
+
 #include "model_filesystem/FileSystem.h"
 #include "GVFSDirectory.h"
 

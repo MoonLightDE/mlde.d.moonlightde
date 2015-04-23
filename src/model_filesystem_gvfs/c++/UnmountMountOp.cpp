@@ -33,12 +33,14 @@ UnmountMountOp::~UnmountMountOp() {
 }
 
 QFuture<void> UnmountMountOp::run() {
-    m_MountOp = g_mount_operation_new();
+    if (G_MOUNT(m_GMount)) {
+        m_MountOp = g_mount_operation_new();
 
-    g_mount_unmount_with_operation(m_GMount, G_MOUNT_UNMOUNT_NONE, m_MountOp, NULL, handleFinish, this);
+        g_mount_unmount_with_operation(m_GMount, G_MOUNT_UNMOUNT_NONE, m_MountOp, NULL, handleFinish, this);
 
-    m_FutureInterface.reportStarted();
-
+        m_FutureInterface.reportStarted();
+    } else
+        m_FutureInterface.reportFinished();
     return m_FutureInterface.future();
 }
 
