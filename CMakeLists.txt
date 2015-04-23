@@ -54,7 +54,8 @@ message(STATUS "Build config: ${PROJECT_NAME} ${${PROJECT_NAME}_VERSION} ${CMAKE
 # Default install directories
 #-------------------------------------------------------------------------------
 
-set(MODULES_INSTALL_DIR "lib/${CMAKE_PROJECT_NAME}")
+set(LIBS_INSTALL_DIR "lib/${CMAKE_PROJECT_NAME}/")
+set(MODULES_INSTALL_DIR "lib/${CMAKE_PROJECT_NAME}/modules")
 set(DESCRIPTORS_INSTALL_DIR "lib/${CMAKE_PROJECT_NAME}/descriptors")
 set(RESOURCES_INSTALL_DIR "share/${CMAKE_PROJECT_NAME}")
 set(PUBLIC_HEADERS_INSTALL_DIR "include/${CMAKE_PROJECT_NAME}")
@@ -78,6 +79,7 @@ add_subdirectory(src/presentation_panel_datetime)
 add_subdirectory(src/presentation_panel_quicklaunchers)
 
 add_subdirectory(src/model_filesystem_gvfs)
+add_subdirectory(src/presentation_filemanager)
 #add_subdirectory(src/panel-clasic-menu)
 #add_subdirectory(src/panel-dash_xdg)
 #
