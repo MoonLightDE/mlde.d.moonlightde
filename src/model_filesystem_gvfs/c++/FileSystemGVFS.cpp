@@ -24,6 +24,8 @@
 #include "module_config.h"
 #include "FileSystemGVFS.h"
 #include "GVFSDirectory.h"
+#include "MountVolumeOp.h"
+#include "GVFSDirectory.h"
 
 #include <QString>
 #include <QDebug>
@@ -54,17 +56,15 @@ GVFSDirectory* FileSystemGVFS::getDirectory(const QString& uri) {
     if (realUri.at(uri.size() - 1) != '/')
         realUri.append('/');
 
-    qDebug() << "dirs in cache: "<< m_Cache.keys();
+    qDebug() << "dirs in cache: " << m_Cache.keys();
     if (m_Cache.contains(realUri)) {
         GVFSDirectory * dir = m_Cache.value(realUri);
         m_Refs[dir]++;
         qDebug() << MODULE_NAME_STR << realUri << "  fetched from cache with" << m_Refs[dir] << " references.";
         return dir;
     } else {
-        //TODO: Mount File System for path
-        // Create dir
         GVFSDirectory * dir = new GVFSDirectory(realUri);
-        qDebug() << MODULE_NAME_STR << realUri << " fetched from fs." ;
+        qDebug() << MODULE_NAME_STR << realUri << " fetched from fs.";
         m_Cache.insert(realUri, dir);
         m_Refs.insert(dir, 1);
         return dir;

@@ -23,19 +23,25 @@
 #ifndef GVFSDIRECTORY_H
 #define	GVFSDIRECTORY_H
 
-#include <glib.h>
-#include <gio/gio.h>
+#define QT_NO_KEYWORDS
 #include <QFile>
 #include <QObject>
 #include <QList>
 #include <QString>
 #include <QHash>
-#include <QMutex>
+#include <QFuture>
+#include <QFutureInterface>
+
+#include <glib.h>
+#include <gio/gio.h>
+#undef QT_NO_KEYWORDS
 
 /**
- * Represents a file system directory and its contents. It uses a cache system 
- * in order to avoid data replication, so if two objects points to the same uri
- * they will share the same data.
+ * Design principles:
+ * - Asynchronic
+ * - Allways resposive and valid.
+ * 
+ * Representation of a directory. 
  * 
  * This also allow the access to the file system where the folder is stored in 
  * order to retrieve information relevant to it and to monitor the changes on
@@ -46,7 +52,7 @@ class GVFSDirectory : public QObject {
 public:
     GVFSDirectory(const QString &uri);
     GVFSDirectory(GFile * gfile);
-    
+
     virtual ~GVFSDirectory();
 
     virtual QString name();
@@ -131,33 +137,44 @@ public:
     virtual QString ownerGroup(const QString &target);
 
     virtual int childernCount();
-    virtual QList<QString> childern();
+    virtual QList<QString> children();
 
-public slots:
-    void updateCache();
+    virtual QFuture<void> status();
 
-signals:
-    void error(QString message);
-    void errorInvalidUri();
-    void errorUriDontExist();
-    void errorUriNotMounted();
+    public
+Q_SLOTS:
+    void update();
 
-    void fetchingData();
-    void dataReady();
-    void mountPointRemoved();
+Q_SIGNALS:
+    void changed();
+    void failure(QString msg);
 
 private:
+    void startMount();
+    void startQueryFileInfo();
+    void startEnumerateChildren();
+
+    static void handleMountAskPassword(GMountOperation *op, gchar *message, gchar *default_user, gchar *default_domain, GAskPasswordFlags flags, gpointer userdata);
+    static void handleMountDone(GObject *source_object, GAsyncResult *res, gpointer user_data);
+    static void handleQueryFileInfoDone(GObject *source_object, GAsyncResult *res, gpointer user_data);
+    static void handleEnumerateChildrenDone(GObject *source_object, GAsyncResult *res, gpointer user_data);
+    static void handleEnumeratorNextFilesDone(GObject *source_object, GAsyncResult *res, gpointer user_data);
+    static void handleEnumeratorCloseDone(GObject *source_object, GAsyncResult *res, gpointer user_data);
+
+    void reportError(const QString &msg);
     void releaseCache();
-    
-    GFileInfo * queryDirectoryInfo();
-    QHash<QString, GFileInfo *> queryChildrenInfo();
+
+    QFutureInterface<void> m_FutureInterface;
 
     QString m_uri;
+    QString m_User;
+    QString m_Password;
     GFile * m_File;
     GFileInfo *m_FileInfo;
     QHash<QString, GFileInfo *> m_ChildrenInfo;
-    QMutex m_Mutex;
-
+    
+    static char attributes[];
+    static bool nofollow_symlinks;
 };
 
 #endif	/* GVFSDIRECTORY_H */

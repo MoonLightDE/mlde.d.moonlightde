@@ -31,12 +31,14 @@ EjectVolumeOp::~EjectVolumeOp() {
 }
 
 QFuture<void> EjectVolumeOp::run() {
-    m_MountOp = g_mount_operation_new();
-    g_volume_eject_with_operation(m_GVolume, G_MOUNT_UNMOUNT_NONE, m_MountOp, NULL, handleFinish, this);
+    if (G_VOLUME(m_GVolume)) {
+        m_MountOp = g_mount_operation_new();
+        g_volume_eject_with_operation(m_GVolume, G_MOUNT_UNMOUNT_NONE, m_MountOp, NULL, handleFinish, this);
 
-
-    m_FutureInterface.reportStarted();
-
+        m_FutureInterface.reportStarted();
+    } else 
+        m_FutureInterface.reportFinished();
+    
     return m_FutureInterface.future();
 }
 

@@ -61,9 +61,11 @@ QList<GVFSVolume*> GVFSVolumeManager::volumes() {
         GList* gvolumes = g_volume_monitor_get_volumes(m_VolumeMonitor);
         GList* gvolumes_ptr = gvolumes;
         while (gvolumes_ptr != NULL) {
-            GVolume * gvolume = G_VOLUME(gvolumes_ptr->data);
-            GVFSVolume* volume = new GVFSVolume(gvolume);
-            list.append(volume);
+            if (G_VOLUME(gvolumes_ptr->data)) {
+                GVolume * gvolume = G_VOLUME(gvolumes_ptr->data);
+                GVFSVolume* volume = new GVFSVolume(gvolume);
+                list.append(volume);
+            }
 
             gvolumes_ptr = gvolumes_ptr->next;
         }
@@ -83,10 +85,12 @@ QList<GVFSMount*> GVFSVolumeManager::mounts() {
         GList* gmounts_ptr = gmounts;
         qDebug() << MODULE_NAME_STR << "existent mounts:";
         while (gmounts_ptr != NULL) {
-            GMount * gmount = G_MOUNT(gmounts_ptr->data);
-            GVFSMount *mount = new GVFSMount(gmount);
-            list.append(mount);
-            
+            if (G_MOUNT(gmounts_ptr->data)) {
+                GMount * gmount = G_MOUNT(gmounts_ptr->data);
+                GVFSMount *mount = new GVFSMount(gmount);
+                list.append(mount);
+            }
+
             gmounts_ptr = gmounts_ptr->next;
         }
         g_list_free(gmounts);
@@ -99,32 +103,33 @@ QList<GVFSMount*> GVFSVolumeManager::mounts() {
 void GVFSVolumeManager::handle_mount_added(GMount* mount) {
     gchar * gmountName = g_mount_get_name(mount);
 
-    emit(mountAdded(QString(gmountName)));
+    Q_EMIT(mountAdded(QString(gmountName)));
 
     qDebug() << MODULE_NAME_STR << gmountName << " added";
     g_free(gmountName);
 }
 
 void GVFSVolumeManager::on_g_mount_added(GVolumeMonitor* volume_monitor, GMount* mount, GVFSVolumeManager* volumeManager) {
-
-    volumeManager->handle_mount_added(mount);
+    if (G_MOUNT(mount))
+        volumeManager->handle_mount_added(mount);
 }
 
 void GVFSVolumeManager::handle_mount_removed(GMount* gmount) {
-
     qDebug() << MODULE_NAME_STR << g_mount_get_name(gmount) << " removed";
 }
 
 void GVFSVolumeManager::on_g_mount_removed(GVolumeMonitor* volume_monitor, GMount* mount, GVFSVolumeManager* volumeManager) {
-    volumeManager->handle_mount_removed(mount);
+    if (G_MOUNT(mount))
+        volumeManager->handle_mount_removed(mount);
 }
 
-void GVFSVolumeManager::handle_mount_premount(GMount* gmount) {
+void GVFSVolumeManager::handle_mount_preunmount(GMount* gmount) {
     qDebug() << MODULE_NAME_STR << g_mount_get_name(gmount) << " preunmount";
 }
 
 void GVFSVolumeManager::on_g_mount_premount(GVolumeMonitor* volume_monitor, GMount* mount, GVFSVolumeManager* volumeManager) {
-    volumeManager->handle_mount_premount(mount);
+    if (G_MOUNT(mount))
+        volumeManager->handle_mount_preunmount(mount);
 }
 
 void GVFSVolumeManager::handle_volume_added(GVolume* volume) {
@@ -132,7 +137,8 @@ void GVFSVolumeManager::handle_volume_added(GVolume* volume) {
 }
 
 void GVFSVolumeManager::on_g_volume_added(GVolumeMonitor* volume_monitor, GVolume* volume, GVFSVolumeManager* volumeManager) {
-    volumeManager->handle_volume_added(volume);
+    if (G_VOLUME(volume))
+        volumeManager->handle_volume_added(volume);
 }
 
 void GVFSVolumeManager::handle_volume_removed(GVolume* volume) {
@@ -140,7 +146,8 @@ void GVFSVolumeManager::handle_volume_removed(GVolume* volume) {
 }
 
 void GVFSVolumeManager::on_g_volume_removed(GVolumeMonitor* volume_monitor, GVolume* volume, GVFSVolumeManager* volumeManager) {
-    volumeManager->handle_volume_removed(volume);
+    if (G_VOLUME(volume))
+        volumeManager->handle_volume_removed(volume);
 }
 
 

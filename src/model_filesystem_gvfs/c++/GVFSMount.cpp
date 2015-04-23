@@ -73,8 +73,9 @@ GVFSDirectory* GVFSMount::root() {
 
 GVFSVolume* GVFSMount::volume() {
     GVolume * gvolume = g_mount_get_volume(m_GMount);
-    if (gvolume)
+    if (G_VOLUME(gvolume))
         return new GVFSVolume(gvolume);
+    return NULL;
 }
 
 QFuture<void> GVFSMount::unmount() {

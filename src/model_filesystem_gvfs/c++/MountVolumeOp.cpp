@@ -25,7 +25,7 @@
 #include <QDebug>
 
 MountVolumeOp::MountVolumeOp(GVolume * gvolume) : QObject(), m_GVolume(gvolume) {
-    Q_ASSERT(m_GVolume != NULL);
+    G_VOLUME(m_GVolume);
 }
 
 MountVolumeOp::~MountVolumeOp() {
@@ -33,27 +33,30 @@ MountVolumeOp::~MountVolumeOp() {
 }
 
 QFuture<GVFSMount*> MountVolumeOp::run() {
-    GMountOperation *op;
-    op = g_mount_operation_new();
+    if (G_VOLUME(m_GVolume)) {
+        GMountOperation *op;
+        op = g_mount_operation_new();
 
-    g_signal_connect(op, "ask_password", G_CALLBACK(handleAskPassword), this);
+        g_signal_connect(op, "ask_password", G_CALLBACK(handleAskPassword), this);
 
-    m_futureInterface.reportStarted();
-    QString statusMsg = "Mounting ";
-    char * cname = g_volume_get_name(m_GVolume);
-    statusMsg += cname;
-    g_free(cname);
-    m_futureInterface.setProgressValueAndText(0, statusMsg);
+        m_futureInterface.reportStarted();
+        QString statusMsg = "Mounting ";
+        char * cname = g_volume_get_name(m_GVolume);
+        statusMsg += cname;
+        g_free(cname);
+        m_futureInterface.setProgressValueAndText(0, statusMsg);
 
-    g_volume_mount(m_GVolume,
-            G_MOUNT_MOUNT_NONE,
-            op,
-            NULL,
-            handleFinish,
-            this);
+        g_volume_mount(m_GVolume,
+                G_MOUNT_MOUNT_NONE,
+                op,
+                NULL,
+                handleFinish,
+                this);
 
-    g_object_unref(op);
-
+        g_object_unref(op);
+    } else
+        m_futureInterface.reportFinished(NULL);
+    
     return m_futureInterface.future();
 }
 
@@ -66,8 +69,8 @@ void MountVolumeOp::handleAskPassword(GMountOperation* op, gchar* message, gchar
     mountVolume->m_futureInterface.setProgressValueAndText(0, "Waithing for user credentials ");
     // TODO: Conect to the authentication service
     qDebug() << __PRETTY_FUNCTION__ << " not implemented yet";
-    
-    g_mount_operation_reply (op, G_MOUNT_OPERATION_HANDLED);
+
+    g_mount_operation_reply(op, G_MOUNT_OPERATION_HANDLED);
 }
 
 void MountVolumeOp::handleFinish(GObject* object, GAsyncResult* res, gpointer userdata) {
@@ -102,6 +105,6 @@ void MountVolumeOp::handleFinish(GObject* object, GAsyncResult* res, gpointer us
         GVFSMount * mount = new GVFSMount(gmount);
         mountVolume->m_futureInterface.reportFinished(&mount);
     }
-    
+
     delete mountVolume;
 }

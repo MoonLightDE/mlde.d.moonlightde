@@ -40,7 +40,7 @@ public:
     QList<GVFSVolume *> volumes();
     QList<GVFSMount *> mounts();
 
-signals:
+Q_SIGNALS:
     void mountAdded(QString name);
     void mountRemoved(QString name);
     //void mount_changed(QString name);
@@ -56,7 +56,7 @@ protected:
     static void on_g_mount_removed(GVolumeMonitor *volume_monitor, GMount *mount, GVFSVolumeManager *volumeManager);
     //    void handle_mount_changed(GMount *gmount);
     //    static void on_mount_changed(GVolumeMonitor *volume_monitor, GMount *mount, GVFSVolumeManager *volumeManager);
-    void handle_mount_premount(GMount *gmount);
+    void handle_mount_preunmount(GMount *gmount);
     static void on_g_mount_premount(GVolumeMonitor *volume_monitor, GMount *mount, GVFSVolumeManager *volumeManager);
 
     void handle_volume_added(GVolume *volume);

@@ -21,13 +21,14 @@
 
 #include "module_config.h"
 
-#include "NodeGVFS.h"
 #include "FileSystemGVFS.h"
 #include "GVFSVolumeManager.h"
 
 #include <QApplication>
-#include <QFutureWatcher>
 #include <QDebug>
+#include <QFuture>
+#include <QFutureWatcher>
+
 
 #include <usModuleActivator.h>
 #include <usModuleContext.h>
@@ -46,7 +47,7 @@ private:
      */
     void Load(ModuleContext* context) {
         //        context->RegisterService<model_filesystem::FileSystem>(&m_FS, ServiceProperties());
-        runTests("file:///home");
+        runTests("/home/alexis");
         //        m_VolumeManager.moveToThread(&m_Thread);
         //        m_Thread.start();
     }
@@ -57,31 +58,53 @@ private:
      * @param context the framework context for the module.
      */
     void Unload(ModuleContext* context) {
-        m_Thread.quit();
-        m_Thread.wait();
     }
 
     void runTests(QString path) {
         qDebug() << MODULE_NAME_STR << " : Running tests";
         GVFSDirectory * dir = m_FS.getDirectory(path);
-        // Test dir caching
-        GVFSDirectory * dir2 = m_FS.getDirectory(path);
-        m_FS.releaseDirectory(dir2);
 
-        qDebug() << MODULE_NAME_STR << " : dir name" << dir->name();
-        qDebug() << MODULE_NAME_STR << " : dir size" << dir->size(".", true);
+        QFutureWatcher<void> * dirWatcher = new QFutureWatcher<void> ();
+        dirWatcher->setFuture(dir->status());
 
-        qDebug() << MODULE_NAME_STR << " : dir parent" << dir->parentUri();
-        qDebug() << MODULE_NAME_STR << " : dir children" << dir->childern();
-        for (QString childName : dir->childern()) {
-            qDebug() << MODULE_NAME_STR << " : " << childName << " type: " << dir->mimetype(childName);
-            if (dir->mimetype(childName) == "inode/directory") {
-                GVFSDirectory * childDir = m_FS.getDirectory(dir->childUri(childName));
-                qDebug() << MODULE_NAME_STR << " : " << childDir->uri() << " childs " << childDir->childern();
-                m_FS.releaseDirectory(childDir);
+        QObject::connect(dir, &GVFSDirectory::failure, [] (QString msg) {
+            qDebug() << MODULE_NAME_STR << " dir lookup error: " << msg;
+        });
+        
+        QObject::connect(dirWatcher, &QFutureWatcher<void>::finished, [this, dirWatcher, dir] () {
+            qDebug() << MODULE_NAME_STR << " dir lookup finished" << dirWatcher->progressText();
+
+            qDebug() << MODULE_NAME_STR << " : dir name" << dir->name();
+                    //        qDebug() << MODULE_NAME_STR << " : dir size" << dir->size(".", true);
+                    qDebug() << MODULE_NAME_STR << " : dir parent" << dir->parentUri();
+
+
+            for (QString childName : dir->children()) {
+                qDebug() << MODULE_NAME_STR << "file: " << childName;
+
+                        qDebug() << MODULE_NAME_STR << "\tMIMETYPE: " << childName << " type: " << dir->mimetype(childName);
+                        qDebug() << MODULE_NAME_STR << "\tSIZE: " << dir->size(childName, true);
+                        qDebug() << MODULE_NAME_STR << "\tSIZE STORED: " << dir->storedSize(childName, true);
+                        qDebug() << MODULE_NAME_STR << "\tTIME SINCE FILE WAS MODIFIED: " << dir->timeModified(childName);
+                        qDebug() << MODULE_NAME_STR << "\tTIME SINCE FILE WAS ACCESSED: " << dir->timeAccess(childName);
+                        qDebug() << MODULE_NAME_STR << "\tTIME SINCE FILE WAS CHANGED: " << dir->timeChanged(childName);
+                        qDebug() << MODULE_NAME_STR << "\tOWNER USER: " << dir->ownerUser(childName);
+                        qDebug() << MODULE_NAME_STR << "\tOWNER GROUP: " << dir->ownerGroup(childName);
+                        qDebug() << MODULE_NAME_STR << "\tPARENT: " << dir->parentUri();
+
+
+                if (dir->mimetype(childName) == "inode/directory") {
+                    GVFSDirectory * childDir = m_FS.getDirectory(dir->childUri(childName));
+                            qDebug() << MODULE_NAME_STR << " : " << childDir->uri() << " childs " << childDir->children();
+                            m_FS.releaseDirectory(childDir);
+                } else {
+
+                }
             }
-        }
-        m_FS.releaseDirectory(dir);
+            m_FS.releaseDirectory(dir);
+                    delete dirWatcher;
+        });
+
 
 
         qDebug() << MODULE_NAME_STR << " : Testing VOLUME MANAGER";
@@ -99,16 +122,16 @@ private:
                     delete mountWatcher;
                 });
 
-                GVFSMount * mount = volume->getMount();
-                if (mount != NULL) {
-                    QFutureWatcher<void> * unmountWatcher = new QFutureWatcher<void> ();
-                    unmountWatcher->setFuture(mount->unmount());
-
-                    QObject::connect(unmountWatcher, &QFutureWatcher<void>::finished, [unmountWatcher] () {
-                        qDebug() << MODULE_NAME_STR << " unmount finished" << unmountWatcher->progressText();
-                        delete unmountWatcher;
-                    });
-                }
+                //                GVFSMount * mount = volume->getMount();
+                //                if (mount != NULL) {
+                //                    QFutureWatcher<void> * unmountWatcher = new QFutureWatcher<void> ();
+                //                    unmountWatcher->setFuture(mount->unmount());
+                //
+                //                    QObject::connect(unmountWatcher, &QFutureWatcher<void>::finished, [unmountWatcher] () {
+                //                        qDebug() << MODULE_NAME_STR << " unmount finished" << unmountWatcher->progressText();
+                //                        delete unmountWatcher;
+                //                    });
+                //                }
 
                 QFutureWatcher<void> * ejectWatcher = new QFutureWatcher<void> ();
                 ejectWatcher->setFuture(volume->eject());
@@ -145,6 +168,5 @@ private:
 
     FileSystemGVFS m_FS;
     GVFSVolumeManager m_VolumeManager;
-    QThread m_Thread;
 };
 US_EXPORT_MODULE_ACTIVATOR(model_filesystem_gvfs, Activator)

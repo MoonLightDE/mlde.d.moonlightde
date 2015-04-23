@@ -28,7 +28,6 @@
 
 #include <gio/gio.h>
 
-#include <QTimer>
 #include <QFutureInterface>
 
 
