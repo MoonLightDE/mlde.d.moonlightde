@@ -24,7 +24,11 @@
 #include "FileSystemGVFS.h"
 #include "GVFSVolumeManager.h"
 
+#include "model_filesystem/VolumeManager.h"
+#include "model_filesystem/FileSystem.h"
+
 #include <QApplication>
+#include <QObject>
 #include <QDebug>
 #include <QFuture>
 #include <QFutureWatcher>
@@ -46,10 +50,9 @@ private:
      * @param context the framework context for the module.
      */
     void Load(ModuleContext* context) {
-        //        context->RegisterService<model_filesystem::FileSystem>(&m_FS, ServiceProperties());
-        runTests("/home/alexis");
-        //        m_VolumeManager.moveToThread(&m_Thread);
-        //        m_Thread.start();
+        context->RegisterService<model_filesystem::FileSystem>(&m_FS, ServiceProperties());
+        context->RegisterService<model_filesystem::VolumeManager>(&m_VolumeManager, ServiceProperties());
+//        runTests("sftp://alexis:r3v0lut10n@localhost/");
     }
 
     /**
@@ -62,15 +65,15 @@ private:
 
     void runTests(QString path) {
         qDebug() << MODULE_NAME_STR << " : Running tests";
-        GVFSDirectory * dir = m_FS.getDirectory(path);
+        Directory * dir = m_FS.getDirectory(path);
 
         QFutureWatcher<void> * dirWatcher = new QFutureWatcher<void> ();
         dirWatcher->setFuture(dir->status());
 
-        QObject::connect(dir, &GVFSDirectory::failure, [] (QString msg) {
+        QObject::connect(dir, &Directory::failure, [] (QString msg) {
             qDebug() << MODULE_NAME_STR << " dir lookup error: " << msg;
         });
-        
+
         QObject::connect(dirWatcher, &QFutureWatcher<void>::finished, [this, dirWatcher, dir] () {
             qDebug() << MODULE_NAME_STR << " dir lookup finished" << dirWatcher->progressText();
 
@@ -83,8 +86,8 @@ private:
                 qDebug() << MODULE_NAME_STR << "file: " << childName;
 
                         qDebug() << MODULE_NAME_STR << "\tMIMETYPE: " << childName << " type: " << dir->mimetype(childName);
-                        qDebug() << MODULE_NAME_STR << "\tSIZE: " << dir->size(childName, true);
-                        qDebug() << MODULE_NAME_STR << "\tSIZE STORED: " << dir->storedSize(childName, true);
+                        //                        qDebug() << MODULE_NAME_STR << "\tSIZE: " << dir->size(childName, true);
+                        //                        qDebug() << MODULE_NAME_STR << "\tSIZE STORED: " << dir->storedSize(childName, true);
                         qDebug() << MODULE_NAME_STR << "\tTIME SINCE FILE WAS MODIFIED: " << dir->timeModified(childName);
                         qDebug() << MODULE_NAME_STR << "\tTIME SINCE FILE WAS ACCESSED: " << dir->timeAccess(childName);
                         qDebug() << MODULE_NAME_STR << "\tTIME SINCE FILE WAS CHANGED: " << dir->timeChanged(childName);
@@ -94,7 +97,7 @@ private:
 
 
                 if (dir->mimetype(childName) == "inode/directory") {
-                    GVFSDirectory * childDir = m_FS.getDirectory(dir->childUri(childName));
+                    Directory * childDir = m_FS.getDirectory(dir->childUri(childName));
                             qDebug() << MODULE_NAME_STR << " : " << childDir->uri() << " childs " << childDir->children();
                             m_FS.releaseDirectory(childDir);
                 } else {
@@ -108,16 +111,16 @@ private:
 
 
         qDebug() << MODULE_NAME_STR << " : Testing VOLUME MANAGER";
-        QList<GVFSVolume*> volumes = m_VolumeManager.volumes();
-        for (GVFSVolume * volume : volumes) {
+        QList<Volume*> volumes = m_VolumeManager.volumes();
+        for (Volume * volume : volumes) {
             qDebug() << MODULE_NAME_STR << " volume name" << volume->name();
             qDebug() << MODULE_NAME_STR << " volume icon" << volume->iconName();
             qDebug() << MODULE_NAME_STR << " volume automount?" << volume->automount();
             if (volume->automount()) {
-                QFutureWatcher<GVFSMount*> * mountWatcher = new QFutureWatcher<GVFSMount*> ();
+                QFutureWatcher<Mount*> * mountWatcher = new QFutureWatcher<Mount*> ();
                 mountWatcher->setFuture(volume->mount());
 
-                QObject::connect(mountWatcher, &QFutureWatcher<GVFSMount*>::finished, [mountWatcher] () {
+                QObject::connect(mountWatcher, &QFutureWatcher<Mount*>::finished, [mountWatcher] () {
                     qDebug() << MODULE_NAME_STR << " mount finished" << mountWatcher->progressText();
                     delete mountWatcher;
                 });
@@ -150,8 +153,8 @@ private:
             delete volumes.takeAt(0);
         volumes.clear();
 
-        QList<GVFSMount*> mounts = m_VolumeManager.mounts();
-        for (GVFSMount * mount : mounts) {
+        QList<Mount*> mounts = m_VolumeManager.mounts();
+        for (Mount * mount : mounts) {
             qDebug() << MODULE_NAME_STR << " mount name" << mount->name();
             qDebug() << MODULE_NAME_STR << " mount icon" << mount->iconName();
         }

@@ -22,6 +22,8 @@
 #include "MountVolumeOp.h"
 #include "module_config.h"
 
+#include "model_filesystem/Mount.h"
+
 #include <QDebug>
 
 MountVolumeOp::MountVolumeOp(GVolume * gvolume) : QObject(), m_GVolume(gvolume) {
@@ -32,7 +34,7 @@ MountVolumeOp::~MountVolumeOp() {
     qDebug() << MODULE_NAME_STR << " mount volume operation deleted";
 }
 
-QFuture<GVFSMount*> MountVolumeOp::run() {
+QFuture<Mount*> MountVolumeOp::run() {
     if (G_VOLUME(m_GVolume)) {
         GMountOperation *op;
         op = g_mount_operation_new();
@@ -102,7 +104,7 @@ void MountVolumeOp::handleFinish(GObject* object, GAsyncResult* res, gpointer us
         GMount *gmount;
 
         gmount = g_volume_get_mount(gvolume);
-        GVFSMount * mount = new GVFSMount(gmount);
+        model_filesystem::Mount* mount = dynamic_cast<model_filesystem::Mount*>(new GVFSMount(gmount));
         mountVolume->m_futureInterface.reportFinished(&mount);
     }
 

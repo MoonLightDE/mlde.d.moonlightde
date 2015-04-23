@@ -19,31 +19,45 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MOUNTABLE_H
-#define	MOUNTABLE_H
+#ifndef VOLUMEMANAGER_H
+#define	VOLUMEMANAGER_H
 
+#include <usServiceInterface.h>
+
+#include <QList>
+#include <QString>
 #include <QObject>
 
 namespace model_filesystem {
 
-    /**
-     * Used to describe and manage nodes that require especial mount & umount 
-     * operations, like smb shares, etc.
-     */
-    class Mountable {
-    public:
-        virtual void mount() = 0;
-        virtual void unmount() = 0;
-        virtual void eject() = 0;
+    class Volume;
+    class Mount;
 
-    signals:
-        void mounted();
-        void unmounted();
-        void ejected();
+    class VolumeManager : public QObject {
+
+        Q_OBJECT
+    public:
+
+        virtual ~VolumeManager() {
+        };
+
+        virtual QList<Volume *> volumes() = 0;
+        virtual QList<Mount *> mounts() = 0;
+
+Q_SIGNALS:
+        void mountAdded(QString name);
+        void mountRemoved(QString name);
+        //void mount_changed(QString name);
+        void mountPremount(QString name);
+
+        void volumeAdded(QString name);
+        void volumeRemoved(QString name);
+    private:
 
     };
-
-    Q_DECLARE_INTERFACE(Mountable, "org.moonlightde.model_filesystem.Mountable/1.0")
 }
-#endif	/* MOUNTABLE_H */
+
+Q_DECLARE_INTERFACE(model_filesystem::VolumeManager, "org.moonlightde.panel.model_filesystem.VolumeManager/1.0")
+US_DECLARE_SERVICE_INTERFACE(model_filesystem::VolumeManager, "org.moonlightde.panel.model_filesystem.VolumeManager/1.0")
+#endif	/* VOLUMEMANAGER_H */
 

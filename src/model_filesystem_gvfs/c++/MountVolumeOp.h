@@ -37,14 +37,14 @@ public:
     MountVolumeOp(GVolume * gvolume);
     virtual ~MountVolumeOp();
 
-    virtual QFuture<GVFSMount*> run();
+    virtual QFuture<Mount*> run();
 
 private:
     static void handleAskPassword(GMountOperation *op, gchar *message, gchar *default_user, gchar *default_domain, GAskPasswordFlags flags, gpointer userdata);
     static void handleFinish(GObject *object, GAsyncResult *res, gpointer userdata);
 
     GVolume * m_GVolume;
-    QFutureInterface<GVFSMount*> m_futureInterface;
+    QFutureInterface<Mount*> m_futureInterface;
 };
 
 #endif	/* MOUNTVOLUMEOP_H */

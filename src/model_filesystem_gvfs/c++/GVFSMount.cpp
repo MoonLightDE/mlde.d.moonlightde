@@ -28,7 +28,7 @@
 #include <QFutureInterface>
 #include <QDebug>
 
-GVFSMount::GVFSMount(GMount * gmount) : QObject() {
+GVFSMount::GVFSMount(GMount * gmount) {
     m_GMount = G_MOUNT(gmount);
 }
 
@@ -66,12 +66,12 @@ QString GVFSMount::iconName() {
     return name;
 }
 
-GVFSDirectory* GVFSMount::root() {
+Directory* GVFSMount::root() {
     GVFSDirectory *dir = new GVFSDirectory(g_mount_get_root(m_GMount));
     return dir;
 }
 
-GVFSVolume* GVFSMount::volume() {
+Volume* GVFSMount::volume() {
     GVolume * gvolume = g_mount_get_volume(m_GMount);
     if (G_VOLUME(gvolume))
         return new GVFSVolume(gvolume);

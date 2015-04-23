@@ -21,11 +21,10 @@
 
 #ifndef GVFSMOUNT_H
 #define	GVFSMOUNT_H
-#include <gio/gio.h>
 
-class GVFSVolume;
-class GVFSDirectory;
+#define QT_NO_KEYWORDS
 
+#include "model_filesystem/Mount.h"
 #include "GVFSVolume.h"
 #include "MountVolumeOp.h"
 
@@ -33,8 +32,13 @@ class GVFSDirectory;
 #include <QFuture>
 #include <QString>
 
-class GVFSMount : public QObject {
-    Q_OBJECT
+#include <gio/gio.h>
+
+class GVFSVolume;
+class GVFSDirectory;
+
+class GVFSMount : public model_filesystem::Mount {
+    
     friend class MountVolumeOp;
 public:
     /**
@@ -48,8 +52,8 @@ public:
     virtual QString uuid();
     virtual QString iconName();
 
-    virtual GVFSDirectory* root();
-    virtual GVFSVolume* volume();
+    virtual Directory* root();
+    virtual Volume* volume();
 
     virtual QFuture<void> unmount();
 

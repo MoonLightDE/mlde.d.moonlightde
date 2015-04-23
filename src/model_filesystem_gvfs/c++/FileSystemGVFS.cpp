@@ -29,8 +29,9 @@
 
 #include <QString>
 #include <QDebug>
+#include <qt5/QtCore/qlogging.h>
 
-FileSystemGVFS::FileSystemGVFS() : /* model_filesystem::FileSystem(),*/ m_SupportedUriSchemes() {
+FileSystemGVFS::FileSystemGVFS() : m_SupportedUriSchemes() {
     m_GVfs = g_vfs_get_default();
     const gchar * const * schemes = g_vfs_get_supported_uri_schemes(m_GVfs);
     while (*schemes != NULL) {
@@ -51,7 +52,7 @@ QList<QAction> FileSystemGVFS::getActions(QList<Node*> nodes) {
     return QList<QAction>();
 }*/
 
-GVFSDirectory* FileSystemGVFS::getDirectory(const QString& uri) {
+model_filesystem::Directory* FileSystemGVFS::getDirectory(const QString& uri) {
     QString realUri = uri;
     if (realUri.at(uri.size() - 1) != '/')
         realUri.append('/');
@@ -61,24 +62,29 @@ GVFSDirectory* FileSystemGVFS::getDirectory(const QString& uri) {
         GVFSDirectory * dir = m_Cache.value(realUri);
         m_Refs[dir]++;
         qDebug() << MODULE_NAME_STR << realUri << "  fetched from cache with" << m_Refs[dir] << " references.";
-        return dir;
+        return qobject_cast<model_filesystem::Directory*>(dir);
     } else {
         GVFSDirectory * dir = new GVFSDirectory(realUri);
         qDebug() << MODULE_NAME_STR << realUri << " fetched from fs.";
         m_Cache.insert(realUri, dir);
         m_Refs.insert(dir, 1);
-        return dir;
+        return qobject_cast<model_filesystem::Directory*>(dir);
     }
 }
 
-void FileSystemGVFS::releaseDirectory(GVFSDirectory* dir) {
-    QString uri = dir->uri();
+void FileSystemGVFS::releaseDirectory(model_filesystem::Directory* dir) {
+    GVFSDirectory *gvfsDir = dynamic_cast<GVFSDirectory*>(dir);
+    if (!dir) {
+        qWarning() << MODULE_NAME_STR << " attempting to release an directory object that doesn't belong to this module.";
+        return;
+    }
+    QString uri = gvfsDir->uri();
 
-    if (m_Refs.contains(dir)) {
-        m_Refs[dir]--;
-        qDebug() << MODULE_NAME_STR << " " << uri << " references decreased to: " << m_Refs[dir];
-        if (m_Refs[dir] <= 0) {
-            m_Refs.remove(dir);
+    if (m_Refs.contains(gvfsDir)) {
+        m_Refs[gvfsDir]--;
+        qDebug() << MODULE_NAME_STR << " " << uri << " references decreased to: " << m_Refs[gvfsDir];
+        if (m_Refs[gvfsDir] <= 0) {
+            m_Refs.remove(gvfsDir);
             delete m_Cache.take(uri);
             qDebug() << MODULE_NAME_STR << " " << uri << " released.";
         }

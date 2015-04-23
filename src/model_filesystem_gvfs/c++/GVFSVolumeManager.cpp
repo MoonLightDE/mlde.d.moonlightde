@@ -29,7 +29,7 @@
 
 #include <functional>
 
-GVFSVolumeManager::GVFSVolumeManager() : QObject() {
+GVFSVolumeManager::GVFSVolumeManager() : model_filesystem::VolumeManager() {
     m_VolumeMonitor = g_volume_monitor_get();
     if (G_VOLUME_MONITOR(m_VolumeMonitor)) {
         g_signal_connect(m_VolumeMonitor, "mount-added", (GCallback) on_g_mount_added, this);
@@ -54,8 +54,8 @@ GVFSVolumeManager::~GVFSVolumeManager() {
     g_object_unref(m_VolumeMonitor);
 }
 
-QList<GVFSVolume*> GVFSVolumeManager::volumes() {
-    QList<GVFSVolume*> list;
+QList<Volume*> GVFSVolumeManager::volumes() {
+    QList<Volume*> list;
     if (G_VOLUME_MONITOR(m_VolumeMonitor)) {
         // Get existent volumes
         GList* gvolumes = g_volume_monitor_get_volumes(m_VolumeMonitor);
@@ -77,8 +77,8 @@ QList<GVFSVolume*> GVFSVolumeManager::volumes() {
     return list;
 }
 
-QList<GVFSMount*> GVFSVolumeManager::mounts() {
-    QList<GVFSMount*> list;
+QList<Mount*> GVFSVolumeManager::mounts() {
+    QList<Mount*> list;
     if (G_VOLUME_MONITOR(m_VolumeMonitor)) {
         // Get existent mounts
         GList* gmounts = g_volume_monitor_get_mounts(m_VolumeMonitor);
