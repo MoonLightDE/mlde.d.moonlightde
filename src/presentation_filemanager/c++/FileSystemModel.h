@@ -45,9 +45,9 @@ public:
     QString fileName(const QModelIndex& index);
     QString filePath(const QModelIndex& index);
 
-    void loadCacheInfo();
-    void showThumbnails(bool);
-    void loadMimeTypes();
+//    void loadCacheInfo();
+//    void showThumbnails(bool);
+//    void loadMimeTypes();
     void setShowHidden(bool);
     void setColumnsToView(short);
 

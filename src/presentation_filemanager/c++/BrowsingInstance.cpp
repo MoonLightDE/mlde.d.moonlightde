@@ -30,7 +30,7 @@
 QList<model_filesystem::FileSystem* > *BrowsingInstance::m_AvailableFileSystems = NULL;
 FileSystemsTracker *BrowsingInstance::m_Tracker = NULL;
 
-BrowsingInstance::BrowsingInstance() : m_CurrentDir(NULL) {
+BrowsingInstance::BrowsingInstance() : QObject(), m_CurrentDir(NULL) {
     m_CurrentPath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
     m_HistoryPos = 0;
     

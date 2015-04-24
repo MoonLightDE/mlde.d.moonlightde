@@ -59,8 +59,8 @@ Q_SLOTS:
     void pushButtonBack_clicked();
 
     void pushButtonNext_clicked();
-    void pathEditActivated();
-    void changePlace(const QString &newPath);
+    void handlePathEditingFinished();
+    void handleDirectoryChanged(model_filesystem::Directory * dir);
 
 private:
 

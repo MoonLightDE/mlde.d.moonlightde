@@ -230,7 +230,6 @@ QString FileSystemModel::filePath(const QModelIndex &index) {
 }
 
 void FileSystemModel::setDirectory(model_filesystem::Directory * directory) {
-
     mRootItem = directory;
     connect(dynamic_cast<QObject*> (directory), SIGNAL(changed()), this, SLOT(setupModel()));
     setupModel();
