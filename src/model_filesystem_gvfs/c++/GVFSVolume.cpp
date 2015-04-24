@@ -63,7 +63,6 @@ QString GVFSVolume::iconName() {
             break;
         }
     }
-    g_object_unref(gicon);
     return name;
 }
 

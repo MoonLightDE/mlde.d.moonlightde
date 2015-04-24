@@ -38,8 +38,6 @@ list(REMOVE_ITEM ${PROJECT_NAME}_RESOURCES "${PROJECT_SOURCE_DIR}/res/descriptor
 
 ## Qt
 find_package(Qt5Core  REQUIRED)
-find_package(Qt5Widgets  REQUIRED)
-find_package(Qt5Gui  REQUIRED)
 find_package(Qt5Concurrent  REQUIRED)
 
 find_package(PkgConfig)
@@ -49,15 +47,11 @@ pkg_check_modules(SYSTEM_LIBS REQUIRED
     gio-unix-2.0
 )
 
-pkg_check_modules(LIBFM REQUIRED libfm>=1.2.0)
-
 include_directories(
     ${SYSTEM_LIBS_INCLUDE_DIRS}
-    ${LIBFM_INCLUDE_DIRS}
     )
 
 link_directories(
-    ${LIBFM_LIBRARY_DIRS}
     ${SYSTEM_LIBS_LIBRARY_DIRS}
 )
 
@@ -92,12 +86,9 @@ m_build_module(
 
 target_link_libraries(${TARGET_NAME}
     Qt5::Core
-    Qt5::Widgets
-    Qt5::Gui
     Qt5::Concurrent
 
     ${SYSTEM_LIBS_LIBRARIES}
-    ${LIBFM_LIBRARIES}
  )
 
 m_deploy_module(${TARGET_NAME})

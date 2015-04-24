@@ -49,7 +49,7 @@
  * order to retrieve information relevant to it and to monitor the changes on
  * the data.
  */
-class GVFSDirectory : public model_filesystem::Directory {
+class GVFSDirectory : public QObject,  public model_filesystem::Directory {
     Q_OBJECT
     Q_INTERFACES(model_filesystem::Directory)
 public:

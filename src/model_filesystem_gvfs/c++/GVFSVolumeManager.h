@@ -37,8 +37,9 @@
 #include <QObject>
 #undef QT_NO_KEYWORDS
 
-class GVFSVolumeManager : public model_filesystem::VolumeManager {
+class GVFSVolumeManager : public QObject, public model_filesystem::VolumeManager {
     Q_OBJECT
+    Q_INTERFACES(model_filesystem::VolumeManager)
 public:
     GVFSVolumeManager();
     virtual ~GVFSVolumeManager();

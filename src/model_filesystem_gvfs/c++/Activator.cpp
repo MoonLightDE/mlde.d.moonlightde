@@ -27,7 +27,6 @@
 #include "model_filesystem/VolumeManager.h"
 #include "model_filesystem/FileSystem.h"
 
-#include <QApplication>
 #include <QObject>
 #include <QDebug>
 #include <QFuture>
@@ -65,14 +64,14 @@ private:
 
     void runTests(QString path) {
         qDebug() << MODULE_NAME_STR << " : Running tests";
-        Directory * dir = m_FS.getDirectory(path);
+        model_filesystem::Directory * dir = m_FS.getDirectory(path);
 
         QFutureWatcher<void> * dirWatcher = new QFutureWatcher<void> ();
         dirWatcher->setFuture(dir->status());
 
-        QObject::connect(dir, &Directory::failure, [] (QString msg) {
-            qDebug() << MODULE_NAME_STR << " dir lookup error: " << msg;
-        });
+//        QObject::connect(dir, &Directory::failure, [] (QString msg) {
+//            qDebug() << MODULE_NAME_STR << " dir lookup error: " << msg;
+//        });
 
         QObject::connect(dirWatcher, &QFutureWatcher<void>::finished, [this, dirWatcher, dir] () {
             qDebug() << MODULE_NAME_STR << " dir lookup finished" << dirWatcher->progressText();
