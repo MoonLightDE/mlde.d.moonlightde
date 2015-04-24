@@ -20,8 +20,10 @@
  */
 
 #include "module_config.h"
-
 #include <core/ICore.h> 
+
+#include "FileManager.h"
+#include "FileSystemsTracker.h"
 
 #include <usModuleActivator.h>
 #include <usModuleContext.h>
@@ -41,6 +43,7 @@ private:
      * @param context the framework context for the module.
      */
     void Load(ModuleContext* context) {
+        m_FileManager.show();
         qDebug() << MODULE_NAME_STR << ": loaded.";
     }
 
@@ -53,5 +56,7 @@ private:
         qDebug() << MODULE_NAME_STR << ": unloaded.";
     }
 
+    FileManager m_FileManager;
+    
 };
 US_EXPORT_MODULE_ACTIVATOR(presentation_filemanager, Activator)
