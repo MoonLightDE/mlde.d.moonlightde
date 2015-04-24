@@ -39,7 +39,7 @@
 FileManager::FileManager(QWidget *parent) :
 QWidget(parent),
 ui(new Ui::FileManager),
-m_Tracker(this) {
+m_BrowsingInstance() {
     ui->setupUi(this);
     setWindowTitle("Filesystem Manager");
     //setWindowIcon(QIcon(":/images/app-icon.png"));
@@ -57,9 +57,9 @@ m_Tracker(this) {
 
 
     modelList = new FileSystemModel();
-    modelList->setDirectory(getDirectory(startPath));
+    modelList->setDirectory(m_BrowsingInstance.currentDir());
     //modelList->setColumnsToView(4); //standard is 5
-    modelList->setShowHidden(true); //standard is false
+    modelList->setShowHidden(false); //standard is false
 
 
     //connect(modelList,SIGNAL(directoryLoaded(QString)),this,SLOT(HideBusyDialog(QString)));
@@ -97,8 +97,6 @@ m_Tracker(this) {
 
     ui->verticalLayout->addWidget(split);
     split->setFocus();
-
-
 }
 
 FileManager::~FileManager() {
@@ -157,14 +155,14 @@ void FileManager::SetButtonIcons() {
 void FileManager::on_pushButton_details_clicked() {
     if (!tree->isVisible()) {
         widget->setCurrentWidget(tree);
-        modelList->setDirectory(getDirectory(startPath));
+        modelList->setDirectory(m_BrowsingInstance.currentDir());
     }
 }
 
 void FileManager::on_pushButton_icons_clicked() {
     if (!list->isVisible()) {
         widget->setCurrentWidget(list);
-        modelList->setDirectory(getDirectory(startPath));
+        modelList->setDirectory(m_BrowsingInstance.currentDir());
     }
 }
 
@@ -209,19 +207,13 @@ void FileManager::InitIconsView() {
 }
 
 void FileManager::ListItemDoubleClicked(QModelIndex current) {
-
-    startPath = modelList->filePath(current);
-    modelList->setDirectory(getDirectory(startPath));
-    ui->lineEdit->setText(startPath);
-
-
+    modelList->setDirectory(m_BrowsingInstance.currentDir());
+    ui->lineEdit->setText(m_BrowsingInstance.currentPath());
 }
 
 void FileManager::DetailsItemDoubleClicked(QModelIndex current) {
-
-    startPath = modelList->filePath(current);
-    modelList->setDirectory(getDirectory(startPath));
-    ui->lineEdit->setText(startPath);
+    modelList->setDirectory(m_BrowsingInstance.currentDir());
+    ui->lineEdit->setText(m_BrowsingInstance.currentPath());
 
 }
 
@@ -231,41 +223,19 @@ void FileManager::HideBusyDialog(QString path) {
 }
 
 void FileManager::pushButtonBack_clicked() {
+    modelList->setDirectory(m_BrowsingInstance.goBack());
 
 }
 
 void FileManager::pushButtonNext_clicked() {
+    modelList->setDirectory(m_BrowsingInstance.goForward());
+}
+
+void FileManager::pathEditActivated() {
+    QString newPath = ui->lineEdit->text();
 
 }
 
-model_filesystem::Directory* FileManager::getDirectory(QString path) {
-    if (m_AvailableFileSystems.isEmpty())
-        return NULL;
-    else {
-        QUrl url = QUrl::fromUserInput(path);
-        // TODO: Sanitice path
-
-        model_filesystem::FileSystem* fileSystem = NULL;
-        for (model_filesystem::FileSystem* itr : m_AvailableFileSystems) {
-            if (itr->getSupportedUriScheme().contains(url.scheme())) {
-                fileSystem = itr;
-                break;
-            }
-        }
-        if (fileSystem) {
-            model_filesystem::Directory * dir = fileSystem->getDirectory(url.toString());
-            return dir;
-        } else {
-            // TODO: Report not suported scheme
-        }
-
-    }
-}
-
-void FileManager::addFileSystem(model_filesystem::FileSystem* fileSystem) {
-    m_AvailableFileSystems.append(fileSystem);
-}
-
-void FileManager::removeFileSystem(model_filesystem::FileSystem* fileSystem) {
-    m_AvailableFileSystems.removeAll(fileSystem);
+void FileManager::changePlace(const QString &newPath) {
+    modelList->setDirectory(m_BrowsingInstance.goTo(newPath));
 }

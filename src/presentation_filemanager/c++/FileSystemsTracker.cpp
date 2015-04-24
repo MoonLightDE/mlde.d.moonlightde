@@ -22,25 +22,21 @@
 
 #include "FileSystemsTracker.h"
 #include "module_config.h"
-#include "FileManager.h"
+#include "BrowsingInstance.h"
 
 #include <usModuleContext.h>
 #include <usGetModuleContext.h>
 
 #include <QDebug>
 
-FileSystemsTracker::FileSystemsTracker(FileManager *fileManager) {
+FileSystemsTracker::FileSystemsTracker() {
     m_Context = us::GetModuleContext();
 
-    if (fileManager == NULL)
-        qCritical() << MODULE_NAME_STR << ": invalid FileSystems service tracker initialization.";
-    else {
-        m_FileManager = fileManager;
-        m_tracker = new us::ServiceTracker<model_filesystem::FileSystem>(m_Context, this);
-        m_tracker->Open();
+    m_tracker = new us::ServiceTracker<model_filesystem::FileSystem>(m_Context, this);
+    m_tracker->Open();
 
-        qDebug() << MODULE_NAME_STR << ": FileSystems tracker up and running.";
-    }
+    qDebug() << MODULE_NAME_STR << ": FileSystems tracker up and running.";
+
 }
 
 FileSystemsTracker::~FileSystemsTracker() {
@@ -50,12 +46,7 @@ FileSystemsTracker::~FileSystemsTracker() {
 model_filesystem::FileSystem* FileSystemsTracker::AddingService(const us::ServiceReference<model_filesystem::FileSystem>& reference) {
     model_filesystem::FileSystem * fileSystem = m_Context->GetService(reference);
 
-    if (m_FileManager.isNull()) {
-        qCritical() << MODULE_NAME_STR << ": FileSystems service tracker not initialized.";
-        return fileSystem;
-    }
-
-    m_FileManager->addFileSystem(fileSystem);
+    BrowsingInstance::addFileSystem(fileSystem);
     return fileSystem;
 }
 
@@ -64,9 +55,5 @@ void FileSystemsTracker::ModifiedService(const us::ServiceReference<model_filesy
 }
 
 void FileSystemsTracker::RemovedService(const us::ServiceReference<model_filesystem::FileSystem>& reference, model_filesystem::FileSystem *service) {
-    if (m_FileManager.isNull()) {
-        qCritical() << MODULE_NAME_STR << ": FileSystems service tracker not initialized.";
-        return;
-    }
-    m_FileManager->removeFileSystem(service);
+    BrowsingInstance::removeFileSystem(service);
 }
