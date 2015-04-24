@@ -30,53 +30,67 @@
 #include <QUrl>
 #include <QDebug>
 
-char GVFSDirectory::attributes[] = "standard::*,access::*,owner::*,time::*";
-bool GVFSDirectory::nofollow_symlinks = false;
+char GVFSDirectoryPriv::attributes[] = "standard::*,access::*,owner::*,time::*";
+bool GVFSDirectoryPriv::nofollow_symlinks = false;
 
-GVFSDirectory::GVFSDirectory(const QString &uri) : QObject() {
+QHash<QString, GVFSDirectoryPriv*>* GVFSDirectory::m_Cache = NULL;
+QHash<GVFSDirectoryPriv*, int>* GVFSDirectory::m_Refs = NULL;
+
+GVFSDirectory::GVFSDirectory(const QString &uri) {
+    if (m_Cache == NULL)
+        m_Cache = new QHash<QString, GVFSDirectoryPriv*>();
+
+    if (m_Refs == NULL)
+        m_Refs = new QHash<GVFSDirectoryPriv*, int>();
+
     QUrl qurl = QUrl::fromUserInput(uri);
-    m_uri = qurl.toString(QUrl::RemoveUserInfo | QUrl::PreferLocalFile | QUrl::StripTrailingSlash | QUrl::NormalizePathSegments);
+    QString cleanUri = qurl.toString(QUrl::RemoveUserInfo | QUrl::PreferLocalFile | QUrl::StripTrailingSlash | QUrl::NormalizePathSegments);
 
-    m_File = g_file_new_for_commandline_arg(m_uri.toLocal8Bit());
-    Q_ASSERT(G_FILE(m_File));
+    if (m_Cache->contains(cleanUri)) {
+        m_Priv = m_Cache->value(cleanUri);
+        (*m_Refs)[m_Priv]++;
+    } else {
+        GFile *gfile = g_file_new_for_commandline_arg(cleanUri.toLocal8Bit());
+        Q_ASSERT(G_FILE(gfile));
+        m_Priv = new GVFSDirectoryPriv(gfile);
 
-    m_User = qurl.userName();
-    m_Password = qurl.password();
+        m_Priv->m_User = qurl.userName();
+        m_Priv->m_Password = qurl.password();
 
-    m_FileInfo = NULL;
-    update();
+        update();
+    }
+    connect(m_Priv, &GVFSDirectoryPriv::changed, this, &GVFSDirectory::changed);
+    connect(m_Priv, &GVFSDirectoryPriv::failure, this, &GVFSDirectory::failure);
 }
 
-GVFSDirectory::GVFSDirectory(GFile * gfile) : QObject() {
-    m_File = G_FILE(gfile);
-    m_uri = g_file_get_uri(m_File);
-    m_FileInfo = NULL;
+GVFSDirectory::GVFSDirectory(GFile * gfile) {
+    m_Priv->m_File = G_FILE(gfile);
+    m_Priv->m_uri = g_file_get_uri(m_Priv->m_File);
+    m_Priv->m_FileInfo = NULL;
 
     update();
 }
 
 GVFSDirectory::~GVFSDirectory() {
-    releaseCache();
-
-    g_object_unref(m_File);
-    m_File = NULL;
-
+    disconnect(m_Priv, NULL, this, NULL);
+    if ((--(*m_Refs)[m_Priv]) <= 0)
+        delete m_Priv;
 }
 
 QString GVFSDirectory::name() {
-    if (m_FileInfo == NULL)
+    if (m_Priv->m_FileInfo == NULL)
         return QString();
 
-    QString name = g_file_info_get_display_name(m_FileInfo);
+    QString name = g_file_info_get_display_name(m_Priv->m_FileInfo);
     return name;
 }
 
 QString GVFSDirectory::uri() {
-    return m_uri;
+    return m_Priv->m_uri;
 }
 
 QString GVFSDirectory::parentUri() {
-    GFile * parent = g_file_get_parent(m_File);
+    GFile * parent = g_file_get_parent(m_Priv->m_File);
     char* uri = g_file_get_uri(parent);
 
     QString uriStr(uri);
@@ -85,8 +99,8 @@ QString GVFSDirectory::parentUri() {
 }
 
 QString GVFSDirectory::mimetype(const QString& child) {
-    if (m_ChildrenInfo.contains(child)) {
-        GFileInfo * childInfo = m_ChildrenInfo.value(child);
+    if (m_Priv->m_ChildrenInfo.contains(child)) {
+        GFileInfo * childInfo = m_Priv->m_ChildrenInfo.value(child);
         QString mimeType = g_file_info_get_content_type(childInfo);
         return mimeType;
     } else
@@ -94,7 +108,7 @@ QString GVFSDirectory::mimetype(const QString& child) {
 }
 
 QString GVFSDirectory::iconName(const QString& child) {
-    GFileInfo *fileInfo = m_ChildrenInfo.value(child, NULL);
+    GFileInfo *fileInfo = m_Priv->m_ChildrenInfo.value(child, NULL);
     if (G_FILE_INFO(fileInfo)) {
         GIcon *gicon = g_file_info_get_icon(fileInfo);
 
@@ -113,8 +127,8 @@ QString GVFSDirectory::iconName(const QString& child) {
 }
 
 QFlags<QFile::Permission> GVFSDirectory::permission(const QString& target) {
-    if (m_ChildrenInfo.contains(target)) {
-        GFileInfo* file = m_ChildrenInfo.value(target);
+    if (m_Priv->m_ChildrenInfo.contains(target)) {
+        GFileInfo* file = m_Priv->m_ChildrenInfo.value(target);
 
         bool canRead = g_file_info_get_attribute_boolean(file, G_FILE_ATTRIBUTE_ACCESS_CAN_READ);
         bool canWrite = g_file_info_get_attribute_boolean(file, G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE);
@@ -142,8 +156,8 @@ QFuture<void> GVFSDirectory::setPermission(QFlags<QFile::Permission> permissions
     return QFuture<void>();
 
     // TODO: Move current implementation to a separated Operation.
-    if (m_ChildrenInfo.contains(target)) {
-        GFileInfo* file = m_ChildrenInfo.value(target);
+    if (m_Priv->m_ChildrenInfo.contains(target)) {
+        GFileInfo* file = m_Priv->m_ChildrenInfo.value(target);
 
         bool canRead = permissions.testFlag(QFile::ReadOwner);
         bool canWrite = permissions.testFlag(QFile::WriteOwner);
@@ -189,17 +203,17 @@ QFuture<unsigned long int> GVFSDirectory::size(const QString& target, bool recur
         current = this;
         if (recursive) {
             for (QString childTarget : children()) {
-                if (g_file_info_get_file_type(m_ChildrenInfo.value(childTarget)) == G_FILE_TYPE_DIRECTORY) {
+                if (g_file_info_get_file_type(m_Priv->m_ChildrenInfo.value(childTarget)) == G_FILE_TYPE_DIRECTORY) {
                     current = new GVFSDirectory(childUri(childTarget));
                     sizes += current->size(".", true);
                     delete current;
                 } else {
-                    sizes += g_file_info_get_size(m_ChildrenInfo.value(childTarget));
+                    sizes += g_file_info_get_size(m_Priv->m_ChildrenInfo.value(childTarget));
                 }
             }
 
         } else {
-            for (GFileInfo* info : m_ChildrenInfo) {
+            for (GFileInfo* info : m_Priv->m_ChildrenInfo) {
                 if (g_file_info_get_file_type(info) != G_FILE_TYPE_DIRECTORY) {
                     sizes += g_file_info_get_size(info);
                 }
@@ -208,16 +222,16 @@ QFuture<unsigned long int> GVFSDirectory::size(const QString& target, bool recur
         }
 
     } else {
-        if (m_ChildrenInfo.contains(target)) {
-            if (g_file_info_get_file_type(m_ChildrenInfo.value(target)) == G_FILE_TYPE_DIRECTORY) {
+        if (m_Priv->m_ChildrenInfo.contains(target)) {
+            if (g_file_info_get_file_type(m_Priv->m_ChildrenInfo.value(target)) == G_FILE_TYPE_DIRECTORY) {
                 current = new GVFSDirectory(childUri(target));
                 if (recursive) {
                     sizes += current->size(".", true);
                     delete current;
                 } else {
-                    for (QString childTarget : current->m_ChildrenInfo.keys()) {
-                        if (g_file_info_get_file_type(current->m_ChildrenInfo.value(childTarget)) != G_FILE_TYPE_DIRECTORY) {
-                            sizes += g_file_info_get_size(current->m_ChildrenInfo.value(childTarget));
+                    for (QString childTarget : current->m_Priv->m_ChildrenInfo.keys()) {
+                        if (g_file_info_get_file_type(current->m_Priv->m_ChildrenInfo.value(childTarget)) != G_FILE_TYPE_DIRECTORY) {
+                            sizes += g_file_info_get_size(current->m_Priv->m_ChildrenInfo.value(childTarget));
                         }
                     }
                     delete current;
@@ -225,7 +239,7 @@ QFuture<unsigned long int> GVFSDirectory::size(const QString& target, bool recur
 
             } else {
 
-                sizes += g_file_info_get_size(m_ChildrenInfo.value(target));
+                sizes += g_file_info_get_size(m_Priv->m_ChildrenInfo.value(target));
             }
 
         }
@@ -250,17 +264,17 @@ QFuture<unsigned long int> GVFSDirectory::storedSize(const QString& target, bool
         current = this;
         if (recursive) {
             for (QString childTarget : children()) {
-                if (g_file_info_get_file_type(m_ChildrenInfo.value(childTarget)) == G_FILE_TYPE_DIRECTORY) {
+                if (g_file_info_get_file_type(m_Priv->m_ChildrenInfo.value(childTarget)) == G_FILE_TYPE_DIRECTORY) {
                     current = new GVFSDirectory(childUri(childTarget));
                     sizes += current->size(".", true);
                     delete current;
                 } else {
-                    sizes += g_file_info_get_attribute_uint64(m_ChildrenInfo.value(childTarget), G_FILE_ATTRIBUTE_STANDARD_ALLOCATED_SIZE);
+                    sizes += g_file_info_get_attribute_uint64(m_Priv->m_ChildrenInfo.value(childTarget), G_FILE_ATTRIBUTE_STANDARD_ALLOCATED_SIZE);
                 }
             }
 
         } else {
-            for (GFileInfo* info : m_ChildrenInfo) {
+            for (GFileInfo* info : m_Priv->m_ChildrenInfo) {
                 if (g_file_info_get_file_type(info) != G_FILE_TYPE_DIRECTORY) {
                     sizes += g_file_info_get_attribute_uint64(info, G_FILE_ATTRIBUTE_STANDARD_ALLOCATED_SIZE);
                 }
@@ -269,16 +283,16 @@ QFuture<unsigned long int> GVFSDirectory::storedSize(const QString& target, bool
         }
 
     } else {
-        if (m_ChildrenInfo.contains(target)) {
-            if (g_file_info_get_file_type(m_ChildrenInfo.value(target)) == G_FILE_TYPE_DIRECTORY) {
+        if (m_Priv->m_ChildrenInfo.contains(target)) {
+            if (g_file_info_get_file_type(m_Priv->m_ChildrenInfo.value(target)) == G_FILE_TYPE_DIRECTORY) {
                 current = new GVFSDirectory(childUri(target));
                 if (recursive) {
                     sizes += current->size(".", true);
                     delete current;
                 } else {
-                    for (QString childTarget : current->m_ChildrenInfo.keys()) {
-                        if (g_file_info_get_file_type(current->m_ChildrenInfo.value(childTarget)) != G_FILE_TYPE_DIRECTORY) {
-                            sizes += g_file_info_get_attribute_uint64(m_ChildrenInfo.value(childTarget), G_FILE_ATTRIBUTE_STANDARD_ALLOCATED_SIZE);
+                    for (QString childTarget : current->m_Priv->m_ChildrenInfo.keys()) {
+                        if (g_file_info_get_file_type(current->m_Priv->m_ChildrenInfo.value(childTarget)) != G_FILE_TYPE_DIRECTORY) {
+                            sizes += g_file_info_get_attribute_uint64(m_Priv->m_ChildrenInfo.value(childTarget), G_FILE_ATTRIBUTE_STANDARD_ALLOCATED_SIZE);
                         }
                     }
                     delete current;
@@ -286,7 +300,7 @@ QFuture<unsigned long int> GVFSDirectory::storedSize(const QString& target, bool
 
             } else {
 
-                sizes += g_file_info_get_attribute_uint64(m_ChildrenInfo.value(target), G_FILE_ATTRIBUTE_STANDARD_ALLOCATED_SIZE);
+                sizes += g_file_info_get_attribute_uint64(m_Priv->m_ChildrenInfo.value(target), G_FILE_ATTRIBUTE_STANDARD_ALLOCATED_SIZE);
             }
 
         }
@@ -300,10 +314,10 @@ unsigned long int GVFSDirectory::timeAccess(const QString& target) {
     long long sec = 0;
 
     if (target == ".") {
-        sec = g_file_info_get_attribute_uint64(m_FileInfo, G_FILE_ATTRIBUTE_TIME_ACCESS);
+        sec = g_file_info_get_attribute_uint64(m_Priv->m_FileInfo, G_FILE_ATTRIBUTE_TIME_ACCESS);
     } else {
-        if (m_ChildrenInfo.contains(target)) {
-            sec = g_file_info_get_attribute_uint64(m_ChildrenInfo.value(target), G_FILE_ATTRIBUTE_TIME_ACCESS);
+        if (m_Priv->m_ChildrenInfo.contains(target)) {
+            sec = g_file_info_get_attribute_uint64(m_Priv->m_ChildrenInfo.value(target), G_FILE_ATTRIBUTE_TIME_ACCESS);
         } else
             return 0;
     }
@@ -317,14 +331,14 @@ unsigned long int GVFSDirectory::timeModified(const QString& target) {
 
     if (target != ".") {
 
-        if (m_ChildrenInfo.contains(target)) {
-            sec = g_file_info_get_attribute_uint64(m_ChildrenInfo.value(target), G_FILE_ATTRIBUTE_TIME_MODIFIED);
+        if (m_Priv->m_ChildrenInfo.contains(target)) {
+            sec = g_file_info_get_attribute_uint64(m_Priv->m_ChildrenInfo.value(target), G_FILE_ATTRIBUTE_TIME_MODIFIED);
         } else
             return 0;
 
     } else {
 
-        sec = g_file_info_get_attribute_uint64(m_FileInfo, G_FILE_ATTRIBUTE_TIME_MODIFIED);
+        sec = g_file_info_get_attribute_uint64(m_Priv->m_FileInfo, G_FILE_ATTRIBUTE_TIME_MODIFIED);
     }
 
     return sec;
@@ -336,20 +350,20 @@ unsigned long int GVFSDirectory::timeChanged(const QString& target) {
     if (target != ".") {
 
         if (children().contains(target)) {
-            sec = g_file_info_get_attribute_uint64(m_ChildrenInfo.value(target), G_FILE_ATTRIBUTE_TIME_CHANGED);
+            sec = g_file_info_get_attribute_uint64(m_Priv->m_ChildrenInfo.value(target), G_FILE_ATTRIBUTE_TIME_CHANGED);
         } else
             return 0;
 
     } else {
 
-        sec = g_file_info_get_attribute_uint64(m_FileInfo, G_FILE_ATTRIBUTE_TIME_CHANGED);
+        sec = g_file_info_get_attribute_uint64(m_Priv->m_FileInfo, G_FILE_ATTRIBUTE_TIME_CHANGED);
     }
 
     return sec;
 }
 
 QString GVFSDirectory::childUri(const QString& name) {
-    GFile * child = g_file_get_child(m_File, name.toLocal8Bit());
+    GFile * child = g_file_get_child(m_Priv->m_File, name.toLocal8Bit());
     char *childUri = g_file_get_uri(child);
 
     QString childUriStr = childUri;
@@ -363,11 +377,11 @@ QString GVFSDirectory::ownerUser(const QString& target) {
 
     QString user;
     if (target == ".") {
-        user = g_file_info_get_attribute_as_string(m_FileInfo, G_FILE_ATTRIBUTE_OWNER_USER);
+        user = g_file_info_get_attribute_as_string(m_Priv->m_FileInfo, G_FILE_ATTRIBUTE_OWNER_USER);
     } else {
 
         if (children().contains(target)) {
-            user = g_file_info_get_attribute_as_string(m_ChildrenInfo.value(target), G_FILE_ATTRIBUTE_OWNER_USER);
+            user = g_file_info_get_attribute_as_string(m_Priv->m_ChildrenInfo.value(target), G_FILE_ATTRIBUTE_OWNER_USER);
         } else {
             return QString();
         }
@@ -381,11 +395,11 @@ QString GVFSDirectory::ownerGroup(const QString& target) {
 
     QString group;
     if (target == ".") {
-        group = g_file_info_get_attribute_as_string(m_FileInfo, G_FILE_ATTRIBUTE_OWNER_GROUP);
+        group = g_file_info_get_attribute_as_string(m_Priv->m_FileInfo, G_FILE_ATTRIBUTE_OWNER_GROUP);
     } else {
 
         if (children().contains(target)) {
-            group = g_file_info_get_attribute_as_string(m_ChildrenInfo.value(target), G_FILE_ATTRIBUTE_OWNER_GROUP);
+            group = g_file_info_get_attribute_as_string(m_Priv->m_ChildrenInfo.value(target), G_FILE_ATTRIBUTE_OWNER_GROUP);
         } else {
             return QString();
         }
@@ -396,12 +410,12 @@ QString GVFSDirectory::ownerGroup(const QString& target) {
 }
 
 int GVFSDirectory::childernCount() {
-    return m_ChildrenInfo.size();
+    return m_Priv->m_ChildrenInfo.size();
 }
 
 QList<QString> GVFSDirectory::children() {
     QList<QString> children;
-    for (GFileInfo * fileInfo : m_ChildrenInfo) {
+    for (GFileInfo * fileInfo : m_Priv->m_ChildrenInfo) {
         const char * cchildName = g_file_info_get_name(fileInfo);
         children.append(QString(cchildName));
     }
@@ -409,27 +423,15 @@ QList<QString> GVFSDirectory::children() {
 }
 
 void GVFSDirectory::update() {
-    releaseCache();
-    startMount();
-}
-
-void GVFSDirectory::releaseCache() {
-    for (GFileInfo * info : m_ChildrenInfo) {
-        g_object_unref(info);
-    }
-    m_ChildrenInfo.clear();
-
-    if (m_FileInfo != NULL) {
-        g_object_unref(m_FileInfo);
-        m_FileInfo = NULL;
-    }
+    m_Priv->clear();
+    m_Priv->startMount();
 }
 
 QFuture<void> GVFSDirectory::status() {
-    return m_FutureInterface.future();
+    return m_Priv->m_FutureInterface.future();
 }
 
-void GVFSDirectory::startMount() {
+void GVFSDirectoryPriv::startMount() {
     if (!G_FILE(m_File)) {
         reportError("Invalid directory.");
         qWarning() << MODULE_NAME_STR << " working over an invalid gfile reference this may be an error, plase report it.";
@@ -447,24 +449,24 @@ void GVFSDirectory::startMount() {
     g_file_mount_enclosing_volume(m_File, G_MOUNT_MOUNT_NONE, op, NULL, handleMountDone, this);
 }
 
-void GVFSDirectory::handleMountAskPassword(GMountOperation* op, gchar* message, gchar* default_user, gchar* default_domain, GAskPasswordFlags flags, gpointer userdata) {
-    GVFSDirectory * directory = static_cast<GVFSDirectory *> (userdata);
-    if (!directory) {
+void GVFSDirectoryPriv::handleMountAskPassword(GMountOperation* op, gchar* message, gchar* default_user, gchar* default_domain, GAskPasswordFlags flags, gpointer userdata) {
+    GVFSDirectoryPriv * directoryPriv = static_cast<GVFSDirectoryPriv *> (userdata);
+    if (!directoryPriv) {
         qWarning() << __PRETTY_FUNCTION__ << " unable to cast from gpointer";
         return;
     }
-    directory->m_FutureInterface.setProgressValueAndText(1, "Waithing for user credentials.");
+    directoryPriv->m_FutureInterface.setProgressValueAndText(1, "Waithing for user credentials.");
 
     // TODO: Implement using the authentication service
-    g_mount_operation_set_username(op, directory->m_User.toLocal8Bit());
-    g_mount_operation_set_password(op, directory->m_Password.toLocal8Bit());
+    g_mount_operation_set_username(op, directoryPriv->m_User.toLocal8Bit());
+    g_mount_operation_set_password(op, directoryPriv->m_Password.toLocal8Bit());
 
     g_mount_operation_reply(op, G_MOUNT_OPERATION_HANDLED);
 }
 
-void GVFSDirectory::handleMountDone(GObject* source_object, GAsyncResult* res, gpointer user_data) {
-    GVFSDirectory * directory = static_cast<GVFSDirectory *> (user_data);
-    if (!directory) {
+void GVFSDirectoryPriv::handleMountDone(GObject* source_object, GAsyncResult* res, gpointer user_data) {
+    GVFSDirectoryPriv * directoryPriv = static_cast<GVFSDirectoryPriv *> (user_data);
+    if (!directoryPriv) {
         qWarning() << __PRETTY_FUNCTION__ << " unable to cast from gpointer";
         return;
     }
@@ -476,50 +478,50 @@ void GVFSDirectory::handleMountDone(GObject* source_object, GAsyncResult* res, g
 
     if (!succeeded) {
         if ((error->code == G_IO_ERROR_ALREADY_MOUNTED) || (error->code == G_IO_ERROR_NOT_SUPPORTED)) {
-            directory->m_FutureInterface.setProgressValueAndText(2, QString::fromLocal8Bit(error->message));
+            directoryPriv->m_FutureInterface.setProgressValueAndText(2, QString::fromLocal8Bit(error->message));
 
-            directory->startQueryFileInfo();
+            directoryPriv->startQueryFileInfo();
         } else {
-            directory->reportError(QString::fromLocal8Bit(error->message));
+            directoryPriv->reportError(QString::fromLocal8Bit(error->message));
         }
         g_error_free(error);
     } else {
-        directory->m_FutureInterface.setProgressValueAndText(2, "Mounted.");
+        directoryPriv->m_FutureInterface.setProgressValueAndText(2, "Mounted.");
 
-        directory->startQueryFileInfo();
+        directoryPriv->startQueryFileInfo();
     }
 }
 
-void GVFSDirectory::startQueryFileInfo() {
-    releaseCache();
+void GVFSDirectoryPriv::startQueryFileInfo() {
+    clear();
     m_FutureInterface.setProgressValueAndText(3, "Querying directory info.");
 
     g_file_query_info_async(m_File, attributes, G_FILE_QUERY_INFO_NONE, G_PRIORITY_DEFAULT, NULL, handleQueryFileInfoDone, this);
 }
 
-void GVFSDirectory::handleQueryFileInfoDone(GObject* source_object, GAsyncResult* res, gpointer user_data) {
-    GVFSDirectory * directory = static_cast<GVFSDirectory *> (user_data);
-    if (!directory) {
+void GVFSDirectoryPriv::handleQueryFileInfoDone(GObject* source_object, GAsyncResult* res, gpointer user_data) {
+    GVFSDirectoryPriv * directoryPriv = static_cast<GVFSDirectoryPriv *> (user_data);
+    if (!directoryPriv) {
         qWarning() << __PRETTY_FUNCTION__ << " unable to cast from gpointer";
         return;
     }
 
-    if (directory->m_FileInfo != NULL)
-        directory->releaseCache();
+    if (directoryPriv->m_FileInfo != NULL)
+        directoryPriv->clear();
 
     GError *error = NULL;
-    directory->m_FileInfo = g_file_query_info_finish(G_FILE(source_object), res, &error);
-    if (directory->m_FileInfo == NULL) {
-        directory->reportError(QString::fromLocal8Bit(error->message));
+    directoryPriv->m_FileInfo = g_file_query_info_finish(G_FILE(source_object), res, &error);
+    if (directoryPriv->m_FileInfo == NULL) {
+        directoryPriv->reportError(QString::fromLocal8Bit(error->message));
         g_error_free(error);
     } else {
-        directory->m_FutureInterface.setProgressValueAndText(4, "Directory info ready.");
+        directoryPriv->m_FutureInterface.setProgressValueAndText(4, "Directory info ready.");
 
-        directory->startEnumerateChildren();
+        directoryPriv->startEnumerateChildren();
     }
 }
 
-void GVFSDirectory::startEnumerateChildren() {
+void GVFSDirectoryPriv::startEnumerateChildren() {
     m_FutureInterface.setProgressValueAndText(5, "Enumerating children.");
 
     g_file_enumerate_children_async(m_File,
@@ -530,9 +532,9 @@ void GVFSDirectory::startEnumerateChildren() {
             this);
 }
 
-void GVFSDirectory::handleEnumerateChildrenDone(GObject* source_object, GAsyncResult* res, gpointer user_data) {
-    GVFSDirectory * directory = static_cast<GVFSDirectory *> (user_data);
-    if (!directory) {
+void GVFSDirectoryPriv::handleEnumerateChildrenDone(GObject* source_object, GAsyncResult* res, gpointer user_data) {
+    GVFSDirectoryPriv * directoryPriv = static_cast<GVFSDirectoryPriv *> (user_data);
+    if (!directoryPriv) {
         qWarning() << __PRETTY_FUNCTION__ << " unable to cast from gpointer";
         return;
     }
@@ -543,18 +545,17 @@ void GVFSDirectory::handleEnumerateChildrenDone(GObject* source_object, GAsyncRe
     enumerator = g_file_enumerate_children_finish(G_FILE(source_object), res, &error);
 
     if (enumerator == NULL) {
-        directory->reportError(QString::fromLocal8Bit(error->message));
+        directoryPriv->reportError(QString::fromLocal8Bit(error->message));
         g_error_free(error);
         error = NULL;
     } else {
-        g_file_enumerator_next_files_async(enumerator, 20, 0, NULL, handleEnumeratorNextFilesDone, directory);
+        g_file_enumerator_next_files_async(enumerator, 20, 0, NULL, handleEnumeratorNextFilesDone, directoryPriv);
     }
 }
 
-void GVFSDirectory::handleEnumeratorNextFilesDone(GObject* source_object, GAsyncResult* res, gpointer user_data) {
-    GVFSDirectory * directory = static_cast<GVFSDirectory *> (user_data);
-    directory->name();
-    if (!directory) {
+void GVFSDirectoryPriv::handleEnumeratorNextFilesDone(GObject* source_object, GAsyncResult* res, gpointer user_data) {
+    GVFSDirectoryPriv * directoryPriv = static_cast<GVFSDirectoryPriv *> (user_data);
+    if (!directoryPriv) {
         qWarning() << __PRETTY_FUNCTION__ << " unable to cast from gpointer";
         return;
     }
@@ -564,32 +565,32 @@ void GVFSDirectory::handleEnumeratorNextFilesDone(GObject* source_object, GAsync
 
     GList * infoList = g_file_enumerator_next_files_finish(enumerator, res, &error);
     if (error) {
-        directory->reportError(QString::fromLocal8Bit(error->message));
+        directoryPriv->reportError(QString::fromLocal8Bit(error->message));
         g_error_free(error);
         g_list_free(infoList);
 
         g_file_enumerator_close_async(enumerator, 0, NULL, handleEnumeratorCloseDone, user_data);
     } else {
         if (infoList == NULL) {
-            g_file_enumerator_close_async(enumerator, 0, NULL, handleEnumeratorCloseDone, directory);
+            g_file_enumerator_close_async(enumerator, 0, NULL, handleEnumeratorCloseDone, directoryPriv);
         } else {
             GList * ptr = infoList;
             while (ptr != NULL) {
                 GFileInfo * fileInfo = static_cast<GFileInfo *> (ptr->data);
-                directory->m_ChildrenInfo.insert(QString::fromLocal8Bit(g_file_info_get_name(fileInfo)), g_file_info_dup(fileInfo));
+                directoryPriv->m_ChildrenInfo.insert(QString::fromLocal8Bit(g_file_info_get_name(fileInfo)), g_file_info_dup(fileInfo));
                 ptr = ptr->next;
             }
 
             g_list_free(infoList);
-            Q_EMIT(directory->changed());
-            g_file_enumerator_next_files_async(enumerator, 20, 0, NULL, handleEnumeratorNextFilesDone, directory);
+            Q_EMIT(directoryPriv->changed());
+            g_file_enumerator_next_files_async(enumerator, 20, 0, NULL, handleEnumeratorNextFilesDone, directoryPriv);
         }
     }
 }
 
-void GVFSDirectory::handleEnumeratorCloseDone(GObject* source_object, GAsyncResult* res, gpointer user_data) {
-    GVFSDirectory * directory = static_cast<GVFSDirectory *> (user_data);
-    if (!directory) {
+void GVFSDirectoryPriv::handleEnumeratorCloseDone(GObject* source_object, GAsyncResult* res, gpointer user_data) {
+    GVFSDirectoryPriv * directoryPriv = static_cast<GVFSDirectoryPriv *> (user_data);
+    if (!directoryPriv) {
         qWarning() << __PRETTY_FUNCTION__ << " unable to cast from gpointer";
         return;
     }
@@ -599,24 +600,45 @@ void GVFSDirectory::handleEnumeratorCloseDone(GObject* source_object, GAsyncResu
 
     if (!g_file_enumerator_close_finish(enumerator, res, &error)) {
         if (error->code != G_IO_ERROR_CLOSED)
-            directory->reportError(QString::fromLocal8Bit(error->message));
+            directoryPriv->reportError(QString::fromLocal8Bit(error->message));
 
         g_object_unref(enumerator);
         g_error_free(error);
     }
 
-    directory->m_FutureInterface.reportFinished();
+    directoryPriv->m_FutureInterface.reportFinished();
 
-    if (directory->m_FutureInterface.progressValue() != -1) {
-        directory->m_FutureInterface.setProgressValueAndText(6, "Child enumeration done.");
+    if (directoryPriv->m_FutureInterface.progressValue() != -1) {
+        directoryPriv->m_FutureInterface.setProgressValueAndText(6, "Child enumeration done.");
     } else
-        Q_EMIT(directory->changed());
+        Q_EMIT(directoryPriv->changed());
 }
 
-void GVFSDirectory::reportError(const QString& msg) {
+void GVFSDirectoryPriv::reportError(const QString& msg) {
     //    qWarning() << MODULE_NAME_STR << " unable to retrieve directory due: " << msg;
     m_FutureInterface.setProgressValueAndText(-1, msg);
     m_FutureInterface.reportFinished();
 
     Q_EMIT(failure(msg));
+}
+
+GVFSDirectoryPriv::GVFSDirectoryPriv(GFile * gfile) : QObject(), m_File(gfile), m_FileInfo(NULL) {
+}
+
+GVFSDirectoryPriv::~GVFSDirectoryPriv() {
+    clear();
+    g_object_unref(m_File);
+}
+
+void GVFSDirectoryPriv::clear() {
+    for (GFileInfo * info : m_ChildrenInfo)
+        g_object_unref(info);
+
+    m_ChildrenInfo.clear();
+
+    if (m_FileInfo != NULL) {
+        g_object_unref(m_FileInfo);
+
+        m_FileInfo = NULL;
+    }
 }

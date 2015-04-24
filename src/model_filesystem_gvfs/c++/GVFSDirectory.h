@@ -38,6 +38,44 @@
 #include <gio/gio.h>
 #undef QT_NO_KEYWORDS
 
+class GVFSDirectoryPriv : public QObject {
+    Q_OBJECT
+    friend class GVFSDirectory;
+public:
+    GVFSDirectoryPriv(GFile * gfile);
+    ~GVFSDirectoryPriv();
+    QFutureInterface<void> m_FutureInterface;
+
+    QString m_uri;
+    QString m_User;
+    QString m_Password;
+    GFile * m_File;
+    GFileInfo *m_FileInfo;
+    QHash<QString, GFileInfo *> m_ChildrenInfo;
+
+    void startMount();
+    void startQueryFileInfo();
+    void startEnumerateChildren();
+
+    static void handleMountAskPassword(GMountOperation *op, gchar *message, gchar *default_user, gchar *default_domain, GAskPasswordFlags flags, gpointer userdata);
+    static void handleMountDone(GObject *source_object, GAsyncResult *res, gpointer user_data);
+    static void handleQueryFileInfoDone(GObject *source_object, GAsyncResult *res, gpointer user_data);
+    static void handleEnumerateChildrenDone(GObject *source_object, GAsyncResult *res, gpointer user_data);
+    static void handleEnumeratorNextFilesDone(GObject *source_object, GAsyncResult *res, gpointer user_data);
+    static void handleEnumeratorCloseDone(GObject *source_object, GAsyncResult *res, gpointer user_data);
+
+    void reportError(const QString &msg);
+
+    void clear();
+
+    static char attributes[];
+    static bool nofollow_symlinks;
+
+Q_SIGNALS:
+    void changed();
+    void failure(QString msg);
+};
+
 /**
  * Design principles:
  * - Asynchronic
@@ -49,7 +87,7 @@
  * order to retrieve information relevant to it and to monitor the changes on
  * the data.
  */
-class GVFSDirectory : public QObject,  public model_filesystem::Directory {
+class GVFSDirectory : public model_filesystem::Directory {
     Q_OBJECT
     Q_INTERFACES(model_filesystem::Directory)
 public:
@@ -151,32 +189,24 @@ Q_SIGNALS:
     void failure(QString msg);
 
 private:
-    void startMount();
-    void startQueryFileInfo();
-    void startEnumerateChildren();
 
-    static void handleMountAskPassword(GMountOperation *op, gchar *message, gchar *default_user, gchar *default_domain, GAskPasswordFlags flags, gpointer userdata);
-    static void handleMountDone(GObject *source_object, GAsyncResult *res, gpointer user_data);
-    static void handleQueryFileInfoDone(GObject *source_object, GAsyncResult *res, gpointer user_data);
-    static void handleEnumerateChildrenDone(GObject *source_object, GAsyncResult *res, gpointer user_data);
-    static void handleEnumeratorNextFilesDone(GObject *source_object, GAsyncResult *res, gpointer user_data);
-    static void handleEnumeratorCloseDone(GObject *source_object, GAsyncResult *res, gpointer user_data);
 
-    void reportError(const QString &msg);
-    void releaseCache();
+    //    QFutureInterface<void> m_FutureInterface;
+    //
+    //    QString m_uri;
+    //    QString m_User;
+    //    QString m_Password;
+    //    GFile * m_File;
+    //    GFileInfo *m_FileInfo;
+    //    QHash<QString, GFileInfo *> m_ChildrenInfo;
+    //
 
-    QFutureInterface<void> m_FutureInterface;
 
-    QString m_uri;
-    QString m_User;
-    QString m_Password;
-    GFile * m_File;
-    GFileInfo *m_FileInfo;
-    QHash<QString, GFileInfo *> m_ChildrenInfo;
-
-    static char attributes[];
-    static bool nofollow_symlinks;
+    GVFSDirectoryPriv* m_Priv;
+    static QHash<QString, GVFSDirectoryPriv*> * m_Cache;
+    static QHash<GVFSDirectoryPriv*, int> *m_Refs;
 };
+
 
 #endif	/* GVFSDIRECTORY_H */
 

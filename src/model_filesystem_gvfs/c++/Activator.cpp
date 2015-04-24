@@ -51,7 +51,7 @@ private:
     void Load(ModuleContext* context) {
         context->RegisterService<model_filesystem::FileSystem>(&m_FS, ServiceProperties());
         context->RegisterService<model_filesystem::VolumeManager>(&m_VolumeManager, ServiceProperties());
-//        runTests("sftp://alexis:r3v0lut10n@localhost/");
+        runTests("fiel:///home/alexis");
     }
 
     /**
