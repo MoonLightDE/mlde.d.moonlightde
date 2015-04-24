@@ -33,9 +33,7 @@ namespace model_filesystem {
     class Volume;
     class Mount;
 
-    class VolumeManager : public QObject {
-
-        Q_OBJECT
+    class VolumeManager {
     public:
 
         virtual ~VolumeManager() {

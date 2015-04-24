@@ -31,12 +31,10 @@
 
 namespace model_filesystem {
 
-    class Directory : public QObject {
-        Q_OBJECT
+    class Directory {
     public:
 
-        virtual ~Directory() {
-        }
+        virtual ~Directory() {}
 
         virtual QString name() = 0;
         virtual QString uri() = 0;
@@ -131,6 +129,7 @@ Q_SIGNALS:
         void failure(QString msg);
     };
 }
+
 Q_DECLARE_INTERFACE(model_filesystem::Directory, "org.moonlightde.panel.model_filesystem.Directory/1.0")
 #endif	/* DIRECTORY_H */
 

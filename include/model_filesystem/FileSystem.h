@@ -22,7 +22,6 @@
 #ifndef FILESYSTEM_H
 #define	FILESYSTEM_H
 
-#include <QAction>
 #include <QString>
 #include <QList>
 #include <usServiceInterface.h>

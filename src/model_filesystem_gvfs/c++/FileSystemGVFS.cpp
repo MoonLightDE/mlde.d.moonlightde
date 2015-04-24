@@ -26,6 +26,7 @@
 #include "GVFSDirectory.h"
 #include "MountVolumeOp.h"
 #include "GVFSDirectory.h"
+#include "model_filesystem/VolumeManager.h"
 
 #include <QString>
 #include <QDebug>
