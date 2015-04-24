@@ -29,10 +29,9 @@
 
 #include <QPointer>
 
-class FileManager;
 class FileSystemsTracker : public us::ServiceTrackerCustomizer<model_filesystem::FileSystem> {
 public:
-    FileSystemsTracker(FileManager *fileManager);
+    FileSystemsTracker();
     virtual ~FileSystemsTracker();
 
     virtual model_filesystem::FileSystem* AddingService(const us::ServiceReference<model_filesystem::FileSystem>& reference);
@@ -42,7 +41,6 @@ public:
     virtual void RemovedService(const us::ServiceReference<model_filesystem::FileSystem>& reference, model_filesystem::FileSystem *service);
 
 private:
-    QPointer<FileManager> m_FileManager;
     us::ModuleContext* m_Context;
     us::ServiceTracker<model_filesystem::FileSystem> * m_tracker;
 };

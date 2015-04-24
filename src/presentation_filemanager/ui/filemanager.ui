@@ -45,6 +45,9 @@
        <property name="text">
         <string/>
        </property>
+       <property name="icon">
+        <iconset theme="back"/>
+       </property>
       </widget>
      </item>
      <item>
@@ -72,6 +75,9 @@
        </property>
        <property name="text">
         <string/>
+       </property>
+       <property name="icon">
+        <iconset theme="forward"/>
        </property>
       </widget>
      </item>
@@ -115,13 +121,16 @@
         </size>
        </property>
        <property name="cursor">
-        <cursorShape>PointingHandCursor</cursorShape>
+        <cursorShape>ArrowCursor</cursorShape>
        </property>
        <property name="layoutDirection">
         <enum>Qt::LeftToRight</enum>
        </property>
        <property name="text">
         <string/>
+       </property>
+       <property name="icon">
+        <iconset theme="view-refresh"/>
        </property>
       </widget>
      </item>
@@ -147,6 +156,9 @@
        </property>
        <property name="text">
         <string/>
+       </property>
+       <property name="icon">
+        <iconset theme="stock_add-bookmark"/>
        </property>
       </widget>
      </item>
@@ -176,6 +188,9 @@
        <property name="text">
         <string/>
        </property>
+       <property name="icon">
+        <iconset theme="view-list-details"/>
+       </property>
       </widget>
      </item>
      <item>
@@ -204,6 +219,9 @@
        <property name="text">
         <string/>
        </property>
+       <property name="icon">
+        <iconset theme="view-list-icons"/>
+       </property>
       </widget>
      </item>
      <item>
@@ -225,6 +243,9 @@
        </property>
        <property name="text">
         <string/>
+       </property>
+       <property name="icon">
+        <iconset theme="settings"/>
        </property>
       </widget>
      </item>

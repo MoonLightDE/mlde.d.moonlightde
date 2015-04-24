@@ -24,6 +24,7 @@
 
 #include "FileSystemModel.h"
 #include "FileSystemsTracker.h"
+#include "BrowsingInstance.h"
 
 #include "model_filesystem/FileSystem.h"
 
@@ -46,9 +47,6 @@ public:
     FileManager(QWidget *parent = 0);
     ~FileManager();
 
-    void addFileSystem(model_filesystem::FileSystem * fileSystem);
-    void removeFileSystem(model_filesystem::FileSystem* fileSystem);
-
     private
 Q_SLOTS:
     void on_pushButton_details_clicked();
@@ -61,8 +59,8 @@ Q_SLOTS:
     void pushButtonBack_clicked();
 
     void pushButtonNext_clicked();
-
-
+    void pathEditActivated();
+    void changePlace(const QString &newPath);
 
 private:
 
@@ -72,7 +70,6 @@ private:
     void CreateMenus();
     void SetButtonIcons();
     void LaunchBusyDialog();
-    model_filesystem::Directory * getDirectory(QString path);
 
     int index;
     QListView *list;
@@ -83,9 +80,8 @@ private:
     QString startPath;
     FileSystemModel *modelList;
     QStringList history;
-    QList<model_filesystem::FileSystem* > m_AvailableFileSystems;
-    
-    FileSystemsTracker m_Tracker;
+    BrowsingInstance m_BrowsingInstance;
+
 };
 
 
