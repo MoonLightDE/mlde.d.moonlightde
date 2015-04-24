@@ -63,8 +63,6 @@ private:
     QString cleanPath(const QString &path);
     QStringList m_SupportedUriSchemes;
     GVfs * m_GVfs;
-    QHash<QString, GVFSDirectory*> m_Cache;
-    QHash<GVFSDirectory*, int> m_Refs;
 };
 
 #endif	/* FILESYSTEMGVFS_H */
