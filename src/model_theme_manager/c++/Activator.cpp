@@ -23,6 +23,7 @@
 
 #include "ThemeManager.h"
 #include "core/ICore.h"
+#include "core/ModuleSettings.h"
 
 #include <usModule.h>
 #include <usModuleEvent.h>
@@ -47,18 +48,26 @@ private:
      * @param context the framework context for the module.
      */
     void Load(ModuleContext* context) {
+        QSettings *settings = ModuleSettings::getModuleSettings(context);
+        QString themeName = settings->value("ThemeName", "").toString();
+        QString iconsThemeName = settings->value("IconsThemeName", "" ).toString();
+        factory.setQssTheme(themeName);
+        factory.setIconTheme(iconsThemeName);
+
+        delete settings;
         // TODO: Define qss theme
         // TODO: Define icons theme
-        
+
         try {
             // Get active modules
             ServiceReference<Core::IModuleManager> ref =
                     context->GetServiceReference<Core::IModuleManager>();
-            
+
             Core::IModuleManager *moduleManager = context->GetService<Core::IModuleManager>(ref);
             QList<QString> modules = moduleManager->getActiveModules();
-            
+
             // Load modules qss 
+
             foreach(QString module, modules) {
                 factory.loadModuleQSS(module);
             }
@@ -88,4 +97,4 @@ private:
     }
     ThemeManager factory;
 };
-US_EXPORT_MODULE_ACTIVATOR(theme_manager, Activator)
+US_EXPORT_MODULE_ACTIVATOR(model_theme_manager, Activator)

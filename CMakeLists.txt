@@ -78,6 +78,8 @@ add_subdirectory(src/presentation_panel_systray)
 add_subdirectory(src/presentation_panel_datetime)
 add_subdirectory(src/presentation_panel_quicklaunchers)
 
+add_subdirectory(src/model_theme_manager)
+
 add_subdirectory(src/model_filesystem_gvfs)
 add_subdirectory(src/presentation_filemanager)
 #add_subdirectory(src/panel-clasic-menu)

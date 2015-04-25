@@ -1,4 +1,4 @@
-#    Copyright (C) 2014 Moonlight Desktop Environment Team
+#    Copyright (C) 2015 Moonlight Desktop Environment Team
 #    Authors:
 #       Alexis López Zubieta
 #    This file is part of the Moonlight Desktop Environment
@@ -17,7 +17,7 @@
 #    along with Moonlight Desktop Environment.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-project(theme_manager)
+project(model_theme_manager)
 
 ## --------------------------------------------------------------
 ## Sources
@@ -27,6 +27,7 @@ file(GLOB ${PROJECT_NAME}_SOURCES c++/*.cpp)
 file(GLOB ${PROJECT_NAME}_UIS ui/*.ui)
 
 file(GLOB ${PROJECT_NAME}_RESOURCES res/*)
+list(REMOVE_ITEM ${PROJECT_NAME}_RESOURCES "${PROJECT_SOURCE_DIR}/res/descriptor.desktop.in")
 
 
 ## --------------------------------------------------------------
@@ -35,14 +36,7 @@ file(GLOB ${PROJECT_NAME}_RESOURCES res/*)
 
 ## Qt
 find_package(Qt5Core        REQUIRED)
-find_package(Qt5Gui         REQUIRED)
 find_package(Qt5Widgets     REQUIRED)
-find_package(Qt5DBus        REQUIRED)
-find_package(Qt5X11Extras   REQUIRED)
-
-## CppMicroServices
-find_package(CppMicroServices NO_MODULE REQUIRED)
-include_directories(${CppMicroServices_INCLUDE_DIRS})
 
 ## LXQT -- depends on QT5XDG
 find_package(LXQT-QT5 REQUIRED )
@@ -58,7 +52,6 @@ set(${PROJECT_NAME}_DEPENDS )
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-include_directories(${CMAKE_BINARY_DIR})
 QT5_WRAP_UI(${PROJEC_NAME}_UI_HEADERS ${${PROJECT_NAME}_UIS})
 QT5_ADD_RESOURCES(${PROJEC_NAME}_QRC_SOURCES ${${PROJEC_NAME}_RESOURCES})
 
@@ -68,17 +61,20 @@ QT5_ADD_RESOURCES(${PROJEC_NAME}_QRC_SOURCES ${${PROJEC_NAME}_RESOURCES})
 set (${PROJECT_NAME}_SOURCES
     ${${PROJECT_NAME}_SOURCES}
     ${${PROJEC_NAME}_UI_HEADERS}
-    ${${PROJEC_NAME}_QRC_SOURCES}
+    ${${PROJECT_NAME}_RESOURCES}
 )
 
-MoonLightDE_CreateModule(${PROJECT_NAME} ${${PROJECT_NAME}_SOURCES})
+m_build_module(
+    NAME ${PROJECT_NAME}
+    SOURCES ${${PROJECT_NAME}_SOURCES}
+    DEPENDENCIES core
+)
 
-target_link_libraries(moonlightDE-${PROJECT_NAME} 
-    ${LXQT_LIBRARIES}
-
+target_link_libraries(${TARGET_NAME}
     Qt5::Core
     Qt5::Widgets
-    Qt5::Gui
-    Qt5::DBus
-    Qt5::X11Extras
-)
+
+    ${LXQT_LIBRARIES}
+ )
+
+m_deploy_module(${TARGET_NAME})

@@ -173,6 +173,7 @@ void PanelImpl::updateLayout() {
     delete layout();
 
     QHBoxLayout * newLayout = new QHBoxLayout(this);
+    newLayout->setSpacing(0);
     
     QString order = module_settings->value("widgetsOrder", "MainMenuButton,QuickLaunchers,UserTasks,Indicators,DateTime").toString();
     QStringList widgets_Order = order.split(",");
