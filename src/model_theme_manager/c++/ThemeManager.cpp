@@ -26,6 +26,7 @@
 #include <QIcon>
 #include <QFile>
 #include <QDir>
+#include <QDebug>
 #include <QTextStream>
 #include <QApplication>
 
@@ -44,7 +45,8 @@ void ThemeManager::loadModuleQSS(const QString &moduleName) {
     }
 
     foreach(QString path, m_paths) {
-        QFile file(path + "/" + m_qssThemeName + "/" + qApp->applicationName() + "/" + moduleName);
+        QFile file(path + "/" + m_qssThemeName + "/" + qApp->applicationName() + "/" + moduleName + ".qss");
+        qDebug() << file.fileName();
         if (file.exists()) {
 
             if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -65,7 +67,7 @@ void ThemeManager::removeQssTheme(QString qssThemeName) {
 
 void ThemeManager::setQssTheme(QString qssThemeName) {
     m_qssThemeName = qssThemeName;
-    QApplication::setStyleSheet(qssThemeName);
+    qApp->setStyleSheet(qssThemeName);
 }
 
 void ThemeManager::setIconTheme(QString iconThemeName) {
