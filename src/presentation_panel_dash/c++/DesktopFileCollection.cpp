@@ -22,9 +22,11 @@
 #include "DesktopFileCollection.h"
 #include <qt5xdg/XdgDesktopFile>
 #include <X11/Xlib.h>
+#include <qt5/QtCore/qlogging.h>
 #include "QHash"
 #include "QHashIterator"
 #include "QDebug"
+
 
 
 /**

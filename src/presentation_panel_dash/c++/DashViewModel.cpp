@@ -24,6 +24,11 @@
 #include <qt5/QtCore/qstring.h>
 #include <qt5/QtCore/qnamespace.h>
 #include <QMenu>
+#include <QStringListModel>
+#include <QMimeData>
+#include <QDebug>
+#include <qt5/QtCore/qurl.h>
+#include <qt5/QtCore/qlogging.h>
 
 DashViewModel::DashViewModel(const QList<XdgDesktopFile*>& appList, QObject* parent) : QAbstractListModel(parent) {
     appList_ = appList;
@@ -56,6 +61,40 @@ void DashViewModel::clear(void) {
     while (!appList_.empty()) {
         appList_.removeFirst();
     }
+}
+
+//Qt::DropActions DashViewModel::supportedDropActions() const {
+//    return Qt::CopyAction;
+//}
+
+Qt::ItemFlags DashViewModel::flags(const QModelIndex &index) const {
+    Qt::ItemFlags defaultFlags = QAbstractListModel::flags(index);
+
+    if (index.isValid()) {
+        return Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsEnabled | defaultFlags;
+    } else
+        return defaultFlags;
+}
+
+QMimeData *DashViewModel::mimeData(const QModelIndexList &indexes) const {
+    QMimeData *mimeData = new QMimeData();
+    QByteArray encodedData;
+
+    QDataStream stream(&encodedData, QIODevice::WriteOnly);
+
+    
+    
+    foreach(QModelIndex index, indexes) {
+        if (index.isValid()) {
+            QList<QUrl> urls;
+            urls.append(QUrl(appList_.at(index.row())->fileName()));
+            qDebug() << "Drag mime data with url"<< appList_.at(index.row())->fileName();
+            mimeData->setUrls(urls);
+        }
+    }
+     qDebug() << "Black magic happens to be here";
+    mimeData->setData("application/url", encodedData);
+    return mimeData;
 }
 
 DashViewModel::~DashViewModel() {

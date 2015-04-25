@@ -114,8 +114,16 @@ void Dash::configView(QListView* view) {
     view->setTextElideMode(Qt::ElideLeft);
 
     view->setWordWrap(true);
+    
+    view->setDragEnabled(true);
+    
+//    view->setAcceptDrops(true);
+//    view->viewport()->setAcceptDrops(true);
+    view->setDropIndicatorShown(true);
+    view->setDragDropMode(QAbstractItemView::DragOnly);
+//    qDebug() << "Dash - Drag 'n' drop enabled";
 
-    view->setMovement(QListView::Static);
+//    view->setMovement(QListView::Static);
     view->setResizeMode(QListView::Adjust);
 
     view->setLayoutMode(QListView::Batched);

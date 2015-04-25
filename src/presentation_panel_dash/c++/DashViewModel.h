@@ -36,6 +36,10 @@ public:
     XdgDesktopFile* getDesktop(int rowIndex);
     void clear();
     
+//    Qt::DropActions supportedDropActions() const;
+    Qt::ItemFlags flags(const QModelIndex &index) const;
+    QMimeData *mimeData(const QModelIndexList &indexes) const;
+    
 private:
     QList<XdgDesktopFile*> appList_;
 };
