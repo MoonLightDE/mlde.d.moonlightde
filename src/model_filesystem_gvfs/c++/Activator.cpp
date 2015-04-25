@@ -51,7 +51,6 @@ private:
     void Load(ModuleContext* context) {
         context->RegisterService<model_filesystem::FileSystem>(&m_FS, ServiceProperties());
         context->RegisterService<model_filesystem::VolumeManager>(&m_VolumeManager, ServiceProperties());
-        runTests("fiel:///home/alexis");
     }
 
     /**
@@ -69,9 +68,9 @@ private:
         QFutureWatcher<void> * dirWatcher = new QFutureWatcher<void> ();
         dirWatcher->setFuture(dir->status());
 
-//        QObject::connect(dir, &Directory::failure, [] (QString msg) {
-//            qDebug() << MODULE_NAME_STR << " dir lookup error: " << msg;
-//        });
+        //        QObject::connect(dir, &Directory::failure, [] (QString msg) {
+        //            qDebug() << MODULE_NAME_STR << " dir lookup error: " << msg;
+        //        });
 
         QObject::connect(dirWatcher, &QFutureWatcher<void>::finished, [this, dirWatcher, dir] () {
             qDebug() << MODULE_NAME_STR << " dir lookup finished" << dirWatcher->progressText();
