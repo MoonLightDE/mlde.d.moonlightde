@@ -32,11 +32,13 @@ FileSystemsTracker *BrowsingInstance::m_Tracker = NULL;
 
 BrowsingInstance::BrowsingInstance() : QObject(), m_CurrentDir(NULL) {
     m_CurrentPath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+   
     m_HistoryPos = 0;
-    
+    m_History.prepend(m_CurrentPath);
+
     if (m_AvailableFileSystems == NULL)
         m_AvailableFileSystems = new QList<model_filesystem::FileSystem* >();
-    
+
     if (m_Tracker == NULL)
         m_Tracker = new FileSystemsTracker();
 }
@@ -54,12 +56,16 @@ model_filesystem::Directory* BrowsingInstance::currentDir() {
 }
 
 model_filesystem::Directory* BrowsingInstance::goTo(const QString &path) {
-    while (m_HistoryPos-- > 0)
+    while (m_HistoryPos > 0) {
+        m_HistoryPos--;
         m_History.pop_front();
+    }
 
-    m_History.push_back(m_CurrentPath);
+    m_History.prepend(path);
     delete m_CurrentDir;
 
+    qDebug() << m_History << m_HistoryPos;
+    
     m_CurrentPath = path;
     m_CurrentDir = getDirectory(m_CurrentPath);
     Q_EMIT(directoryChanged(m_CurrentDir));
@@ -67,11 +73,14 @@ model_filesystem::Directory* BrowsingInstance::goTo(const QString &path) {
 }
 
 model_filesystem::Directory* BrowsingInstance::goBack() {
-    if (m_History.size() <= m_HistoryPos)
+    if ((m_HistoryPos + 1) >= m_History.size())
         return m_CurrentDir;
 
-    m_CurrentPath = m_History.at(m_HistoryPos);
+    qDebug() << m_History << m_HistoryPos;
+
     m_HistoryPos++;
+    m_CurrentPath = m_History.at(m_HistoryPos);
+
     delete m_CurrentDir;
     m_CurrentDir = getDirectory(m_CurrentPath);
     Q_EMIT(directoryChanged(m_CurrentDir));
@@ -79,11 +88,12 @@ model_filesystem::Directory* BrowsingInstance::goBack() {
 }
 
 model_filesystem::Directory* BrowsingInstance::goForward() {
-    if (m_HistoryPos <= 0)
+    if (m_HistoryPos < 1)
         return m_CurrentDir;
 
     m_HistoryPos--;
     m_CurrentPath = m_History.at(m_HistoryPos);
+
     delete m_CurrentDir;
     m_CurrentDir = getDirectory(m_CurrentPath);
 

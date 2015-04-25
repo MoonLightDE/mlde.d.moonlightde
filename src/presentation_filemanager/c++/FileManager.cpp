@@ -76,7 +76,7 @@ m_BrowsingInstance() {
     connect(ui->pushButtonBack, SIGNAL(clicked()), this, SLOT(pushButtonBack_clicked()));
     connect(ui->pushButtonNext, SIGNAL(clicked()), this, SLOT(pushButtonNext_clicked()));
     connect(ui->lineEdit, SIGNAL(editingFinished()), this, SLOT(handlePathEditingFinished()));
-    connect(&m_BrowsingInstance, SIGNAL(directoryChanged), this, SLOT(handleDirectoryChanged));
+    connect(&m_BrowsingInstance, SIGNAL(directoryChanged()), this, SLOT(handleDirectoryChanged()));
 
     split = new QSplitter(Qt::Horizontal);
 
@@ -209,13 +209,13 @@ void FileManager::InitIconsView() {
 }
 
 void FileManager::ListItemDoubleClicked(QModelIndex current) {
-    modelList->setDirectory(m_BrowsingInstance.currentDir());
-    ui->lineEdit->setText(m_BrowsingInstance.currentPath());
+    QString uri = modelList->filePath(current);
+    modelList->setDirectory(m_BrowsingInstance.goTo(uri));
 }
 
 void FileManager::DetailsItemDoubleClicked(QModelIndex current) {
-    modelList->setDirectory(m_BrowsingInstance.currentDir());
-    ui->lineEdit->setText(m_BrowsingInstance.currentPath());
+    QString uri = modelList->filePath(current);
+    modelList->setDirectory(m_BrowsingInstance.goTo(uri));
 }
 
 void FileManager::HideBusyDialog(QString path) {
@@ -224,12 +224,11 @@ void FileManager::HideBusyDialog(QString path) {
 }
 
 void FileManager::pushButtonBack_clicked() {
-    m_BrowsingInstance.goBack();
-
+    modelList->setDirectory(m_BrowsingInstance.goBack());
 }
 
 void FileManager::pushButtonNext_clicked() {
-    m_BrowsingInstance.goForward();
+    modelList->setDirectory(m_BrowsingInstance.goForward());
 }
 
 void FileManager::handlePathEditingFinished() {
@@ -240,6 +239,6 @@ void FileManager::handlePathEditingFinished() {
 
 void FileManager::handleDirectoryChanged(model_filesystem::Directory* dir) {
     modelList->setDirectory(dir);
-
+    ui->lineEdit->setText(dir->uri());
 }
 
