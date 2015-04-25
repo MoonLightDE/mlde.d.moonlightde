@@ -67,6 +67,9 @@ m_BrowsingInstance() {
     bookmarksList = new QListView();
     widget = new QStackedWidget;
 
+    connect(&watcher,SIGNAL(started()),SLOT(ShowBusyDialog()));
+    connect(&watcher,SIGNAL(finished()),SLOT(HideBusyDialog()));
+
     InitIconsView();
     InitDetailsView();
 
@@ -96,9 +99,10 @@ m_BrowsingInstance() {
     split->setSizes(sizes);
     split->setStyleSheet("QSplitter::handle:vertical {height: 3px;}");
 
-
     ui->verticalLayout->addWidget(split);
     split->setFocus();
+    busy = new BusyDialog(tr("Loading..."),widget);
+    //busy->hide();
 }
 
 FileManager::~FileManager() {
@@ -209,26 +213,41 @@ void FileManager::InitIconsView() {
 }
 
 void FileManager::ListItemDoubleClicked(QModelIndex current) {
-    QString uri = modelList->filePath(current);
-    modelList->setDirectory(m_BrowsingInstance.goTo(uri));
+    QString child  = modelList->fileName(current);
+    QString path = ui->lineEdit->text();
+    watcher.setFuture(m_BrowsingInstance.currentDir()->status());
+    modelList->setDirectory(m_BrowsingInstance.goTo(path.append("/").append(child)));
+    ui->lineEdit->setText(m_BrowsingInstance.currentPath());
 }
 
 void FileManager::DetailsItemDoubleClicked(QModelIndex current) {
-    QString uri = modelList->filePath(current);
-    modelList->setDirectory(m_BrowsingInstance.goTo(uri));
+    QString child  = modelList->fileName(current);
+    QString path = ui->lineEdit->text();
+    watcher.setFuture(m_BrowsingInstance.currentDir()->status());
+    modelList->setDirectory(m_BrowsingInstance.goTo(path.append("/").append(child)));
+    ui->lineEdit->setText(m_BrowsingInstance.currentPath());
 }
 
-void FileManager::HideBusyDialog(QString path) {
+void FileManager::HideBusyDialog() {
+    busy->stop();
+    busy->hide();
+}
 
-
+void FileManager::ShowBusyDialog(){
+    busy->move(mapTo(this,QPoint(this->size().width()-busy->width(),this->size().height()-busy->height())) );
+    busy->raise();
+    busy->show();
+    busy->start();
 }
 
 void FileManager::pushButtonBack_clicked() {
     modelList->setDirectory(m_BrowsingInstance.goBack());
+    ui->lineEdit->setText(m_BrowsingInstance.currentPath());
 }
 
 void FileManager::pushButtonNext_clicked() {
     modelList->setDirectory(m_BrowsingInstance.goForward());
+    ui->lineEdit->setText(m_BrowsingInstance.currentPath());
 }
 
 void FileManager::handlePathEditingFinished() {
@@ -239,6 +258,6 @@ void FileManager::handlePathEditingFinished() {
 
 void FileManager::handleDirectoryChanged(model_filesystem::Directory* dir) {
     modelList->setDirectory(dir);
-    ui->lineEdit->setText(dir->uri());
+    ui->lineEdit->setText(m_BrowsingInstance.currentPath());
 }
 
