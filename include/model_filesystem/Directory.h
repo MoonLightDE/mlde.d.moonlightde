@@ -31,7 +31,7 @@
 
 namespace model_filesystem {
 
-    class Directory {
+    class Directory : public QObject {
     public:
 
         virtual ~Directory() {}
