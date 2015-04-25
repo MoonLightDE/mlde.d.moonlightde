@@ -82,6 +82,10 @@ add_subdirectory(src/model_theme_manager)
 
 add_subdirectory(src/model_filesystem_gvfs)
 add_subdirectory(src/presentation_filemanager)
+
+add_subdirectory(src/model_notifications)
+add_subdirectory(src/presentation_notifiactions_box)
+
 #add_subdirectory(src/panel-clasic-menu)
 #add_subdirectory(src/panel-dash_xdg)
 #
