@@ -1,0 +1,4 @@
+#ifndef model_notifications_H
+#define model_notifications_H
+#define MODULE_NAME "model_notifications" 
+#endif // model_notifications_H
