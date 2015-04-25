@@ -26,6 +26,9 @@
 #include "GVFSDirectory.h"
 #include "MountVolumeOp.h"
 #include "GVFSDirectory.h"
+
+#include "FileMoveOp.h"
+
 #include "model_filesystem/VolumeManager.h"
 
 #include <QString>
@@ -55,8 +58,8 @@ QList<QAction> FileSystemGVFS::getActions(QList<Node*> nodes) {
 
 model_filesystem::Directory* FileSystemGVFS::getDirectory(const QString& uri) {
     QString realUri = uri;
-//    if (realUri.at(uri.size() - 1) != '/')
-//        realUri.append('/');
+    //    if (realUri.at(uri.size() - 1) != '/')
+    //        realUri.append('/');
 
     GVFSDirectory * dir = new GVFSDirectory(realUri);
     return dynamic_cast<model_filesystem::Directory*> (dir);
@@ -65,3 +68,8 @@ model_filesystem::Directory* FileSystemGVFS::getDirectory(const QString& uri) {
 void FileSystemGVFS::releaseDirectory(model_filesystem::Directory* dir) {
 }
 
+QFuture<void> FileSystemGVFS::move(QList<QString> sources, QString destination) {
+    FileMoveOp * op = new FileMoveOp(sources, destination);
+    op->run();
+    return op->status();
+}

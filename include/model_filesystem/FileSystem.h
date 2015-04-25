@@ -32,6 +32,7 @@ namespace model_filesystem {
 
     class FileSystem {
     public:
+
         virtual ~FileSystem() {
         };
 
@@ -48,7 +49,7 @@ namespace model_filesystem {
         virtual void releaseDirectory(Directory* dir) = 0;
 
         //    virtual QFuture<void> copy(QList<QString> sources, QString destination);
-        //    virtual QFuture<void> move(QList<QString> sources, QString destination);
+        virtual QFuture<void> move(QList<QString> sources, QString destination) = 0;
         //    virtual QFuture<void> trash(QList<QString> targets);
         //    virtual QFuture<void> remove(QList<QString> targets);
         //    

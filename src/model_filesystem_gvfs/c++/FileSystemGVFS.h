@@ -48,19 +48,13 @@ public:
     virtual void releaseDirectory(Directory* dir);
 
     //    virtual QFuture<void> copy(QList<QString> sources, QString destination);
-    //    virtual QFuture<void> move(QList<QString> sources, QString destination);
+    virtual QFuture<void> move(QList<QString> sources, QString destination);
     //    virtual QFuture<void> trash(QList<QString> targets);
     //    virtual QFuture<void> remove(QList<QString> targets);
     //    
     //    virtual QFuture<void> mkdir(QString target);
 
 private:
-    /**
-     * Sanitises the path string in order to obtain a homogeneous representation.
-     * @param path
-     * @return 
-     */
-    QString cleanPath(const QString &path);
     QStringList m_SupportedUriSchemes;
     GVfs * m_GVfs;
 };
