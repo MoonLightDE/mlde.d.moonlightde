@@ -25,12 +25,14 @@
 #include "FileSystemModel.h"
 #include "FileSystemsTracker.h"
 #include "BrowsingInstance.h"
+#include "BusyDialog.h"
 
 #include "model_filesystem/FileSystem.h"
 
 
 
 #include <QStackedWidget>
+#include <QFutureWatcher>
 #include <QFrame>
 #include <QSplitter>
 #include <QListView>
@@ -54,7 +56,8 @@ Q_SLOTS:
     void on_pushButton_icons_clicked();
     void ListItemDoubleClicked(QModelIndex);
     void DetailsItemDoubleClicked(QModelIndex);
-    void HideBusyDialog(QString);
+    void ShowBusyDialog();
+    void HideBusyDialog();
 
     void pushButtonBack_clicked();
 
@@ -78,7 +81,9 @@ private:
     QStackedWidget* widget;
     QSplitter* split;
     QString startPath;
+    BusyDialog* busy;
     FileSystemModel *modelList;
+    QFutureWatcher<void> watcher;
     QStringList history;
     BrowsingInstance m_BrowsingInstance;
 
