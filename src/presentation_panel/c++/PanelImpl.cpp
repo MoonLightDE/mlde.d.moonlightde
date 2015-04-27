@@ -51,14 +51,14 @@ QWidget(parent), m_Desktop(-1), m_WidgetTracker(this) {
     adjustSizeToScreen();
     setupWindowFlags();
     us::ModuleContext * context = us::GetModuleContext();
-    
+
     module_settings = ModuleSettings::getModuleSettings(context);
     //Write confs into configuration file
     module_settings->setValue("buttonMarginLeft", 10);
     module_settings->setValue("buttonMarginTop", 6);
     module_settings->setValue("buttonMarginRight", 10);
     module_settings->setValue("buttonMarginBottom", 6);
-    
+
     connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(adjustSizeToScreen()));
 }
 
@@ -73,14 +73,14 @@ bool PanelImpl::event(QEvent *event) {
             break;
         case QEvent::ContextMenu:
             break;
-                    
+
         case QEvent::LayoutRequest:
-//            qDebug() << MODULE_NAME_STR << ": desktop layout changed.";
+            //            qDebug() << MODULE_NAME_STR << ": desktop layout changed.";
             adjustSizeToScreen();
             break;
 
         case QEvent::WinIdChange:
-//            qDebug() << MODULE_NAME_STR << ": Wid changed.";
+            //            qDebug() << MODULE_NAME_STR << ": Wid changed.";
             setupWindowFlags();
             adjustSizeToScreen();
         default:
@@ -98,9 +98,9 @@ void PanelImpl::adjustSizeToScreen() {
 
     QWidget::setGeometry(m_Geometry);
 
-//    qDebug() << MODULE_NAME_STR << ": Adjusting size to: " << m_Geometry.size();
-//    qDebug() << MODULE_NAME_STR << ": Adjusting position to: " << m_Geometry.topLeft();
-//    qDebug() << MODULE_NAME_STR << ": resulting geometry: " << geometry();
+    //    qDebug() << MODULE_NAME_STR << ": Adjusting size to: " << m_Geometry.size();
+    //    qDebug() << MODULE_NAME_STR << ": Adjusting position to: " << m_Geometry.topLeft();
+    //    qDebug() << MODULE_NAME_STR << ": resulting geometry: " << geometry();
 
     // Update reserved screen area on resize
     requestExclusiveScreenArea();
@@ -147,7 +147,7 @@ void PanelImpl::addWidgetFactory(presentation_panel::WidgetFactory* widgetFactor
 
     m_Widgets.insert(name, widget);
     m_Factories.insert(name, widgetFactory);
-    
+
     updateLayout();
 }
 
@@ -174,24 +174,28 @@ void PanelImpl::updateLayout() {
 
     QHBoxLayout * newLayout = new QHBoxLayout(this);
     newLayout->setSpacing(0);
-    
-    QString order = module_settings->value("widgetsOrder", "MainMenuButton,QuickLaunchers,UserTasks,Indicators,DateTime").toString();
+
+    QString order = module_settings->value("widgetsOrder", "MainMenuButton,QuickLaunchers,UserTasks,Spacer,Indicators,DateTime").toString();
     QStringList widgets_Order = order.split(",");
     int i = 0;
     while (i < widgets_Order.size()) {
-//        qDebug() << widgets_Order.at(i) << endl;
-        QWidget* actualWidget = m_Widgets.value(widgets_Order.at(i)).data();
-        if (actualWidget != NULL) {
-            actualWidget->setGeometry(actualWidget->x(), actualWidget->y(), actualWidget->width(), this->height());
-            newLayout->addWidget(actualWidget);
+        //        qDebug() << widgets_Order.at(i) << endl;
+        if (widgets_Order.at(i) == "Spacer") {
+            newLayout->addStretch();
+        } else {
+            QWidget* actualWidget = m_Widgets.value(widgets_Order.at(i)).data();
+            if (actualWidget != NULL) {
+                actualWidget->setGeometry(actualWidget->x(), actualWidget->y(), actualWidget->width(), this->height());
+                newLayout->addWidget(actualWidget);
+            }
         }
         i++;
     }
-    
-    QMargins widgetsMargins(module_settings->value("buttonMarginLeft").toInt(), module_settings->value("buttonMarginTop").toInt(), 
-                                module_settings->value("buttonMarginRight").toInt(), module_settings->value("buttonMarginBottom").toInt());
+
+    QMargins widgetsMargins(module_settings->value("buttonMarginLeft").toInt(), module_settings->value("buttonMarginTop").toInt(),
+            module_settings->value("buttonMarginRight").toInt(), module_settings->value("buttonMarginBottom").toInt());
     newLayout->setContentsMargins(widgetsMargins);
-    
+
     setLayout(newLayout);
 }
 
@@ -214,8 +218,8 @@ void PanelImpl::setGeometry(QRect geometry) {
 
 /*Check if the widget's configuration is already set*/
 bool PanelImpl::configExist(QString key) {
-    
-    if(module_settings->value(key) == 0)
+
+    if (module_settings->value(key) == 0)
         return false;
     else
         return true;
