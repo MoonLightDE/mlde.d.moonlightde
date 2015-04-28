@@ -20,17 +20,23 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "module_config.h"
-#include "Dash.h"
-#include "AppButton.h"
-#include "DesktopFileCollection.h"
-#include "core/ModuleSettings.h"
-#include "DashViewModel.h"
+#define QT_NO_KEYWORDS
+
+#include "GDesktopFile.h"
+#include "GDesktopFileCollection.h"
 #include "DashViewItemDelegate.h"
 
-
+#include "module_config.h"
+#include "Dash.h"
+//#include "AppButton.h"
+#include "core/ModuleSettings.h"
 
 #include <qt5xdg/XdgDesktopFile>
+#include <qt5xdg/XdgIcon>
+
+#include <usGetModuleContext.h>
+
+#include <KWindowSystem>
 
 #include <QDebug>
 #include <QDir>
@@ -46,24 +52,20 @@
 #include <QTextStream>
 #include <QListView>
 #include <QMenu>
+#include <QThread>
 
 #include <algorithm>
 
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
-
-#include <QThread>
-
-#include <usGetModuleContext.h>
-#include <qt5xdg/XdgIcon>
-#include <KWindowSystem>
+#include <qt5/QtCore/qlogging.h>
 
 
 
-QTextStream cout(stdout);
 
-Dash::Dash(QWidget * parent) : QDialog(parent), m_settings("panel-dash_xdg") {
+//de abajo , m_settings("panel-dash_xdg")
+Dash::Dash(QWidget * parent) : QDialog(parent) {
     startDashModel = NULL;
     appDashModel = NULL;
     settingsDashModel = NULL;
@@ -76,10 +78,10 @@ Dash::Dash(QWidget * parent) : QDialog(parent), m_settings("panel-dash_xdg") {
 
     monitor = new QFileSystemWatcher();
     monitor->addPath("/usr/share/applications");
-    connect(m_ui.lineEdit, SIGNAL(textChanged(QString)), SLOT(searchEditChanged(QString)));
+    connect(m_ui.lineEdit,  SIGNAL(textChanged(QString)), SLOT(searchEditChanged(QString)));
     connect(m_ui.lineEdit, SIGNAL(returnPressed()), SLOT(onReturnPressed()));
     connect(monitor, SIGNAL(directoryChanged(QString)), SLOT(onApplicationsFolderChanged()));
-    appListGenerator = new DesktopFileCollection();
+    appListGenerator = new GDesktopFileCollection();
     getFavorites();
     appIndex = -1;
     //    EditEventFilter* editeventfilter = new EditEventFilter();
@@ -144,14 +146,14 @@ void Dash::build() {
     configView(m_ui.SettingsView);
     configView(m_ui.StartView);
 
-    QList<XdgDesktopFile*> appList = appListGenerator->all();
+    QList<GDesktopFile*> appList = appListGenerator->getAll();
 
     appDashModel = new DashViewModel(appList);
     m_ui.AppView->setModel(appDashModel);
 
     QHash<QString, QString>* filters = new QHash<QString, QString>();
-    filters->insert(QString("Categories"), "Settings");
-    QList<XdgDesktopFile*> settingsList = appListGenerator->filter(*filters);
+    filters->insert(QString("category"), "Settings");
+    QList<GDesktopFile*> settingsList = appListGenerator->filter(*filters);
 
     settingsDashModel = new DashViewModel(settingsList);
     m_ui.SettingsView->setModel(settingsDashModel);
@@ -225,7 +227,7 @@ bool Dash::eventFilter(QObject *obj, QEvent *event) {
 void Dash::onReturnPressed() {
     //qDebug() <<  MODULE_NAME_STR << "Return key pressed";
     if (m_ui.lineEdit->text().length() > 0 && startDashModel->rowCount() > 0) {
-        startDashModel->getDesktop(0)->startDetached();
+        startDashModel->getDesktop(0)->launchApp();
         m_ui.StartView->clearSelection();
         getFavorites();
         hide();
@@ -279,7 +281,7 @@ void Dash::showContextMenuForStart(QPoint pos) {
 
 void Dash::addFavorite() {
     if (appIndex >= 0) {
-        XdgDesktopFile* theApp;
+        GDesktopFile* theApp;
         if (m_ui.tabs->currentIndex() == 1) {
             theApp = appDashModel->getDesktop(appIndex);
         } else if (m_ui.tabs->currentIndex() == 2) {
@@ -296,7 +298,7 @@ void Dash::addFavorite() {
 
 void Dash::removeFavorite() {
     if (appIndex >= 0) {
-        XdgDesktopFile* theApp = startDashModel->getDesktop(appIndex);
+        GDesktopFile* theApp = startDashModel->getDesktop(appIndex);
         //        qDebug() <<  MODULE_NAME_STR <<  "app" << appIndex << " -->> " << theApp->name();
         removeFavorites(theApp);
         getFavorites();
@@ -315,14 +317,14 @@ void Dash::cleanApps() {
 }
 
 void Dash::buildSearch(QString search) {
-    QList<XdgDesktopFile*> startList;
+    QList<GDesktopFile*> startList;
     if (search.length() == 0) {
-        startList = QList<XdgDesktopFile*>();
+        startList = QList<GDesktopFile*>();
     } else {
         QHash<QString, QString>* filters = new QHash<QString, QString>();
-        filters->insert(QString("Name"), search);
-        filters->insert(QString("Categories"), search);
-        filters->insert(QString("Comment"), search);
+        filters->insert(QString("name"), search);
+        filters->insert(QString("categories"), search);
+        filters->insert(QString("description"), search);
         startList = appListGenerator->filter(*filters);
     }
 
@@ -351,7 +353,7 @@ void Dash::onItemTrigerred(const QModelIndex& item) {
 
 
     //    qDebug() <<  MODULE_NAME_STR << themodel->getDesktop(item.row())->name();
-    themodel->getDesktop(item.row())->startDetached();
+    themodel->getDesktop(item.row())->launchApp();
     theview->clearSelection();
 
     if (m_ui.tabs->currentIndex() == 0) {
@@ -361,15 +363,15 @@ void Dash::onItemTrigerred(const QModelIndex& item) {
     hide();
 }
 
-void Dash::addFavorites(XdgDesktopFile* app) {
+void Dash::addFavorites(GDesktopFile* app) {
     us::ModuleContext* context = us::GetModuleContext();
     const QString ruta(ModuleSettings::getModuleDataLocation(context));
 
-    const QString appName(app->fileName());
+    const QString appName(app->getFilename());
     QDir* dir = new QDir(ruta);
     dir->mkdir("favs");
     QFile* file = new QFile(appName);
-    bool result = file->copy(dir->absolutePath() + "/favs/" + app->name().toLower());
+    bool result = file->copy(dir->absolutePath() + "/favs/" + app->getName().toLower());
     //    if (result) {
     //        qDebug() <<  MODULE_NAME_STR << "File copy success";
     //    } else {
@@ -389,16 +391,14 @@ void Dash::getFavorites() {
     QDir* favsDir = new QDir(ruta);
 
     QFileInfoList list = favsDir->entryInfoList(QDir::Files, QDir::Name);
-    QList<XdgDesktopFile*> favAppList;
-    
-    //Possibly memory leak
-    delete favsDir;
-    
+    QList<GDesktopFile*> favAppList;
+
     if (!list.empty()) {
-        foreach(QFileInfo app, list) {
+        for(QFileInfo app :list) {
             const QString path(app.filePath());
             //You have to specify the absolute path to the file, otherwise it wont work
-            XdgDesktopFile* fav = XdgDesktopFileCache::getFile(path);
+            //qDebug() << "fav for "<< path.toUtf8().constData();
+            GDesktopFile* fav = new GDesktopFile(g_desktop_app_info_new_from_filename(path.toUtf8().constData()));
             favAppList.append(fav);
         }
     }
@@ -415,7 +415,7 @@ void Dash::hideEvent(QHideEvent * event) {
     QApplication::setActiveWindow(parentWidget());
 }
 
-void Dash::putFavorites(QList<XdgDesktopFile*> favAppList) {
+void Dash::putFavorites(QList<GDesktopFile*> favAppList) {
     startDashModel = new DashViewModel(favAppList);
     delete m_ui.StartView->model();
     m_ui.StartView->setModel(startDashModel);
@@ -423,7 +423,7 @@ void Dash::putFavorites(QList<XdgDesktopFile*> favAppList) {
 
 //TODO: Dinamically update the start widget showing|unshowing the favorites
 
-void Dash::removeFavorites(XdgDesktopFile * app) {
+void Dash::removeFavorites(GDesktopFile * app) {
     //    qDebug() <<  MODULE_NAME_STR << "Certainly YOU SHALL NOT PASS!!!!"; // What the hell!! Is this a debug message!!??
     us::ModuleContext* context = us::GetModuleContext();
     const QString ruta(ModuleSettings::getModuleDataLocation(context) + "/favs");
@@ -432,12 +432,13 @@ void Dash::removeFavorites(XdgDesktopFile * app) {
 
     QFileInfoList list = favsDir->entryInfoList(QDir::Files, QDir::Name);
 
-    foreach(QFileInfo file, list) {
+    for(QFileInfo file : list) {
         //        qDebug() << file.fileName();
         //        qDebug() << app->name();
-        if (file.fileName() == app->name().toLower()) {
+        
+        if (file.fileName().compare(app->getFilename(),Qt::CaseInsensitive)) {
             //            qDebug() <<  MODULE_NAME_STR  << "You should buy a pet :P"; // Again ? what the hell with you !?
-            const QString ruta(app->fileName());
+            const QString ruta(app->getFilename());
             QFile* archive = new QFile(ruta);
             archive->remove();
         }
