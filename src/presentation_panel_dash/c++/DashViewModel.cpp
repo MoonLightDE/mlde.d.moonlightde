@@ -17,15 +17,16 @@
  * You should have received a copy of the GNU General Public License
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
+
+
 #include "DashViewModel.h"
-#include "qmenu.h"
-#include <qt5xdg/XdgDesktopFile>
+
 #include <QList>
-#include <qt5/QtCore/qstring.h>
-#include <qt5/QtCore/qnamespace.h>
+#include <QString>
 #include <QMenu>
 
-DashViewModel::DashViewModel(const QList<XdgDesktopFile*>& appList, QObject* parent) : QAbstractListModel(parent) {
+
+DashViewModel::DashViewModel(const QList<GDesktopFile*>& appList, QObject* parent) : QAbstractListModel(parent) {
     appList_ = appList;
 }
 
@@ -40,15 +41,15 @@ QVariant DashViewModel::data(const QModelIndex& index, int role) const {
     if (role == Qt::DisplayRole) {
         // Only returns something for the roles you support (DisplayRole is a minimum)
         // Here we assume that the "Employee" class has a "lastName" method but of course any string can be returned
-        return QVariant(appList_.at(index.row())->name());
+        return QVariant(appList_.at(index.row())->getName());
     } else if (role == Qt::DecorationRole) {
-        return QVariant(appList_.at(index.row())->icon());
+        return QVariant(appList_.at(index.row())->getIcon());
     } else {
         return QVariant();
     }
 }
 
-XdgDesktopFile* DashViewModel::getDesktop(int rowIndex) {
+GDesktopFile* DashViewModel::getDesktop(int rowIndex) {
     return appList_.at(rowIndex);
 }
 

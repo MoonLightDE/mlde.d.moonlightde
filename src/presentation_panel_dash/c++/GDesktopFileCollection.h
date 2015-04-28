@@ -17,32 +17,28 @@
  * You should have received a copy of the GNU General Public License
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef DASHVIEWMODEL_H
-#define	DASHVIEWMODEL_H
 
-#define QT_NO_KEYWORDS
+#ifndef DESKTOPFILECOLLECTION_H
+#define	DESKTOPFILECOLLECTION_H
+
 #include "GDesktopFile.h"
-#include <QAbstractListModel>
-#include <QList>
+#include "QList"
 
-//
-//class GDesktopFile;
-class DashViewModel : public QAbstractListModel  {
-    Q_OBJECT
-    
+
+
+class GDesktopFileCollection {
 public:
-    explicit DashViewModel(const QList<GDesktopFile*>& appList,QObject* parent = 0);
-//    DashViewModel(const DashViewModel& orig);
-    virtual ~DashViewModel();
-    
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role) const;
-    GDesktopFile* getDesktop(int rowIndex);
-    void clear();
-    
+    GDesktopFileCollection();
+    virtual ~GDesktopFileCollection();
+    //esto debe permitir filtrar dependiendo del campo en que se busque
+    //utilizar el Hash sección, filtro
+    QList<GDesktopFile*> filter(QHash<QString,QString>);
+    void generateCache();
+    QList<GDesktopFile*> getAll();
 private:
-    QList<GDesktopFile*> appList_;
+    QList<GDesktopFile*> allApps;
+
 };
 
-#endif	/* DASHVIEWMODEL_H */
+#endif	/* DESKTOPFILECOLLECTION_H */
 

@@ -18,9 +18,6 @@
 #  
 
 
-
-
-
 project(presentation_panel_dash)
 
 ## --------------------------------------------------------------
@@ -47,9 +44,24 @@ find_package(Qt5Widgets     REQUIRED)
 find_package(Qt5DBus        REQUIRED)
 find_package(Qt5X11Extras   REQUIRED)
 
+find_package(PkgConfig)
+pkg_check_modules(SYSTEM_LIBS REQUIRED
+    glib-2.0
+    gio-2.0
+    gio-unix-2.0
+)
+
 ## CppMicroServices
 find_package(CppMicroServices NO_MODULE REQUIRED)
-include_directories(${CppMicroServices_INCLUDE_DIRS})
+
+include_directories(
+    ${SYSTEM_LIBS_INCLUDE_DIRS}
+    ${CppMicroServices_INCLUDE_DIRS}
+)
+
+link_directories(
+    ${SYSTEM_LIBS_LIBRARY_DIRS}
+)
 
 ## LXQT -- depends on QT5XDG
 find_package(LXQT-QT5 REQUIRED )
@@ -88,16 +100,18 @@ set (${PROJECT_NAME}_SOURCES
     ${${PROJECT_NAME}_RESOURCES}
 )
 
+
 m_build_module(
     NAME ${PROJECT_NAME}
     SOURCES ${${PROJECT_NAME}_SOURCES}
 )
-
+message(STATUS "SYSTEM_LIB ${SYSTEM_LIBS_LIBRARIES}")
 target_link_libraries(${TARGET_NAME}
     ${LXQT_LIBRARIES}
 
-     KF5::WindowSystem
-
+    KF5::WindowSystem
+     
+    ${SYSTEM_LIBS_LIBRARIES}
     Qt5::Core
     Qt5::Widgets
     Qt5::Gui
