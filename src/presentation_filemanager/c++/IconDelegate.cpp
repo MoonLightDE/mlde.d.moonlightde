@@ -30,86 +30,102 @@
 #include <QMouseEvent>
 #include <QDebug>
 
-ItemDelegate::ItemDelegate(QObject*parent):QAbstractItemDelegate(parent) {
+ItemDelegate::ItemDelegate(QObject*parent) : QAbstractItemDelegate(parent), m_IconSize(48, 48) {
+    m_TextAreaWidth = (m_IconSize.width()) * 2;
+    m_Paddings = m_IconSize.width() / 4;
+    m_MaxTextLines = 3;
 }
 
 ItemDelegate::~ItemDelegate() {
 }
 
 QSize ItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index)
-const{
-    QSize s_retorno(180,180);
-     return s_retorno;
+const {
+    //    QSize iconSize = option.decorationSize;
+    QFontMetrics fm(option.fontMetrics);
+
+    QString txt = index.data(Qt::DisplayRole).toString();
+    QPixmap icon = index.data(Qt::DecorationRole).value<QIcon>().pixmap(m_IconSize, QIcon::Normal);
+
+    int textLines = std::min(std::max(fm.width(txt) / m_TextAreaWidth, 1), 3);
+    QSize s_retorno(m_TextAreaWidth + m_Paddings * 2, icon.height() + m_Paddings * 2 + (fm.height() + fm.lineSpacing()) * textLines);
+    return s_retorno;
 }
 
+void ItemDelegate::paint(QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index) const {
+    QRect optionRect(option.rect);
 
-void ItemDelegate::paint ( QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index ) const{
+    optionRect.setX(option.rect.x() - m_Paddings);
+    // Font Mentrics for elided text;
 
-    painter->setFont(QFont("Arial",10));
+    // Basic Painter Settings
+    painter->setRenderHint(QPainter::Antialiasing, true);
+    painter->setRenderHint(QPainter::HighQualityAntialiasing, true);
+    painter->setRenderHint(QPainter::TextAntialiasing, true);
 
-    if(option.state & QStyle::State_HasFocus ){
-         QString txt = index.data(Qt::DisplayRole).toString();
+    QString txt = index.data(Qt::DisplayRole).toString();
 
+    QPixmap icon;
+    if (option.state & QStyle::State_Selected) {
+        icon = index.data(Qt::DecorationRole).value<QIcon>().pixmap(m_IconSize, QIcon::Selected, QIcon::On);
 
-      painter->fillRect(option.rect, Qt::gray);
-       QRect r = option.rect;
+    } else if (option.state & QStyle::State_MouseOver)
+        icon = index.data(Qt::DecorationRole).value<QIcon>().pixmap(m_IconSize, QIcon::Selected);
 
-        r.moveTo(QPoint(r.x(),r.y()+55));
-      r.setSize(QSize(r.width()-20,r.height()-20));
-      painter->drawText(r, Qt::AlignHCenter|Qt::TextWrapAnywhere,txt);
+    else
+        icon = index.data(Qt::DecorationRole).value<QIcon>().pixmap(m_IconSize, QIcon::Normal);
 
+    if ((icon.size().width() > m_IconSize.width()) or ( icon.size().height() > m_IconSize.height()))
+        icon = icon.scaled(m_IconSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
-      QIcon ic = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
-        QRect r_general=option.rect;
+    QRect iconRect;
+    // Original X
+    iconRect.setX(optionRect.x() + (optionRect.width() - m_IconSize.width()) / 2);
+    // Original Y + Image Top Border + Height to make the image center of the icon rectangle
+    iconRect.setY((optionRect.y() + m_Paddings + (m_IconSize.height() - m_IconSize.height()) / 2) - 10);
+    // Icon Size
+    iconRect.setSize(m_IconSize);
 
-    r_general.setHeight(option.rect.height()+20);
-     QRect r_icon = r_general;
-     r_icon.moveTo(QPoint(r_icon.x()+50,r_icon.y()));
-     r_icon.setSize(QSize(60,60));
-      ic.paint(painter, r_icon, Qt::AlignVCenter|Qt::AlignLeft);
+    // Paint Icon
+    painter->drawPixmap(iconRect, icon);
 
+    QRect textRect;
+    // Horizontal Centering, so don't bother
+    textRect.setX(optionRect.x() + m_Paddings);
+    // Original Y + Image Height + Image Padding Top + Text-Image Padding ( max = 3 )
+    textRect.setY((optionRect.y() + m_IconSize.height() + m_Paddings));
+    // Left and Right Border
+    textRect.setSize(optionRect.size() - QSize(m_Paddings * 2, 0));
 
-    }
-    else{
+    QString newText = painter->fontMetrics().elidedText(txt, Qt::ElideRight, m_TextAreaWidth * m_MaxTextLines);
+    painter->drawText(textRect, Qt::AlignHCenter | Qt::TextWrapAnywhere, newText);
 
-        QIcon ic = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
-        QString txt = index.data(Qt::DisplayRole).toString();
-        QRect r_general=option.rect;
-        r_general.setHeight(option.rect.height()+20);
-        QRect r_icon = r_general;
-        r_icon.moveTo(QPoint(r_icon.x()+50,r_icon.y()));
-        r_icon.setSize(QSize(60,60));
-        ic.paint(painter, r_icon, Qt::AlignVCenter|Qt::AlignHCenter);
+    if (option.state & QStyle::State_Selected) {
+        //painter->fillRect(option.rect,option.palette.foreground() );
 
-        QRect r = r_general;
-        r.moveTo(QPoint(r.x()+20,r.y()+60));
-        r.setSize(QSize(r.width()-50,r.height()));
+        QPainterPath roundRectPath;
+        painter->drawPixmap(iconRect, icon);
+        QRect fill(textRect);
+        fill.setWidth(fill.width() + m_Paddings);
+        fill.setX(fill.x() - m_Paddings);
 
-        QTextLayout textLayout(txt);
-        textLayout.setFont(option.font);
-        int widthUsed = 0;
-        int lineCont = 0;
-        textLayout.beginLayout();
-
-        while (++lineCont < 3) {
-            QTextLine line = textLayout.createLine();
-            if (!line.isValid())
-                break;
-
-            line.setLineWidth(option.rect.height());
-            widthUsed += line.naturalTextWidth();
-
+        if (painter->fontMetrics().boundingRect(newText).width() < textRect.width()) {
+            int rest = (textRect.width() - painter->fontMetrics().boundingRect(newText).width()) / 2 - 5;
+            fill.setLeft(textRect.left() + rest);
+            fill.setRight(textRect.right() - rest);
+            fill.setHeight(painter->fontMetrics().boundingRect(newText).height());
+            painter->drawText(fill, Qt::AlignHCenter | Qt::TextWrapAnywhere, newText);
+        } else if (painter->fontMetrics().boundingRect(newText).width() >= textRect.width() && painter->fontMetrics().boundingRect(newText).width() < 2 * textRect.width()) {
+            fill.setHeight(painter->fontMetrics().boundingRect(newText).height()*2);
+            painter->drawText(fill, Qt::AlignHCenter | Qt::TextWrapAnywhere, newText);
+        } else {
+            fill.setHeight(painter->fontMetrics().boundingRect(newText).height()*3);
+            painter->drawText(fill, Qt::AlignHCenter | Qt::TextWrapAnywhere, newText);
         }
-        textLayout.endLayout();
 
-
-        widthUsed += option.rect.width();
-
-        QString newText = painter->fontMetrics().elidedText(txt, Qt::ElideRight, widthUsed);
-
-        painter->drawText(r,  Qt::AlignHCenter|Qt::TextWrapAnywhere , newText);
+        roundRectPath.addRoundRect(fill, 15, 30);
+        painter->fillPath(roundRectPath, option.palette.highlight());
+        painter->drawText(textRect, Qt::AlignHCenter | Qt::TextWrapAnywhere, newText);
     }
 
-
-
-    }
+}

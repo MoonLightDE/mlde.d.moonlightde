@@ -24,17 +24,20 @@
 
 #include<QAbstractItemDelegate>
 
-class ItemDelegate : public QAbstractItemDelegate
-{
+class ItemDelegate : public QAbstractItemDelegate {
 public:
 
     ItemDelegate(QObject *parent);
     ItemDelegate(const ItemDelegate& orig);
     virtual ~ItemDelegate();
-    QSize sizeHint ( const QStyleOptionViewItem & option, const QModelIndex & index )const;
-    void paint ( QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index )const;
+    QSize sizeHint(const QStyleOptionViewItem & option, const QModelIndex & index)const;
+    void paint(QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index)const;
 
-    private:
+private:
+    mutable int m_MaxTextLines;
+    QSize m_IconSize;
+    int m_TextAreaWidth;
+    int m_Paddings;
 
 };
 #endif // ICONDELEGATE_H
