@@ -28,7 +28,8 @@ GDesktopFile::GDesktopFile(GDesktopAppInfo* app) {
     }
 
     categories = g_desktop_app_info_get_categories(app);
-    isshown = g_app_info_should_show(tapp);
+//    isshown = g_app_info_should_show(tapp);
+    isshown = !g_desktop_app_info_get_nodisplay(app);
     filename = g_desktop_app_info_get_filename(app);
     GIcon *icon2 = NULL;
 
@@ -62,7 +63,8 @@ GDesktopFile::GDesktopFile(GAppInfo* app) {
     description = g_app_info_get_description(app);
     GDesktopAppInfo* dainfo = g_desktop_app_info_new(g_app_info_get_id(app));
     categories = g_desktop_app_info_get_categories(dainfo);
-    isshown = g_app_info_should_show(app);
+//    isshown = g_app_info_should_show(app);
+    isshown = !g_desktop_app_info_get_nodisplay(dainfo);
     filename = g_desktop_app_info_get_filename(dainfo);
     GIcon *icon2 = NULL;
     int j;

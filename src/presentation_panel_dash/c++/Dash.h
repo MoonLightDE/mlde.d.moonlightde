@@ -85,7 +85,8 @@ private:
     DashViewModel* appDashModel;
     DashViewModel* settingsDashModel;
     DashViewModel* startDashModel;
-
+    
+    QList<GDesktopFile*> appList;
     Ui::Dash m_ui;
 //    LxQt::Settings m_settings;
     // TODO: arreglar este churre
