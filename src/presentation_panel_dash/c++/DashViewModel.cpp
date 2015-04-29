@@ -54,9 +54,12 @@ GDesktopFile* DashViewModel::getDesktop(int rowIndex) {
 }
 
 void DashViewModel::clear(void) {
-    while (!appList_.empty()) {
-        appList_.removeFirst();
-    }
+    //pointers need to be freed here
+//    qDeleteAll(appList_);
+    appList_.clear();
+//    while (!appList_.empty()) {
+//        appList_.removeFirst();
+//    }
 }
 
 DashViewModel::~DashViewModel() {

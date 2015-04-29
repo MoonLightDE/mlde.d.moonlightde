@@ -77,7 +77,6 @@ void GDesktopFileCollection::generateCache() {
     qDeleteAll(allApps);
     allApps.clear();
 
-
     allApps = res;
 }
 

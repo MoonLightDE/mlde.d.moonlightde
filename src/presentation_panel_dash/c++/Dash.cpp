@@ -138,7 +138,7 @@ void Dash::build() {
     configView(m_ui.SettingsView);
     configView(m_ui.StartView);
 
-    QList<GDesktopFile*> appList = appListGenerator->getAll();
+    appList = appListGenerator->getAll();
 
     appDashModel = new DashViewModel(appList);
     m_ui.AppView->setModel(appDashModel);
