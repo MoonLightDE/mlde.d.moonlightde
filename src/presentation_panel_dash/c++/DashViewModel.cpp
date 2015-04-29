@@ -60,5 +60,6 @@ void DashViewModel::clear(void) {
 }
 
 DashViewModel::~DashViewModel() {
+    //no idea if I have to free the list here. qDeleteAll is raising an exception
 }
 
