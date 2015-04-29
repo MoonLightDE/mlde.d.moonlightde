@@ -99,5 +99,6 @@ QMimeData *DashViewModel::mimeData(const QModelIndexList &indexes) const {
 }
 
 DashViewModel::~DashViewModel() {
+    //no idea if I have to free the list here. qDeleteAll is raising an exception
 }
 

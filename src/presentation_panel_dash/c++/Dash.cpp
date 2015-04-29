@@ -473,6 +473,7 @@ void Dash::showEvent(QShowEvent * event) {
 
 void Dash::onApplicationsFolderChanged() {
     //    qDebug() <<  MODULE_NAME_STR << "Applications folder changed";
+    appListGenerator->generateCache();
     cleanApps();
     build();
 }

@@ -7,15 +7,18 @@
 
 #include "GDesktopFile.h"
 #include <QString>
+#include <QDebug>
+#include <glib-2.0/gio/gicon.h>
+#include <qt5/QtCore/qlogging.h>
+#include <glib-2.0/gobject/gobject.h>
 //#include <gio-unix-2.0/gio/gdesktopappinfo.h>
-
 
 GDesktopFile::GDesktopFile(GDesktopAppInfo* app) {
     //work in progress
     this->tapp = G_APP_INFO(app);
     name = g_app_info_get_name(this->tapp);
     const char* const* descAux = g_desktop_app_info_get_keywords(app);
-    
+
     if (descAux != NULL) {
         // Just return the first icon
         for (; (*descAux) != NULL; descAux++) {
@@ -23,31 +26,34 @@ GDesktopFile::GDesktopFile(GDesktopAppInfo* app) {
             break;
         }
     }
-    
+
     categories = g_desktop_app_info_get_categories(app);
-    isshown = !g_desktop_app_info_get_nodisplay(app);
+    isshown = g_app_info_should_show(tapp);
     filename = g_desktop_app_info_get_filename(app);
     GIcon *icon2 = NULL;
 
     const gchar * const * names = NULL;
 
-    icon2 = g_app_info_get_icon (G_APP_INFO(app));
+    icon2 = g_app_info_get_icon(G_APP_INFO(app));
 
-//    if (icon == NULL)
-//        icon = g_file_info_get_symbolic_icon(m_FileInfo);
+    if (icon2 != NULL) {
 
-    if (G_IS_THEMED_ICON(icon2)) {
-        names = g_themed_icon_get_names(G_THEMED_ICON(icon2));
-    }
-    if (names != NULL) {
-        // Just return the first icon
-        for (; (*names) != NULL; names++) {
-            QString filename = QString::fromLocal8Bit((*names));
-            icon = QIcon::fromTheme(filename);
-            break;
+        if (G_IS_THEMED_ICON(icon2)) {
+            names = g_themed_icon_get_names(G_THEMED_ICON(icon2));
         }
+        if (names != NULL) {
+            // Just return the first icon
+            for (; (*names) != NULL; names++) {
+                QString filename = QString::fromLocal8Bit((*names));
+                icon = QIcon::fromTheme(filename);
+                break;
+            }
+        } else {
+            icon = QIcon(g_icon_to_string(icon2));
+        }
+    } else {
+        icon = QIcon::fromTheme("application-default-icon");
     }
-//    g_object_unref(icon2);
 }
 
 GDesktopFile::GDesktopFile(GAppInfo* app) {
@@ -56,7 +62,7 @@ GDesktopFile::GDesktopFile(GAppInfo* app) {
     description = g_app_info_get_description(app);
     GDesktopAppInfo* dainfo = g_desktop_app_info_new(g_app_info_get_id(app));
     categories = g_desktop_app_info_get_categories(dainfo);
-    isshown = !g_desktop_app_info_get_nodisplay(dainfo);
+    isshown = g_app_info_should_show(app);
     filename = g_desktop_app_info_get_filename(dainfo);
     GIcon *icon2 = NULL;
     int j;
@@ -64,53 +70,58 @@ GDesktopFile::GDesktopFile(GAppInfo* app) {
 
     icon2 = g_app_info_get_icon(app);
 
-//    if (icon == NULL)
-//        icon = g_file_info_get_symbolic_icon(m_FileInfo);
+    if (icon2 != NULL) {
 
-    if (G_IS_THEMED_ICON(icon2)) {
-        names = g_themed_icon_get_names(G_THEMED_ICON(icon2));
-    }
-    if (names != NULL) {
-        // Just return the first icon
-        for (; (*names) != NULL; names++) {
-            QString filename = QString::fromLocal8Bit((*names));
-            icon = QIcon::fromTheme(filename);
-            break;
+        if (G_IS_THEMED_ICON(icon2)) {
+            names = g_themed_icon_get_names(G_THEMED_ICON(icon2));
         }
+        if (names != NULL) {
+            // Just return the first icon
+            for (; (*names) != NULL; names++) {
+                QString filename = QString::fromLocal8Bit((*names));
+                icon = QIcon::fromTheme(filename);
+                break;
+            }
+        } else {
+            //        qDebug() << "no themed icon " << g_icon_to_string(icon2);
+            icon = QIcon(g_icon_to_string(icon2));
+        }
+    } else {
+        icon = QIcon::fromTheme("application-default-icon");
     }
-//    g_object_unref(icon2);
 }
 
 //GDesktopFile::GDesktopFile(const GDesktopFile& orig) {
 //}
 
 GDesktopFile::~GDesktopFile() {
+    g_object_unref(tapp);
 }
 
-QString GDesktopFile::getName() const{
+QString GDesktopFile::getName() const {
     return name;
 }
 
-QString GDesktopFile::getFilename(){
+QString GDesktopFile::getFilename() {
     return filename;
 }
 
-QString GDesktopFile::getDescription(){
+QString GDesktopFile::getDescription() {
     return description;
 }
 
-QString GDesktopFile::getCategories(){
+QString GDesktopFile::getCategories() {
     return categories;
 }
 
-QIcon GDesktopFile::getIcon(){
+QIcon GDesktopFile::getIcon() {
     return icon;
 }
 
-bool GDesktopFile::isShown(){
+bool GDesktopFile::isShown() {
     return isshown;
 }
 
-bool GDesktopFile::launchApp(){
-    return g_app_info_launch(tapp,NULL,NULL,NULL);
+bool GDesktopFile::launchApp() {
+    return g_app_info_launch(tapp, NULL, NULL, NULL);
 }

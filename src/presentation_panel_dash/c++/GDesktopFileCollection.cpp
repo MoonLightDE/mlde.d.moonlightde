@@ -43,11 +43,12 @@ struct FileNameComparisonFunctor {
     bool
     operator()(const GDesktopFile* __x, const GDesktopFile* __y) const {
         return __x->getName() < __y->getName();
-//        return 0;
+        //        return 0;
     }
 };
 
 GDesktopFileCollection::GDesktopFileCollection() {
+    allApps = QList<GDesktopFile*>();
     generateCache();
 }
 
@@ -71,8 +72,13 @@ void GDesktopFileCollection::generateCache() {
     }
 
 
-        qSort(res.begin(), res.end(), FileNameComparisonFunctor());
-     allApps = res;
+    qSort(res.begin(), res.end(), FileNameComparisonFunctor());
+
+    qDeleteAll(allApps);
+    allApps.clear();
+
+
+    allApps = res;
 }
 
 QList<GDesktopFile*> GDesktopFileCollection::filter(QHash<QString, QString> filters) {
@@ -104,5 +110,7 @@ QList<GDesktopFile*> GDesktopFileCollection::filter(QHash<QString, QString> filt
 }
 
 GDesktopFileCollection::~GDesktopFileCollection() {
+    qDeleteAll(allApps);
+    allApps.clear();
 }
 
