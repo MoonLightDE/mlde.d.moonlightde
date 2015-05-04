@@ -78,7 +78,7 @@ LxQtTaskButton::LxQtTaskButton(const WId window, QWidget *parent) :
     setMinimumHeight(1);
     setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     setAcceptDrops(true);
-
+    
     updateText();
     updateIcon();
 }

@@ -64,8 +64,8 @@ mPlaceHolder(0) {
 //    setMinimumWidth(100);
 //    setMaximumWidth(500);
     mLayout = new LxQt::GridLayout(this);
-//    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+//    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     setLayout(mLayout);
 
     
@@ -208,9 +208,9 @@ void LxQtQuickLaunch::dropEvent(QDropEvent *e) {
             addButton(new QuickLaunchAction(filePath, this));
         } else {
             qWarning() << "XdgDesktopFile" << filePath << "is not valid";
-            QMessageBox::information(this, tr("Drop Error"),
-                    tr("File/URL '%1' cannot be embedded into QuickLaunch for now").arg(filePath)
-                    );
+//            QMessageBox::information(this, tr("Drop Error"),
+//                    tr("File/URL '%1' cannot be embedded into QuickLaunch for now").arg(filePath)
+//                    );
         }
     }
     saveSettings();

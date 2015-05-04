@@ -185,7 +185,7 @@ void PanelImpl::updateLayout() {
         } else {
             QWidget* actualWidget = m_Widgets.value(widgets_Order.at(i)).data();
             if (actualWidget != NULL) {
-                actualWidget->setGeometry(actualWidget->x(), actualWidget->y(), actualWidget->width(), this->height());
+//                actualWidget->setGeometry(actualWidget->x(), actualWidget->y(), actualWidget->width(), this->height());
                 newLayout->addWidget(actualWidget);
             }
         }

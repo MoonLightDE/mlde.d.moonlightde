@@ -69,6 +69,8 @@ mPlaceHolder(new QWidget(this)),
 mStyle(new ElidedButtonStyle()) {
     mLayout = new LxQt::GridLayout(this);
     setLayout(mLayout);
+//    mLayout->setAlignment(Qt::AlignLeft);
+    
     mLayout->setMargin(0);
     realign();
 
@@ -78,6 +80,7 @@ mStyle(new ElidedButtonStyle()) {
     mPlaceHolder->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 //    setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
     mLayout->addWidget(mPlaceHolder);
+//    mLayout->setAlignment(mPlaceHolder,Qt::AlignLeft);
 
     settingsChanged();
     setAcceptDrops(true);
@@ -87,6 +90,8 @@ mStyle(new ElidedButtonStyle()) {
     connect(KWindowSystem::self(), SIGNAL(activeWindowChanged(WId)), SLOT(activeWindowChanged(WId)));
     connect(KWindowSystem::self(), SIGNAL(windowChanged(WId, NET::Properties, NET::Properties2)),
             SLOT(windowChanged(WId, NET::Properties, NET::Properties2)));
+    
+    
 }
 
 /************************************************

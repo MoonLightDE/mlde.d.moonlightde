@@ -77,6 +77,7 @@ LxQtTray::LxQtTray(/*ILxQtPanelPlugin *plugin,*/ QWidget *parent):
     mDisplay(QX11Info::display())
 {
     mLayout = new LxQt::GridLayout(this);
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     realign();
     _NET_SYSTEM_TRAY_OPCODE = XfitMan::atom("_NET_SYSTEM_TRAY_OPCODE");
     // Init the selection later just to ensure that no signals are sent until
