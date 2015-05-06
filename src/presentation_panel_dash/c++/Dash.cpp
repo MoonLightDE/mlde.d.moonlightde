@@ -92,7 +92,6 @@ Dash::Dash(QWidget * parent) : QDialog(parent) {
     m_ui.StartView->installEventFilter(this);
     m_ui.AppView->installEventFilter(this);
     m_ui.SettingsView->installEventFilter(this);
-    XdgIcon::setThemeName("FaenzaFlattr");
 }
 
 Dash::~Dash() {
@@ -387,8 +386,6 @@ void Dash::getFavorites() {
     us::ModuleContext* context = us::GetModuleContext();
     const QString ruta(ModuleSettings::getModuleDataLocation(context) + "/favs");
 
-    //    qDebug() <<  MODULE_NAME_STR << "Ruta: " << endl;
-    //    qDebug() <<  MODULE_NAME_STR << ruta;
     QDir* favsDir = new QDir(ruta);
 
     QFileInfoList list = favsDir->entryInfoList(QDir::Files, QDir::Name);
