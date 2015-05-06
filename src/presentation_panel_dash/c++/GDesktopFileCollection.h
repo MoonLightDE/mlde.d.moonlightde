@@ -36,6 +36,7 @@ public:
     void generateCache();
     QList<GDesktopFile*> getAll();
 private:
+    void clearCache();
     QList<GDesktopFile*> allApps;
 
 };

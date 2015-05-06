@@ -64,19 +64,18 @@ void GDesktopFileCollection::generateCache() {
     for (aux = appList; aux; aux = aux->next) {
         GDesktopFile* desktopfile;
         GAppInfo* appInfo = (GAppInfo*) aux->data;
-        desktopfile = new GDesktopFile(appInfo);
-        if (desktopfile->isShown()) {
+        if (g_app_info_should_show(appInfo)) {
+            desktopfile = new GDesktopFile(appInfo);
             res.append(desktopfile);
-        }
+        } else
+            g_object_unref(appInfo);
         //        qDebug() << "Loading Desktop File for " << desktopfile->getFilename();
     }
 
 
     qSort(res.begin(), res.end(), FileNameComparisonFunctor());
 
-    qDeleteAll(allApps);
-    allApps.clear();
-
+    clearCache();
     allApps = res;
 }
 
@@ -113,3 +112,10 @@ GDesktopFileCollection::~GDesktopFileCollection() {
     allApps.clear();
 }
 
+void GDesktopFileCollection::clearCache() {
+    while (!allApps.isEmpty()) {
+        GDesktopFile * desktopFile = allApps.takeFirst();
+        delete desktopFile;
+    }
+    allApps.clear();
+}

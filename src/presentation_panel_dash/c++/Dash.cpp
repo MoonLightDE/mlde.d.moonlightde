@@ -65,6 +65,7 @@
 
 
 //de abajo , m_settings("panel-dash_xdg")
+
 Dash::Dash(QWidget * parent) : QDialog(parent) {
     startDashModel = NULL;
     appDashModel = NULL;
@@ -78,7 +79,7 @@ Dash::Dash(QWidget * parent) : QDialog(parent) {
 
     monitor = new QFileSystemWatcher();
     monitor->addPath("/usr/share/applications");
-    connect(m_ui.lineEdit,  SIGNAL(textChanged(QString)), SLOT(searchEditChanged(QString)));
+    connect(m_ui.lineEdit, SIGNAL(textChanged(QString)), SLOT(searchEditChanged(QString)));
     connect(m_ui.lineEdit, SIGNAL(returnPressed()), SLOT(onReturnPressed()));
     connect(monitor, SIGNAL(directoryChanged(QString)), SLOT(onApplicationsFolderChanged()));
     appListGenerator = new GDesktopFileCollection();
@@ -116,16 +117,16 @@ void Dash::configView(QListView* view) {
     view->setTextElideMode(Qt::ElideLeft);
 
     view->setWordWrap(true);
-    
+
     view->setDragEnabled(true);
-    
-//    view->setAcceptDrops(true);
-//    view->viewport()->setAcceptDrops(true);
+
+    //    view->setAcceptDrops(true);
+    //    view->viewport()->setAcceptDrops(true);
     view->setDropIndicatorShown(true);
     view->setDragDropMode(QAbstractItemView::DragOnly);
-//    qDebug() << "Dash - Drag 'n' drop enabled";
+    //    qDebug() << "Dash - Drag 'n' drop enabled";
 
-//    view->setMovement(QListView::Static);
+    //    view->setMovement(QListView::Static);
     view->setResizeMode(QListView::Adjust);
 
     view->setLayoutMode(QListView::Batched);
@@ -157,7 +158,7 @@ void Dash::build() {
 
     settingsDashModel = new DashViewModel(settingsList);
     m_ui.SettingsView->setModel(settingsDashModel);
-    
+
     //Possibly memory leak
     delete filters;
 
@@ -394,12 +395,15 @@ void Dash::getFavorites() {
     QList<GDesktopFile*> favAppList;
 
     if (!list.empty()) {
-        for(QFileInfo app :list) {
+        for (QFileInfo app : list) {
             const QString path(app.filePath());
             //You have to specify the absolute path to the file, otherwise it wont work
             //qDebug() << "fav for "<< path.toUtf8().constData();
-            GDesktopFile* fav = new GDesktopFile(g_desktop_app_info_new_from_filename(path.toUtf8().constData()));
-            favAppList.append(fav);
+            GDesktopAppInfo * gdesktopAppInfo = g_desktop_app_info_new_from_filename(path.toUtf8().constData());
+            if (G_DESKTOP_APP_INFO(gdesktopAppInfo)) {
+                GDesktopFile * fav = new GDesktopFile(gdesktopAppInfo);
+                favAppList.append(fav);
+            }
         }
     }
     putFavorites(favAppList);
@@ -432,11 +436,11 @@ void Dash::removeFavorites(GDesktopFile * app) {
 
     QFileInfoList list = favsDir->entryInfoList(QDir::Files, QDir::Name);
 
-    for(QFileInfo file : list) {
+    for (QFileInfo file : list) {
         //        qDebug() << file.fileName();
         //        qDebug() << app->name();
-        
-        if (file.fileName().compare(app->getFilename(),Qt::CaseInsensitive)) {
+
+        if (file.fileName().compare(app->getFilename(), Qt::CaseInsensitive)) {
             //            qDebug() <<  MODULE_NAME_STR  << "You should buy a pet :P"; // Again ? what the hell with you !?
             const QString ruta(app->getFilename());
             QFile* archive = new QFile(ruta);

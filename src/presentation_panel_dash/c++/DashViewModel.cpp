@@ -88,11 +88,11 @@ QMimeData *DashViewModel::mimeData(const QModelIndexList &indexes) const {
 
     
     
-    foreach(QModelIndex index, indexes) {
+    for(QModelIndex index: indexes) {
         if (index.isValid()) {
             QList<QUrl> urls;
-            urls.append(QUrl(appList_.at(index.row())->fileName()));
-            qDebug() << "Drag mime data with url"<< appList_.at(index.row())->fileName();
+            urls.append(QUrl(appList_.at(index.row())->getFilename()));
+            qDebug() << "Drag mime data with url"<< appList_.at(index.row())->getFilename();
             mimeData->setUrls(urls);
         }
     }
