@@ -29,21 +29,21 @@
 //class GDesktopFile;
 class DashViewModel : public QAbstractListModel  {
     Q_OBJECT
-    
+
 public:
     explicit DashViewModel(const QList<GDesktopFile*>& appList,QObject* parent = 0);
 //    DashViewModel(const DashViewModel& orig);
     virtual ~DashViewModel();
-    
+
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role) const;
     GDesktopFile* getDesktop(int rowIndex);
     void clear();
-    
-//    Qt::DropActions supportedDropActions() const;
+
+    //    Qt::DropActions supportedDropActions() const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
     QMimeData *mimeData(const QModelIndexList &indexes) const;
-    
+
 private:
     QList<GDesktopFile*> appList_;
 };

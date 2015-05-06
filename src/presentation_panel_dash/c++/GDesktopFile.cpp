@@ -8,10 +8,6 @@
 #include "GDesktopFile.h"
 #include <QString>
 #include <QDebug>
-#include <glib-2.0/gio/gicon.h>
-#include <qt5/QtCore/qlogging.h>
-#include <glib-2.0/gobject/gobject.h>
-//#include <gio-unix-2.0/gio/gdesktopappinfo.h>
 
 GDesktopFile::GDesktopFile(GDesktopAppInfo* app) {
     //work in progress

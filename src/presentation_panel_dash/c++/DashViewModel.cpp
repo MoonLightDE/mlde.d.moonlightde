@@ -30,8 +30,7 @@
 #include <qt5/QtCore/qurl.h>
 #include <qt5/QtCore/qlogging.h>
 
-
-DashViewModel::DashViewModel(const QList<GDesktopFile*>& appList, QObject* parent) : QAbstractListModel(parent) {
+DashViewModel::DashViewModel(QList<GDesktopFile*> appList, QObject* parent) : QAbstractListModel(parent) {
     appList_ = appList;
 }
 
@@ -59,12 +58,7 @@ GDesktopFile* DashViewModel::getDesktop(int rowIndex) {
 }
 
 void DashViewModel::clear(void) {
-    //pointers need to be freed here
-//    qDeleteAll(appList_);
     appList_.clear();
-//    while (!appList_.empty()) {
-//        appList_.removeFirst();
-//    }
 }
 
 //Qt::DropActions DashViewModel::supportedDropActions() const {
@@ -86,17 +80,17 @@ QMimeData *DashViewModel::mimeData(const QModelIndexList &indexes) const {
 
     QDataStream stream(&encodedData, QIODevice::WriteOnly);
 
-    
-    
-    for(QModelIndex index: indexes) {
+
+
+    for (QModelIndex index : indexes) {
         if (index.isValid()) {
             QList<QUrl> urls;
             urls.append(QUrl(appList_.at(index.row())->getFilename()));
-            qDebug() << "Drag mime data with url"<< appList_.at(index.row())->getFilename();
+            qDebug() << "Drag mime data with url" << appList_.at(index.row())->getFilename();
             mimeData->setUrls(urls);
         }
     }
-     qDebug() << "Black magic happens to be here";
+    qDebug() << "Black magic happens to be here";
     mimeData->setData("application/url", encodedData);
     return mimeData;
 }
