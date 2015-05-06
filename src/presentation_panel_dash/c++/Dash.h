@@ -24,15 +24,21 @@
 #ifndef _DASH_H
 #define	_DASH_H
 
+
+//#include "GDesktopFileCollection.h"
+#include "DashViewModel.h"
 #include "ui_Dash.h"
+
+//#include <LXQt/Settings>
 
 #include <QDialog>
 #include <QWidget>
-#include <LXQt/Settings>
 #include <QFileSystemWatcher>
-#include "DesktopFileCollection.h"
-#include "DashViewModel.h"
 #include <QListView>
+
+
+class GDesktopFileCollection;
+class GDesktopFile;
 
 class Dash : public QDialog {
     Q_OBJECT
@@ -44,7 +50,7 @@ public:
     void configView(QListView* view);
     void buildSearch(QString search);
     void cleanApps();
-    void addFavorites(XdgDesktopFile* app);
+    void addFavorites(GDesktopFile* app);
     void getFavorites();
     void hideEvent(QHideEvent *event);
 
@@ -58,14 +64,14 @@ protected:
      **/
     bool eventFilter(QObject *obj, QEvent *event);
     void showEvent(QShowEvent * event);
-public slots:
+public Q_SLOTS:
     void toggle();
     
-private slots:
+private Q_SLOTS:
     void onItemTrigerred(const QModelIndex& item);
     void onApplicationsFolderChanged();
     void searchEditChanged(QString);
-    void removeFavorites(XdgDesktopFile* app);
+    void removeFavorites(GDesktopFile* app);
 
     void showContextMenuForApp(QPoint);
     void showContextMenuForStart(QPoint);
@@ -79,16 +85,17 @@ private:
     DashViewModel* appDashModel;
     DashViewModel* settingsDashModel;
     DashViewModel* startDashModel;
-
+    
+    QList<GDesktopFile*> appList;
     Ui::Dash m_ui;
-    LxQt::Settings m_settings;
+//    LxQt::Settings m_settings;
     // TODO: arreglar este churre
     bool built;
     int appIndex;
-    DesktopFileCollection* appListGenerator;
+    GDesktopFileCollection* appListGenerator;
     
     
-    void putFavorites(QList<XdgDesktopFile*> favAppList);
+    void putFavorites(QList<GDesktopFile*> favAppList);
 
 };
 

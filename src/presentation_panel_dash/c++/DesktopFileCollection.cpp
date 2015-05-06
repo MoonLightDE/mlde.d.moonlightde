@@ -18,6 +18,7 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "QTextStream"
 #include "DesktopFileCollection.h"
 #include <qt5xdg/XdgDesktopFile>
@@ -46,6 +47,7 @@ DesktopFileCollection::DesktopFileCollection() {
 }
 
 QList<XdgDesktopFile*> DesktopFileCollection::all() {
+    qDebug() << "Building app list";
     QList<XdgDesktopFile*> appList = XdgDesktopFileCache::getAllFiles();
     QList<XdgDesktopFile*> res;
 

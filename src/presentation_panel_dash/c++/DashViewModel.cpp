@@ -17,12 +17,12 @@
  * You should have received a copy of the GNU General Public License
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
+
+
 #include "DashViewModel.h"
-#include "qmenu.h"
-#include <qt5xdg/XdgDesktopFile>
+
 #include <QList>
-#include <qt5/QtCore/qstring.h>
-#include <qt5/QtCore/qnamespace.h>
+#include <QString>
 #include <QMenu>
 #include <QStringListModel>
 #include <QMimeData>
@@ -30,7 +30,7 @@
 #include <qt5/QtCore/qurl.h>
 #include <qt5/QtCore/qlogging.h>
 
-DashViewModel::DashViewModel(const QList<XdgDesktopFile*>& appList, QObject* parent) : QAbstractListModel(parent) {
+DashViewModel::DashViewModel(QList<GDesktopFile*> appList, QObject* parent) : QAbstractListModel(parent) {
     appList_ = appList;
 }
 
@@ -45,22 +45,20 @@ QVariant DashViewModel::data(const QModelIndex& index, int role) const {
     if (role == Qt::DisplayRole) {
         // Only returns something for the roles you support (DisplayRole is a minimum)
         // Here we assume that the "Employee" class has a "lastName" method but of course any string can be returned
-        return QVariant(appList_.at(index.row())->name());
+        return QVariant(appList_.at(index.row())->getName());
     } else if (role == Qt::DecorationRole) {
-        return QVariant(appList_.at(index.row())->icon());
+        return QVariant(appList_.at(index.row())->getIcon());
     } else {
         return QVariant();
     }
 }
 
-XdgDesktopFile* DashViewModel::getDesktop(int rowIndex) {
+GDesktopFile* DashViewModel::getDesktop(int rowIndex) {
     return appList_.at(rowIndex);
 }
 
 void DashViewModel::clear(void) {
-    while (!appList_.empty()) {
-        appList_.removeFirst();
-    }
+    appList_.clear();
 }
 
 //Qt::DropActions DashViewModel::supportedDropActions() const {
@@ -82,21 +80,22 @@ QMimeData *DashViewModel::mimeData(const QModelIndexList &indexes) const {
 
     QDataStream stream(&encodedData, QIODevice::WriteOnly);
 
-    
-    
-    foreach(QModelIndex index, indexes) {
+
+
+    for (QModelIndex index : indexes) {
         if (index.isValid()) {
             QList<QUrl> urls;
-            urls.append(QUrl(appList_.at(index.row())->fileName()));
-            qDebug() << "Drag mime data with url"<< appList_.at(index.row())->fileName();
+            urls.append(QUrl(appList_.at(index.row())->getFilename()));
+            qDebug() << "Drag mime data with url" << appList_.at(index.row())->getFilename();
             mimeData->setUrls(urls);
         }
     }
-     qDebug() << "Black magic happens to be here";
+    qDebug() << "Black magic happens to be here";
     mimeData->setData("application/url", encodedData);
     return mimeData;
 }
 
 DashViewModel::~DashViewModel() {
+    //no idea if I have to free the list here. qDeleteAll is raising an exception
 }
 
