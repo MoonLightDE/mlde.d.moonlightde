@@ -55,11 +55,11 @@ SidePane::~SidePane() {
 }
 
 void SidePane::onPlacesViewChdirRequested(int type, FmPath* path) {
-  Q_EMIT chdirRequested(type, path);
+  emit chdirRequested(type, path);
 }
 
 void SidePane::onDirTreeViewChdirRequested(int type, FmPath* path) {
-  Q_EMIT chdirRequested(type, path);
+  emit chdirRequested(type, path);
 }
 
 void SidePane::onComboCurrentIndexChanged(int current) {
@@ -210,7 +210,7 @@ void SidePane::setMode(Mode mode) {
     //  g_signal_connect(sp->view, "item-popup", G_CALLBACK(on_item_popup), sp);
     verticalLayout->addWidget(view_);
   }
-  Q_EMIT modeChanged();
+  emit modeChanged();
 }
 
 bool SidePane::setShowHidden(bool show_hidden) {

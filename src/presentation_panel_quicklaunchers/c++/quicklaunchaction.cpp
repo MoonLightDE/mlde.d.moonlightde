@@ -34,42 +34,42 @@
 #include <QMessageBox>
 #include <QDesktopServices>
 #include <QFileIconProvider>
+#include <QMimeDatabase>
 
 #include <qt5xdg/xdgdesktopfile.h>
 #include <qt5xdg/xdgicon.h>
-#include <qt5xdg/xdgmime.h>
-
+#include <qt5/QtCore/qmimetype.h>
+//#include <qt5xdg/xdgmime.h>
 
 QuickLaunchAction::QuickLaunchAction(const QString & name,
-                                     const QString & exec,
-                                     const QString & icon,
-                                     QWidget * parent)
-    : QAction(name, parent),
-      m_valid(true)
-{
+        const QString & exec,
+        const QString & icon,
+        QWidget * parent)
+: QAction(name, parent),
+m_valid(true) {
     m_type = ActionLegacy;
-    
+
     m_settingsMap["name"] = name;
     m_settingsMap["exec"] = exec;
     m_settingsMap["icon"] = icon;
 
-    if (icon.isNull())
+    if (icon.isNull() || icon.isEmpty())
         setIcon(XdgIcon::defaultApplicationIcon());
-    else
+    else {
         setIcon(QIcon(icon));
-
+    }
     setData(exec);
     connect(this, SIGNAL(triggered()), this, SLOT(execAction()));
 }
 
 QuickLaunchAction::QuickLaunchAction(const XdgDesktopFile * xdg,
-                                     QWidget * parent)
-    : QAction(parent),
-      m_valid(true)
-{
+        QWidget * parent)
+: QAction(parent),
+m_valid(true) {
     m_type = ActionXdg;
-    
+
     m_settingsMap["desktop"] = xdg->fileName();
+    qDebug() << "Quicklaunchers loading icon " << xdg->iconName();
 
     QString title(xdg->localizedValue("Name").toString());
     QString gn(xdg->localizedValue("GenericName").toString());
@@ -84,36 +84,35 @@ QuickLaunchAction::QuickLaunchAction(const XdgDesktopFile * xdg,
 }
 
 QuickLaunchAction::QuickLaunchAction(const QString & fileName, QWidget * parent)
-    : QAction(parent),
-      m_valid(true)
-{
+: QAction(parent),
+m_valid(true) {
     m_type = ActionFile;
     setText(fileName);
     setData(fileName);
-    
+
     m_settingsMap["file"] = fileName;
 
     QFileInfo fi(fileName);
-    if (fi.isDir())
-    {
+    if (fi.isDir()) {
         QFileIconProvider ip;
         setIcon(ip.icon(fi));
+    } else {
+        QMimeDatabase database;
+        QString iconName = database.mimeTypeForFile(fi.fileName()).iconName();
+        qDebug() << "file mime icon" << iconName;
+        //        XdgMimeInfo mi(fi);
+        //        setIcon(mi.icon());
+        setIcon(QIcon::fromTheme(iconName));
+
     }
-    else
-    {
-        XdgMimeInfo mi(fi);
-        setIcon(mi.icon());
-    }
-    
+
     connect(this, SIGNAL(triggered()), this, SLOT(execAction()));
 }
 
-void QuickLaunchAction::execAction()
-{
+void QuickLaunchAction::execAction() {
     QString exec(data().toString());
     qDebug() << "execAction" << exec;
-    switch (m_type)
-    {
+    switch (m_type) {
         case ActionLegacy:
             QProcess::startDetached(exec);
             break;
@@ -125,7 +124,7 @@ void QuickLaunchAction::execAction()
             break;
         }
         case ActionFile:
-            QDesktopServices::openUrl(QUrl(exec));
+            QDesktopServices::openUrl(QUrl::fromLocalFile(exec));
             break;
     }
 }

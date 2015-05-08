@@ -51,10 +51,10 @@ public:
     setCurrentPath(path);
   }
   
-Q_SIGNALS:
+signals:
   void chdirRequested(int type, FmPath* path);
 
-protected Q_SLOTS:
+protected slots:
   void onClicked(const QModelIndex & index);
   // void onMountOperationFinished(GError* error);
 

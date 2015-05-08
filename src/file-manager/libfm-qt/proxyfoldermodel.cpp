@@ -72,7 +72,7 @@ void ProxyFolderModel::sort(int column, Qt::SortOrder order) {
   Qt::SortOrder oldOrder = sortOrder();
   QSortFilterProxyModel::sort(column, order);
   if(column != oldColumn || order != oldOrder) {
-    Q_EMIT sortFilterChanged();
+    emit sortFilterChanged();
   }
 }
 
@@ -80,7 +80,7 @@ void ProxyFolderModel::setShowHidden(bool show) {
   if(show != showHidden_) {
     showHidden_ = show;
     invalidateFilter();
-    Q_EMIT sortFilterChanged();
+    emit sortFilterChanged();
   }
 }
 
@@ -89,7 +89,7 @@ void ProxyFolderModel::setFolderFirst(bool folderFirst) {
   if(folderFirst != folderFirst_) {
     folderFirst_ = folderFirst;
     invalidate();
-    Q_EMIT sortFilterChanged();
+    emit sortFilterChanged();
   }
 }
 
@@ -167,7 +167,7 @@ void ProxyFolderModel::setShowThumbnails(bool show) {
         disconnect(srcModel, SIGNAL(thumbnailLoaded(QModelIndex,int)));
       }
       // reload all items, FIXME: can we only update items previously having thumbnails
-      Q_EMIT dataChanged(index(0, 0), index(rowCount() - 1, 0));
+      emit dataChanged(index(0, 0), index(rowCount() - 1, 0));
     }
   }
 }
@@ -186,7 +186,7 @@ void ProxyFolderModel::setThumbnailSize(int size) {
       // ask for cache of thumbnails of the new size in source model
       srcModel->cacheThumbnails(size);
       // reload all items, FIXME: can we only update items previously having thumbnails
-      Q_EMIT dataChanged(index(0, 0), index(rowCount() - 1, 0));
+      emit dataChanged(index(0, 0), index(rowCount() - 1, 0));
     }
     
     thumbnailSize_ = size;
@@ -216,20 +216,20 @@ void ProxyFolderModel::onThumbnailLoaded(const QModelIndex& srcIndex, int size) 
   
   if(size == thumbnailSize_) { // if a thumbnail of the size we want is loaded
     QModelIndex index = mapFromSource(srcIndex);
-    Q_EMIT dataChanged(index, index);
+    emit dataChanged(index, index);
   }
 }
 
 void ProxyFolderModel::addFilter(ProxyFolderModelFilter* filter) {
   filters_.append(filter);
   invalidateFilter();
-  Q_EMIT sortFilterChanged();
+  emit sortFilterChanged();
 }
 
 void ProxyFolderModel::removeFilter(ProxyFolderModelFilter* filter) {
   filters_.removeOne(filter);
   invalidateFilter();
-  Q_EMIT sortFilterChanged();  
+  emit sortFilterChanged();  
 }
 
 
@@ -245,7 +245,7 @@ void ProxyFolderModel::reloadAllThumbnails() {
       QImage image = srcModel->thumbnailFromIndex(srcIndex, size);
       // tell the world that the item is changed to trigger a UI update
       if(!image.isNull())
-        Q_EMIT dataChanged(index, index);
+        emit dataChanged(index, index);
     }
   }
 }

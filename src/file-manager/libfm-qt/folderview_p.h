@@ -63,7 +63,7 @@ public:
   virtual void resizeEvent(QResizeEvent* event);
   void queueLayoutColumns();
 
-private Q_SLOTS:
+private slots:
   void layoutColumns();
 
 private:

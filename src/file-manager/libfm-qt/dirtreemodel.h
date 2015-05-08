@@ -78,7 +78,7 @@ private:
   DirTreeModelItem* itemFromIndex(const QModelIndex& index) const;
   QModelIndex indexFromItem(DirTreeModelItem* item) const;
 
-Q_SIGNALS:
+signals:
   void rowLoaded(const QModelIndex& index);
 
 private:

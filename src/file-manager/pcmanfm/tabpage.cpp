@@ -127,7 +127,7 @@ namespace PCManFM {
         FmFileInfo* fi = fm_folder_get_info(_folder);
         if (fi) { // if loading of the folder fails, it's possible that we don't have FmFileInfo.
             pThis->title_ = QString::fromUtf8(fm_file_info_get_disp_name(fi));
-            Q_EMIT pThis->titleChanged(pThis->title_);
+            emit pThis->titleChanged(pThis->title_);
         }
 
         fm_folder_query_filesystem_info(_folder); // FIXME: is this needed?
@@ -165,7 +165,7 @@ namespace PCManFM {
         // update status text
         QString& text = pThis->statusText_[StatusTextNormal];
         text = pThis->formatStatusText();
-        Q_EMIT pThis->statusChanged(StatusTextNormal, text);
+        emit pThis->statusChanged(StatusTextNormal, text);
 
         if (pThis->overrideCursor_) {
             QApplication::restoreOverrideCursor(); // remove busy cursor
@@ -219,7 +219,7 @@ namespace PCManFM {
                     .arg(QString::fromUtf8(total_str));
         } else
             msg.clear();
-        Q_EMIT pThis->statusChanged(StatusTextFSInfo, msg);
+        emit pThis->statusChanged(StatusTextFSInfo, msg);
     }
 
     QString TabPage::formatStatusText() {
@@ -259,7 +259,7 @@ namespace PCManFM {
                     /*static */ void TabPage::onFolderContentChanged(FmFolder* _folder, TabPage* pThis) {
         /* update status text */
         pThis->statusText_[StatusTextNormal] = pThis->formatStatusText();
-        Q_EMIT pThis->statusChanged(StatusTextNormal, pThis->statusText_[StatusTextNormal]);
+        emit pThis->statusChanged(StatusTextNormal, pThis->statusText_[StatusTextNormal]);
     }
 
     QString TabPage::pathName() {
@@ -294,7 +294,7 @@ namespace PCManFM {
 
         char* disp_name = fm_path_display_basename(newPath);
         title_ = QString::fromUtf8(disp_name);
-        Q_EMIT titleChanged(title_);
+        emit titleChanged(title_);
         g_free(disp_name);
 
         folder_ = fm_folder_from_path(newPath);
@@ -334,7 +334,7 @@ namespace PCManFM {
     }
 
     void TabPage::onOpenDirRequested(FmPath* path, int target) {
-        Q_EMIT openDirRequested(path, target);
+        emit openDirRequested(path, target);
     }
 
     // when the current selection in the folder view is changed
@@ -391,7 +391,7 @@ namespace PCManFM {
             }
         }
         statusText_[StatusTextSelectedFiles] = msg;
-        Q_EMIT statusChanged(StatusTextSelectedFiles, msg);
+        emit statusChanged(StatusTextSelectedFiles, msg);
     }
 
     void TabPage::backward() {
@@ -418,7 +418,7 @@ namespace PCManFM {
     }
 
     void TabPage::onModelSortFilterChanged() {
-        Q_EMIT sortFilterChanged();
+        emit sortFilterChanged();
     }
 
     void TabPage::updateFromSettings(Settings& settings) {

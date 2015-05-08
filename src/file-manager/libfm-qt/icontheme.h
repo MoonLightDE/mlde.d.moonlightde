@@ -51,7 +51,7 @@ public:
   static QIcon icon(GIcon* gicon);
   
   static void checkChanged(); // check if current icon theme name is changed
-Q_SIGNALS:
+signals:
   void changed(); // emitted when the name of current icon theme is changed
 
 protected:

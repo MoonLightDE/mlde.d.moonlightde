@@ -87,7 +87,7 @@ public:
     return view_;
   }
   
-protected Q_SLOTS:
+protected slots:
 
   void onCreateNewFolder();
   void onCreateNewFile();

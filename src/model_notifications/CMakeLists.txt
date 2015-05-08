@@ -50,7 +50,7 @@ find_package(qt5xdg REQUIRED)
 include(${QTXDG_USE_FILE})
 
 ## LXQT 
-find_package(lxqt-qt5 REQUIRED QUIET)
+find_package(lxqt REQUIRED QUIET)
 include(${LXQT_USE_FILE})
 
 

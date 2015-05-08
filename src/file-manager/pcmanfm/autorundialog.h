@@ -36,7 +36,7 @@ public:
 
   virtual void accept();
   
-private Q_SLOTS:
+private slots:
 
 private:
 

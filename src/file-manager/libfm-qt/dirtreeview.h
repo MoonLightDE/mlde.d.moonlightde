@@ -63,10 +63,10 @@ private:
   void cancelPendingChdir();
   void expandPendingPath();
 
-Q_SIGNALS:
+signals:
   void chdirRequested(int type, FmPath* path);
 
-protected Q_SLOTS:
+protected slots:
   void onCollapsed(const QModelIndex & index);
   void onExpanded(const QModelIndex & index);
   void onRowLoaded(const QModelIndex& index);

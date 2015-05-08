@@ -117,7 +117,7 @@ public:
     autoDestroy_ = destroy;
   }
 
-Q_SIGNALS:
+signals:
   void finished(GError* error = NULL);
 
 private:

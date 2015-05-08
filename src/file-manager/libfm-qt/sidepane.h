@@ -99,11 +99,11 @@ public:
     setCurrentPath(path);
   }
 
-Q_SIGNALS:
+signals:
   void chdirRequested(int type, FmPath* path);
   void modeChanged();
 
-protected Q_SLOTS:
+protected slots:
   void onPlacesViewChdirRequested(int type, FmPath* path);
   void onDirTreeViewChdirRequested(int type, FmPath* path);
   void onComboCurrentIndexChanged(int current);

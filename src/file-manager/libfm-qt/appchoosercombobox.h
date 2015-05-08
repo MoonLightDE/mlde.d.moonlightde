@@ -44,7 +44,7 @@ public:
 
   bool isChanged();
 
-private Q_SLOTS:
+private slots:
   void onCurrentIndexChanged(int index);
   
 private:

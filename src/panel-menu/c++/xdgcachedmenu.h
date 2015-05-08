@@ -44,7 +44,7 @@ private:
     void addMenuItems(QMenu* menu, MenuCacheDir* dir);
     void handleMouseMoveEvent(QMouseEvent *event);
 
-private Q_SLOTS:
+private slots:
     void onItemTrigerred();
 
 private:

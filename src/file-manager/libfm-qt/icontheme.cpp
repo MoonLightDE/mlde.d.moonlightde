@@ -69,7 +69,7 @@ void IconTheme::checkChanged() {
     fm_icon_reset_user_data_cache(fm_qdata_id);
 
     theIconTheme->fallbackIcon_ = QIcon::fromTheme("application-octet-stream");
-    Q_EMIT theIconTheme->changed();
+    emit theIconTheme->changed();
   }
 }
 

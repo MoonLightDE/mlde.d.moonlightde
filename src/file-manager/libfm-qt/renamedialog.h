@@ -60,7 +60,7 @@ public:
     return newName_;
   }
 
-protected Q_SLOTS:
+protected slots:
   void onRenameClicked();
   void onIgnoreClicked();
   void onFileNameChanged(QString newName);

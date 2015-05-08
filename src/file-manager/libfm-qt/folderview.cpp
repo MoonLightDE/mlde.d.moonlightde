@@ -312,7 +312,7 @@ void FolderView::onItemActivated(QModelIndex index) {
     QVariant data = index.model()->data(index, FolderModel::FileInfoRole);
     FmFileInfo* info = (FmFileInfo*)data.value<void*>();
     if(info) {
-      Q_EMIT clicked(ActivatedClick, info);
+      emit clicked(ActivatedClick, info);
     }
   }
 }
@@ -325,7 +325,7 @@ void FolderView::onSelectionChanged(const QItemSelection& selected, const QItemS
   else
     nSel = selModel->selectedIndexes().count();
   // qDebug()<<"selected:" << nSel;
-  Q_EMIT selChanged(nSel); // FIXME: this is inefficient
+  emit selChanged(nSel); // FIXME: this is inefficient
 }
 
 
@@ -492,7 +492,7 @@ void FolderView::emitClickedAt(ClickType type, QPoint& pos) {
   if(index.isValid()) {
     QVariant data = index.data(FolderModel::FileInfoRole);
     FmFileInfo* info = reinterpret_cast<FmFileInfo*>(data.value<void*>());
-    Q_EMIT clicked(type, info);
+    emit clicked(type, info);
   }
   else {
     // FIXME: should we show popup menu for the selected files instead
@@ -500,7 +500,7 @@ void FolderView::emitClickedAt(ClickType type, QPoint& pos) {
     if(type == ContextMenuClick) {
       // clear current selection if clicked outside selected files
       view->clearSelection();
-      Q_EMIT clicked(type, NULL);
+      emit clicked(type, NULL);
     }
   }
 }

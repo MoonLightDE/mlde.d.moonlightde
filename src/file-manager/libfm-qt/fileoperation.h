@@ -104,7 +104,7 @@ public:
   static FileOperation* trashFiles(FmPathList* srcFiles, bool promp = true, QWidget* parent = 0);
   static FileOperation* changeAttrFiles(FmPathList* srcFiles, QWidget* parent = 0);
 
-Q_SIGNALS:
+signals:
   void finished();
   
 private:
@@ -121,7 +121,7 @@ private:
   void disconnectJob();
   void showDialog();
 
-private Q_SLOTS:
+private slots:
   void onUiTimeout();
   
 private:

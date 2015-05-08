@@ -58,7 +58,7 @@ public:
 private:
   GAppInfo* customCommandToApp();
 
-private Q_SLOTS:
+private slots:
   void onSelectionChanged();
   void onTabChanged(int index);
 

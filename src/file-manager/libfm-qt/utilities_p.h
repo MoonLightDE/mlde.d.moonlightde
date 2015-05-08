@@ -34,7 +34,7 @@ public:
     QTimer::singleShot(0, this, SLOT(initSelection()));
   }
 
-private Q_SLOTS:
+private slots:
   // do not select filename extensions
   void initSelection() {
     // find the QLineEdit child widget

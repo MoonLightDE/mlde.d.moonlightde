@@ -207,6 +207,6 @@ void DirTreeView::onSelectionChanged(const QItemSelection & selected, const QIte
     if(currentPath_)
       fm_path_unref(currentPath_);
     currentPath_ = fm_path_ref(path);
-    Q_EMIT chdirRequested(0, path);
+    emit chdirRequested(0, path);
   }
 }

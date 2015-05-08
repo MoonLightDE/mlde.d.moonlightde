@@ -39,7 +39,7 @@ public:
 
   virtual void accept();
 
-private Q_SLOTS:
+private slots:
   void onAddItem();
   void onRemoveItem();
   

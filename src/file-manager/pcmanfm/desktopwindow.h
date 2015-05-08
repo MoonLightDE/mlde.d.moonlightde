@@ -64,7 +64,7 @@ protected:
   virtual void prepareFileMenu(Fm::FileMenu* menu);
   virtual void resizeEvent(QResizeEvent* event);
   
-protected Q_SLOTS:
+protected slots:
   void onOpenDirRequested(FmPath* path, int target);
   void onDesktopPreferences();
 

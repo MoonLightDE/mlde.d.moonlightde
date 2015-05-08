@@ -53,7 +53,7 @@ public:
 
   void updateFromSettings(Settings& settings);
   
-protected Q_SLOTS:
+protected slots:
 
   void onPathEntryReturnPressed();
 

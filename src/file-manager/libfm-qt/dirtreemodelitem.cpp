@@ -208,7 +208,7 @@ qDebug() << "folder loaded";
     _this->placeHolderChild_->displayName_ = DirTreeModel::tr("<No sub folders>");
     QModelIndex placeHolderIndex = _this->placeHolderChild_->index();
     // qDebug() << "placeHolderIndex: "<<placeHolderIndex;
-    Q_EMIT model->dataChanged(placeHolderIndex, placeHolderIndex);
+    emit model->dataChanged(placeHolderIndex, placeHolderIndex);
   }
   else {
     int pos = _this->children_.indexOf(_this->placeHolderChild_);
@@ -219,7 +219,7 @@ qDebug() << "folder loaded";
     _this->placeHolderChild_ = NULL;
   }
 
-  Q_EMIT model->rowLoaded(index);
+  emit model->rowLoaded(index);
 }
 
 // static
@@ -266,7 +266,7 @@ void DirTreeModelItem::onFolderFilesChanged(FmFolder* folder, GSList* files, gpo
     DirTreeModelItem* child = _this->childFromName(fm_file_info_get_name(changedFile), &pos);
     if(child) {
       QModelIndex childIndex = child->index();
-      Q_EMIT model->dataChanged(childIndex, childIndex);
+      emit model->dataChanged(childIndex, childIndex);
     }
   }
 }

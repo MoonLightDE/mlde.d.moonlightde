@@ -63,7 +63,7 @@ public:
 
   void setSortCaseSensitivity(Qt::CaseSensitivity cs) {
     QSortFilterProxyModel::setSortCaseSensitivity(cs);
-    Q_EMIT sortFilterChanged();
+    emit sortFilterChanged();
   }
 
   bool showThumbnails() {
@@ -84,10 +84,10 @@ public:
   void addFilter(ProxyFolderModelFilter* filter);
   void removeFilter(ProxyFolderModelFilter* filter);
 
-Q_SIGNALS:
+signals:
   void sortFilterChanged();
 
-protected Q_SLOTS:
+protected slots:
   void onThumbnailLoaded(const QModelIndex& srcIndex, int size);
 
 protected:

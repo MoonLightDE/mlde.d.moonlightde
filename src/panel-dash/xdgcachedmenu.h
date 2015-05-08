@@ -49,7 +49,7 @@ private:
     void handleMouseMoveEvent(QMouseEvent *event);
 
     private 
-Q_SLOTS:
+slots:
     void onItemTrigerred();
 
 private:

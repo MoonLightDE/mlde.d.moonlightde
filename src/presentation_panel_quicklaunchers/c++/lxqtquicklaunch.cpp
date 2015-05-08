@@ -36,7 +36,7 @@
 
 #include <qt5xdg/xdgdesktopfile.h>
 #include <qt5xdg/xdgicon.h>
-#include <qt5xdg/xdgmime.h>
+//#include <qt5xdg/xdgmime.h>
 
 #include <usModuleContext.h>
 #include <usGetModuleContext.h>
@@ -54,6 +54,7 @@
 #include <QFileIconProvider>
 #include <QSettings>
 #include <QLabel>
+#include <QMimeDatabase>
 
 US_USE_NAMESPACE
 
@@ -61,14 +62,14 @@ LxQtQuickLaunch::LxQtQuickLaunch(QWidget* parent) :
 QFrame(parent),
 mPlaceHolder(0) {
     setAcceptDrops(true);
-//    setMinimumWidth(100);
-//    setMaximumWidth(500);
+    //    setMinimumWidth(100);
+    //    setMaximumWidth(500);
     mLayout = new LxQt::GridLayout(this);
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-//    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    //    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     setLayout(mLayout);
 
-    
+
     ModuleContext * context = GetModuleContext();
     QSettings *settings = ModuleSettings::getModuleSettings(context);
 
@@ -83,6 +84,7 @@ mPlaceHolder(0) {
         settings->setArrayIndex(i);
         desktop = settings->value("desktop", "").toString();
         file = settings->value("file", "").toString();
+
         if (!desktop.isEmpty()) {
             XdgDesktopFile * xdg = XdgDesktopFileCache::getFile(desktop);
             if (!xdg->isValid()) {
@@ -96,6 +98,7 @@ mPlaceHolder(0) {
 
             addButton(new QuickLaunchAction(xdg, this));
         } else if (!file.isEmpty()) {
+            //            qDebug() << "quiqlaunchers test " << desktop << " --- " << file;
             addButton(new QuickLaunchAction(file, this));
         } else {
             execname = settings->value("name", "").toString();
@@ -105,6 +108,7 @@ mPlaceHolder(0) {
                 qDebug() << "Icon" << icon << "is not valid (isNull). Skipped.";
                 continue;
             }
+
             addButton(new QuickLaunchAction(execname, exec, icon, this));
         }
     } // for
@@ -194,23 +198,33 @@ void LxQtQuickLaunch::dropEvent(QDropEvent *e) {
             filePath = url.toLocalFile();
         else
             filePath = url.toString();
+        //        qDebug() << "Dropped URL "<< filePath;
 
+        QMimeDatabase database;
+        QString type = database.mimeTypeForFile(filePath).name();
+        qDebug() << "Dropped file type " << type;
         QFileInfo fi(filePath);
-        XdgDesktopFile * xdg = XdgDesktopFileCache::getFile(fi.fileName());
+        XdgDesktopFile * xdg = NULL;
+        if (type == "application/x-desktop") {
+            xdg = XdgDesktopFileCache::getFile(fi.filePath());
+        }
 
+        //        qDebug() << "Dropped app" << xdg->fileName() << " filename "<< fi.fileName() << " isvalid "<< xdg->isValid() << "is applicable" << xdg->isApplicable();
 
-        if (xdg->isValid()) {
+        if (xdg != NULL && xdg->isValid()) {
             if (xdg->isApplicable())
                 addButton(new QuickLaunchAction(xdg, this));
         } else if (fi.exists() && fi.isExecutable() && !fi.isDir()) {
+            //            qDebug() << "Dropped pure app" << fi.filePath();
             addButton(new QuickLaunchAction(filePath, filePath, "", this));
         } else if (fi.exists()) {
+            qDebug() << "Dropped file" << fi.filePath();
             addButton(new QuickLaunchAction(filePath, this));
         } else {
             qWarning() << "XdgDesktopFile" << filePath << "is not valid";
-//            QMessageBox::information(this, tr("Drop Error"),
-//                    tr("File/URL '%1' cannot be embedded into QuickLaunch for now").arg(filePath)
-//                    );
+            //            QMessageBox::information(this, tr("Drop Error"),
+            //                    tr("File/URL '%1' cannot be embedded into QuickLaunch for now").arg(filePath)
+            //                    );
         }
     }
     saveSettings();

@@ -48,7 +48,7 @@ View::~View() {
 void View::onFileClicked(int type, FmFileInfo* fileInfo) {
   if(type == MiddleClick) {
     if(fm_file_info_is_dir(fileInfo)) {
-      Q_EMIT openDirRequested(fm_file_info_get_path(fileInfo), OpenInNewTab);
+      emit openDirRequested(fm_file_info_get_path(fileInfo), OpenInNewTab);
     }
   }
   else {
@@ -67,7 +67,7 @@ void View::onNewTab() {
   Fm::FileMenu* menu = static_cast<Fm::FileMenu*>(sender()->parent());
   for(GList* l = fm_file_info_list_peek_head_link(menu->files()); l; l = l->next) {
     FmFileInfo* file = FM_FILE_INFO(l->data);
-    Q_EMIT openDirRequested(fm_file_info_get_path(file), OpenInNewTab);
+    emit openDirRequested(fm_file_info_get_path(file), OpenInNewTab);
   }
 }
 

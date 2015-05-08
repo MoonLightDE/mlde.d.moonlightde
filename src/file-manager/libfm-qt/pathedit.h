@@ -42,7 +42,7 @@ protected:
   virtual void focusInEvent(QFocusEvent* e);
   virtual void focusOutEvent(QFocusEvent* e);
 
-private Q_SLOTS:
+private slots:
   void onTextChanged(const QString & text);
 
 private:

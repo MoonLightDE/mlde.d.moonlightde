@@ -510,7 +510,7 @@ void FolderModel::onThumbnailLoaded(FmThumbnailLoader* res, gpointer user_data) 
           thumbnail->image = pixmap.toImage(); // convert it back to image
 
           // tell the world that we have the thumbnail loaded
-          Q_EMIT pThis->thumbnailLoaded(index, size);
+          emit pThis->thumbnailLoaded(index, size);
         }
       }
       break;

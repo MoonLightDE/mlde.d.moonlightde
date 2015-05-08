@@ -40,10 +40,10 @@ public:
     return color_;
   }
   
-Q_SIGNALS:
+signals:
   void changed();
 
-private Q_SLOTS:
+private slots:
   void onClicked();
 
 private:

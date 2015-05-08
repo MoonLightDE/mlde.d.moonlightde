@@ -44,7 +44,7 @@ QuickLaunchButton::QuickLaunchButton(QuickLaunchAction * act, QWidget * parent)
     : QToolButton(parent),
       mAct(act)
 {
-    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     setAcceptDrops(true);
     setMinimumWidth(30);
     setMaximumWidth(30);

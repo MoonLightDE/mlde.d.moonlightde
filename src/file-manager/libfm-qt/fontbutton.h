@@ -39,10 +39,10 @@ public:
   
   void setFont(QFont font);
   
-Q_SIGNALS:
+signals:
   void changed();
   
-private Q_SLOTS:
+private slots:
   void onClicked();
 
 private:

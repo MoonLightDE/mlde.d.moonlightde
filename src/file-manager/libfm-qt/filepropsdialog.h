@@ -61,7 +61,7 @@ private:
 
   static void onDeepCountJobFinished(FmDeepCountJob* job, FilePropsDialog* pThis);
 
-private Q_SLOTS:
+private slots:
   void onFileSizeTimerTimeout();
   
 private:

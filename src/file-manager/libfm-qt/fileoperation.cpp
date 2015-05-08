@@ -177,7 +177,7 @@ void FileOperation::handleFinish() {
     delete dlg;
     dlg = NULL;
   }
-  Q_EMIT finished();
+  emit finished();
   
   if(autoDestroy_)
     delete this;

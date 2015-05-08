@@ -120,7 +120,7 @@ void PlacesView::onClicked(const QModelIndex& index) {
         }
       }
       if(path) {
-        Q_EMIT chdirRequested(0, path);
+        emit chdirRequested(0, path);
       }
     }
   }

@@ -371,7 +371,7 @@ void Dash::addFavorites(GDesktopFile* app) {
     QDir* dir = new QDir(ruta);
     dir->mkdir("favs");
     QFile* file = new QFile(appName);
-    bool result = file->copy(dir->absolutePath() + "/favs/" + app->getName().toLower());
+    bool result = file->copy(dir->absolutePath() + "/favs/" + app->getName().toLower()+".desktop");
     //    if (result) {
     //        qDebug() <<  MODULE_NAME_STR << "File copy success";
     //    } else {

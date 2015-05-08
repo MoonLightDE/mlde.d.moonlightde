@@ -74,7 +74,7 @@ public:
   }
   void setShowDesktop(bool show);
 
-public Q_SLOTS:
+public slots:
   void updateIcons();
   void updateTrash();
 

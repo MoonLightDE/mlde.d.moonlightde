@@ -185,7 +185,7 @@ void MountOperation::handleFinish(GError* error) {
       QMessageBox::critical(NULL, QObject::tr("Error"), QString::fromUtf8(error->message));
   }
 
-  Q_EMIT finished(error);
+  emit finished(error);
 
   if(eventLoop) { // if wait() is called to block the main loop
     eventLoop->exit(error != NULL ? 1 : 0);

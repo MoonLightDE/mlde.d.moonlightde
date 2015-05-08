@@ -57,7 +57,7 @@ find_package(QT5XDG REQUIRED)
 include(${QTXDG_USE_FILE})  
 
 ## LXQT -- depends on QT5XDG
-find_package(LXQT-QT5 REQUIRED )
+find_package(LXQT REQUIRED )
 include(${LXQT_USE_FILE})
 
 ## --------------------------------------------------------------

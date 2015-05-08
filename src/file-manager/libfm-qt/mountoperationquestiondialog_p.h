@@ -37,7 +37,7 @@ public:
 
   virtual void done(int r);
 
-private Q_SLOTS:
+private slots:
   void onButtonClicked(QAbstractButton* button);
   
 private:

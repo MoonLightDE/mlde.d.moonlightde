@@ -123,12 +123,12 @@ protected:
   virtual void prepareFileMenu(Fm::FileMenu* menu);
   virtual void prepareFolderMenu(Fm::FolderMenu* menu);
 
-public Q_SLOTS:
+public slots:
   void onItemActivated(QModelIndex index);
   void onSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
   virtual void onFileClicked(int type, FmFileInfo* fileInfo);
   
-Q_SIGNALS:
+signals:
   void clicked(int type, FmFileInfo* file);
   void selChanged(int n_sel);
   void sortChanged();

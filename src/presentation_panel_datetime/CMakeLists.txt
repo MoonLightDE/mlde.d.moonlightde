@@ -44,7 +44,7 @@ find_package(Qt5Widgets     REQUIRED)
 
 
 ## LXQT -- depends on QT5XDG
-find_package(LXQT-QT5 REQUIRED )
+find_package(LXQT REQUIRED )
 include(${LXQT_USE_FILE})
 
 ## --------------------------------------------------------------

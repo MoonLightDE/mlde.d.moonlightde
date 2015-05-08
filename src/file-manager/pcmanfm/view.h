@@ -47,10 +47,10 @@ public:
 
   void updateFromSettings(Settings& settings);
 
-Q_SIGNALS:
+signals:
   void openDirRequested(FmPath* path, int target);
 
-protected Q_SLOTS:
+protected slots:
   void onNewWindow();
   void onNewTab();
   void onOpenInTerminal();

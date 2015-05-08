@@ -174,13 +174,13 @@ public:
     return folderView_->fileLauncher();
   }
 
-Q_SIGNALS:
+signals:
   void statusChanged(int type, QString statusText);
   void titleChanged(QString title);
   void openDirRequested(FmPath* path, int target);
   void sortFilterChanged();
 
-protected Q_SLOTS:
+protected slots:
   void onOpenDirRequested(FmPath* path, int target);
   void onModelSortFilterChanged();
   void onSelChanged(int numSel);

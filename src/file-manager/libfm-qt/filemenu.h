@@ -127,7 +127,7 @@ protected:
 #endif
   void openFilesWithApp(GAppInfo* app);
 
-protected Q_SLOTS:
+protected slots:
   void onOpenTriggered();
   void onOpenWithTriggered();
   void onFilePropertiesTriggered();

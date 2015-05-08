@@ -78,7 +78,7 @@ public:
   //  Slots from QApplication 
   void quit();
   
-protected Q_SLOTS:
+protected slots:
   void onAboutToQuit();
 
   void onLastWindowClosed();

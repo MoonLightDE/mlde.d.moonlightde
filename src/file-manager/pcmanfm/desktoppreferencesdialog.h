@@ -37,7 +37,7 @@ public:
 
   void selectPage(QString name);
   
-protected Q_SLOTS:
+protected slots:
   void onWallpaperModeChanged(int index);
   void onBrowseClicked();
 

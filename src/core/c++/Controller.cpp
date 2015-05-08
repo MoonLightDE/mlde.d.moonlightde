@@ -68,7 +68,7 @@ void Controller::start() {
     // Loading modules
     const QStringList list = moduleManager->getStartUpModules();
 
-    foreach(QString module, list) {
+    for(QString module: list) {
         moduleManager->load(module);
     }
     emit(started());

@@ -45,7 +45,7 @@ void ColorButton::setColor(const QColor& color) {
     p.setColor(QPalette::Button, color_);
     setPalette(p);
 
-    Q_EMIT changed();
+    emit changed();
   }
 }
 

@@ -30,7 +30,7 @@
 #include <qt5/QtCore/qurl.h>
 #include <qt5/QtCore/qlogging.h>
 
-DashViewModel::DashViewModel(const QList<GDesktopFile*>& appList, QObject* parent) : QAbstractListModel(parent) {
+DashViewModel::DashViewModel(const QList<GDesktopFile*>& appList,QObject* parent) : QAbstractListModel(parent) {
     appList_ = appList;
 }
 
@@ -79,8 +79,6 @@ QMimeData *DashViewModel::mimeData(const QModelIndexList &indexes) const {
     QByteArray encodedData;
 
     QDataStream stream(&encodedData, QIODevice::WriteOnly);
-
-
 
     for (QModelIndex index : indexes) {
         if (index.isValid()) {

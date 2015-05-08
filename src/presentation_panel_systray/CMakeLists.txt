@@ -45,7 +45,7 @@ find_package(CppMicroServices NO_MODULE REQUIRED)
 include_directories(${CppMicroServices_INCLUDE_DIRS})
 
 ## LXQT -- depends on QT5XDG
-find_package(LXQT-QT5 REQUIRED )
+find_package(LXQT REQUIRED )
 include(${LXQT_USE_FILE})
 
 ## QT5XDG

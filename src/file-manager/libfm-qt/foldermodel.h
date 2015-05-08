@@ -86,10 +86,10 @@ public:
   void cacheThumbnails(int size);
   void releaseThumbnails(int size);
 
-Q_SIGNALS:
+signals:
   void thumbnailLoaded(const QModelIndex& index, int size);
 
-public Q_SLOTS:
+public slots:
   void updateIcons();
 
 protected:

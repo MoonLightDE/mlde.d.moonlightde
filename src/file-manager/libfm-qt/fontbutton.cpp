@@ -51,5 +51,5 @@ void FontButton::setFont(QFont font) {
   }
   text += QString(" %1").arg(font.pointSize());
   setText(text);
-  Q_EMIT changed();
+  emit changed();
 }

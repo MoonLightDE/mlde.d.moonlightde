@@ -49,7 +49,7 @@ public:
 
   bool isAppSelected();
 
-Q_SIGNALS:
+signals:
   void selectionChanged();
   
 private:
