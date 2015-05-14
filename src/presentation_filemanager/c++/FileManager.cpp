@@ -24,7 +24,7 @@
 #include "IconDelegate.h"
 #include "model_filesystem/FileSystem.h"
 #include "FileManager.h"
-
+#include <qt5xdg/xdgdesktopfile.h>
 #include <usModuleContext.h>
 #include <usGetModuleContext.h>
 
@@ -35,6 +35,10 @@
 #include <QStandardPaths>
 #include <QStackedWidget>
 #include <QLineEdit>
+#include <QDesktopServices>
+#include <QMimeDatabase>
+
+#include <qt5/QtCore/qfileinfo.h>
 
 FileManager::FileManager(QWidget *parent) :
 QWidget(parent),
@@ -67,8 +71,8 @@ m_BrowsingInstance() {
     bookmarksList = new QListView();
     widget = new QStackedWidget;
 
-    connect(&watcher,SIGNAL(started()),SLOT(ShowBusyDialog()));
-    connect(&watcher,SIGNAL(finished()),SLOT(HideBusyDialog()));
+    connect(&watcher, SIGNAL(started()), SLOT(ShowBusyDialog()));
+    connect(&watcher, SIGNAL(finished()), SLOT(HideBusyDialog()));
 
     InitIconsView();
     InitDetailsView();
@@ -101,7 +105,7 @@ m_BrowsingInstance() {
 
     ui->verticalLayout->addWidget(split);
     split->setFocus();
-    busy = new BusyDialog(tr("Loading..."),widget);
+    busy = new BusyDialog(tr("Loading..."), widget);
     //busy->hide();
 }
 
@@ -213,19 +217,54 @@ void FileManager::InitIconsView() {
 }
 
 void FileManager::ListItemDoubleClicked(QModelIndex current) {
-    QString child  = modelList->fileName(current);
+    QString child = modelList->fileName(current);
     QString path = ui->lineEdit->text();
-    watcher.setFuture(m_BrowsingInstance.currentDir()->status());
-    modelList->setDirectory(m_BrowsingInstance.goTo(path.append("/").append(child)));
-    ui->lineEdit->setText(m_BrowsingInstance.currentPath());
+
+    path.append("/").append(child);
+
+    QMimeDatabase database;
+    QString type = database.mimeTypeForFile(path).name();
+
+    if (type != "inode/directory") {
+        if (type == "application/x-desktop") {
+            //launch application here
+            XdgDesktopFile * xdg = XdgDesktopFileCache::getFile(path);
+            xdg->startDetached();
+        } else {
+            //only local files
+            QDesktopServices::openUrl(QUrl::fromLocalFile(path));
+        }
+    } else {
+
+        watcher.setFuture(m_BrowsingInstance.currentDir()->status());
+        modelList->setDirectory(m_BrowsingInstance.goTo(path));
+        ui->lineEdit->setText(m_BrowsingInstance.currentPath());
+    }
 }
 
 void FileManager::DetailsItemDoubleClicked(QModelIndex current) {
-    QString child  = modelList->fileName(current);
+    QString child = modelList->fileName(current);
     QString path = ui->lineEdit->text();
-    watcher.setFuture(m_BrowsingInstance.currentDir()->status());
-    modelList->setDirectory(m_BrowsingInstance.goTo(path.append("/").append(child)));
-    ui->lineEdit->setText(m_BrowsingInstance.currentPath());
+    path.append("/").append(child);
+
+    QMimeDatabase database;
+    QString type = database.mimeTypeForFile(path).name();
+
+    if (type != "inode/directory") {
+        if (type == "application/x-desktop") {
+            //launch application here
+            XdgDesktopFile * xdg = XdgDesktopFileCache::getFile(path);
+            xdg->startDetached();
+        } else {
+            //only local files
+            QDesktopServices::openUrl(QUrl::fromLocalFile(path));
+        }
+    } else {
+
+        watcher.setFuture(m_BrowsingInstance.currentDir()->status());
+        modelList->setDirectory(m_BrowsingInstance.goTo(path));
+        ui->lineEdit->setText(m_BrowsingInstance.currentPath());
+    }
 }
 
 void FileManager::HideBusyDialog() {
@@ -233,8 +272,8 @@ void FileManager::HideBusyDialog() {
     busy->hide();
 }
 
-void FileManager::ShowBusyDialog(){
-    busy->move(mapTo(this,QPoint(this->size().width()-busy->width(),this->size().height()-busy->height())) );
+void FileManager::ShowBusyDialog() {
+    busy->move(mapTo(this, QPoint(this->size().width() - busy->width(), this->size().height() - busy->height())));
     busy->raise();
     busy->show();
     busy->start();

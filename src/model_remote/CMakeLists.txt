@@ -1,4 +1,4 @@
-#    Copyright (C) 2014 Moonlight Desktop Environment Team
+#    Copyright (C) 2015 Moonlight Desktop Environment Team
 #    Authors:
 #       Alexis López Zubieta
 #    This file is part of the Moonlight Desktop Environment
@@ -17,22 +17,22 @@
 #    along with Moonlight Desktop Environment.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-project(remote)
+project(module_remote) 
 
 ## --------------------------------------------------------------
 ## Sources
 ## --------------------------------------------------------------
-SET(${PROJECT_NAME}_SOURCES
-    c++/Activator.cpp
-    c++/Remote.cpp
+file(GLOB ${PROJECT_NAME}_SOURCES c++/*.cpp)
 
-    ${CMAKE_CURRENT_BINARY_DIR}/org.moonlightde.remote.xml
-)
+file(GLOB ${PROJECT_NAME}_UIS ui/*.ui)
+
+file(GLOB ${PROJECT_NAME}_RESOURCES res/*)
+
+list(REMOVE_ITEM ${PROJECT_NAME}_RESOURCES "${PROJECT_SOURCE_DIR}/res/descriptor.desktop.in")
 
 SET(CLI_SOURCES
     c++/cli-main.cpp
 )
-
 
 ## --------------------------------------------------------------
 ## Dependencies
@@ -42,7 +42,6 @@ SET(CLI_SOURCES
 find_package(Qt5Core        REQUIRED)
 find_package(Qt5Widgets     REQUIRED)
 find_package(Qt5DBus        REQUIRED)
-
 
 ## CppMicroServices
 find_package(CppMicroServices NO_MODULE REQUIRED)
@@ -73,21 +72,43 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 include_directories(${CMAKE_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
+QT5_WRAP_UI(${PROJEC_NAME}_UI_HEADERS ${${PROJECT_NAME}_UIS})
+QT5_ADD_RESOURCES(${PROJEC_NAME}_QRC_SOURCES ${${PROJEC_NAME}_RESOURCES})
+
 ## --------------------------------------------------------------
 ## Build
 ## --------------------------------------------------------------
-
-MoonLightDE_CreateModule(${PROJECT_NAME} ${${PROJECT_NAME}_SOURCES})
-
-target_link_libraries(moonlightDE-${PROJECT_NAME} 
-    Qt5::Core
-    Qt5::DBus
+set (${PROJECT_NAME}_SOURCES
+    ${${PROJECT_NAME}_SOURCES}
+    ${CLI_SOURCES}
+    ${${PROJEC_NAME}_UI_HEADERS}
+    ${${PROJECT_NAME}_RESOURCES}
 )
 
+m_build_module(
+    NAME ${PROJECT_NAME}
+    SOURCES ${${PROJECT_NAME}_SOURCES}
+    DEPENDENCIES core
+)
+
+target_link_libraries(${TARGET_NAME}
+    Qt5::Core
+    Qt5::Widgets
+    Qt5::DBus
+ )
 
 add_executable(moonlightDE-cli ${CLI_SOURCES})
 target_link_libraries( moonlightDE-cli
     Qt5::Core
     Qt5::DBus
     Qt5::Widgets
+)
+
+m_deploy_module(${TARGET_NAME})
+
+## --------------------------------------------------------------
+## Install
+## --------------------------------------------------------------
+INSTALL(TARGETS moonlightDE-cli
+    RUNTIME DESTINATION bin
 )

@@ -60,6 +60,8 @@ set(DESCRIPTORS_INSTALL_DIR "lib/${CMAKE_PROJECT_NAME}/descriptors")
 set(RESOURCES_INSTALL_DIR "share/${CMAKE_PROJECT_NAME}")
 set(PUBLIC_HEADERS_INSTALL_DIR "include/${CMAKE_PROJECT_NAME}")
 set(CMAKE_FILES_INSTALL_DIR "share/${CMAKE_PROJECT_NAME}/cmake")
+set(DBUS_INTERFACES_INSTALL_DIR "share/dbus-1/interfaces")
+
 
 ## --------------------------------------------------------------
 ## MoonlightDE modules,  comment to disable build.
@@ -85,6 +87,7 @@ add_subdirectory(src/presentation_filemanager)
 
 add_subdirectory(src/model_notifications)
 add_subdirectory(src/presentation_notifiactions_box)
+add_subdirectory(src/model_remote)
 
 #add_subdirectory(src/panel-clasic-menu)
 #add_subdirectory(src/panel-dash_xdg)
