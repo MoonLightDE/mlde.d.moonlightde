@@ -224,19 +224,24 @@ void FileManager::ListItemDoubleClicked(QModelIndex current) {
     path.append("/").append(child);
 
     QMimeDatabase database;
-    QString type = database.mimeTypeForFile(path).name();
+    
+//    qDebug() << m_BrowsingInstance.currentDir()->mimetype(child);
+//    QString type = database.mimeTypeForFile(path).name();
+    QString type = m_BrowsingInstance.currentDir()->mimetype(child);
 
     if (type != "inode/directory") {
         if (type == "application/x-desktop") {
             //launch application here
+            qDebug() << "executing application "<<path;
             XdgDesktopFile * xdg = XdgDesktopFileCache::getFile(path);
             xdg->startDetached();
         } else {
             //only local files
+            qDebug() << "opening file "<<path << "mime:"<<type;
             QDesktopServices::openUrl(QUrl::fromLocalFile(path));
         }
     } else {
-
+        qDebug() << "change directory to "<<path;
         watcher.setFuture(m_BrowsingInstance.currentDir()->status());
         modelList->setDirectory(m_BrowsingInstance.goTo(path));
         ui->lineEdit->setText(m_BrowsingInstance.currentPath());
