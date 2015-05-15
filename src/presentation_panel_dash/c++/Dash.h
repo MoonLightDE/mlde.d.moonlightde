@@ -26,10 +26,11 @@
 
 
 //#include "GDesktopFileCollection.h"
+
 #include "DashViewModel.h"
 #include "ui_Dash.h"
-
 //#include <LXQt/Settings>
+#include "lxqtpower.h"
 
 #include <QDialog>
 #include <QWidget>
@@ -42,7 +43,7 @@ class GDesktopFile;
 
 class Dash : public QDialog {
     Q_OBJECT
-public:
+public: 
     Dash(QWidget * parent);
     virtual ~Dash();
 
@@ -79,12 +80,18 @@ private Q_SLOTS:
     void addFavorite();
     void removeFavorite();
     void onReturnPressed();
+    void onShutdown();
+    void onReboot();
+    void onLogOut();
+    void onSuspend();
+    void onHibernate();
 
 private:
     QFileSystemWatcher* monitor;
     DashViewModel* appDashModel;
     DashViewModel* settingsDashModel;
     DashViewModel* startDashModel;
+    LxQt::Power * m_power;
     
     QList<GDesktopFile*> appList;
     Ui::Dash m_ui;
@@ -96,6 +103,7 @@ private:
     
     
     void putFavorites(QList<GDesktopFile*> favAppList);
+    void powerDialog(LxQt::Power::Action action); 
 
 };
 

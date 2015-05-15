@@ -28,7 +28,6 @@
 
 #include "module_config.h"
 #include "Dash.h"
-//#include "AppButton.h"
 #include "core/ModuleSettings.h"
 
 #include <qt5xdg/XdgDesktopFile>
@@ -53,15 +52,14 @@
 #include <QListView>
 #include <QMenu>
 #include <QThread>
+#include <QMessageBox>
+
 
 #include <algorithm>
 
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
-#include <qt5/QtCore/qlogging.h>
-
-
 
 
 //de abajo , m_settings("panel-dash_xdg")
@@ -92,7 +90,48 @@ Dash::Dash(QWidget * parent) : QDialog(parent) {
     m_ui.StartView->installEventFilter(this);
     m_ui.AppView->installEventFilter(this);
     m_ui.SettingsView->installEventFilter(this);
+    m_ui.turnOff->setIcon(QIcon::fromTheme("system-shutdown"));
+    m_ui.turnOff->setCheckable(false);
+    m_ui.turnOff->setFocusPolicy(Qt::NoFocus);
+    m_power = new LxQt::Power(this);
+
+
+    QMenu* shutdownMenu = new QMenu();
+
+    if (m_power->canShutdown()) {
+        QAction *actionShutdown = new QAction(tr("Shutdown"), this);
+        actionShutdown->setIcon(QIcon::fromTheme("system-shutdown"));
+        shutdownMenu->addAction(actionShutdown);
+        connect(actionShutdown, SIGNAL(triggered()), SLOT(onShutdown()));
+    }
+    if (m_power->canReboot()) {
+        QAction *actionReboot = new QAction(tr("Reboot"), this);
+        actionReboot->setIcon(QIcon::fromTheme("system-reboot"));
+        shutdownMenu->addAction(actionReboot);
+        connect(actionReboot, SIGNAL(triggered()), SLOT(onReboot()));
+    }
+    if (m_power->canLogout()) {
+        QAction *actionLogOut = new QAction(tr("Log Out"), this);
+        actionLogOut->setIcon(QIcon::fromTheme("system-log-out"));
+        shutdownMenu->addAction(actionLogOut);
+        connect(actionLogOut, SIGNAL(triggered()), SLOT(onLogOut()));
+    }
+    if (m_power->canSuspend()) {
+        QAction *actionSuspend = new QAction(tr("Suspend"), this);
+        actionSuspend->setIcon(QIcon::fromTheme("system-suspend"));
+        shutdownMenu->addAction(actionSuspend);
+        connect(actionSuspend, SIGNAL(triggered()), SLOT(onSuspend()));
+    }
+    if (m_power->canHibernate()) {
+        QAction *actionHibernate = new QAction(tr("Hibernate"), this);
+        actionHibernate->setIcon(QIcon::fromTheme("system-suspend-hibernate"));
+        shutdownMenu->addAction(actionHibernate);
+        connect(actionHibernate, SIGNAL(triggered()), SLOT(onHibernate()));
+    }
+
+    m_ui.turnOff->setMenu(shutdownMenu);
 }
+
 
 Dash::~Dash() {
     delete monitor;
@@ -138,7 +177,6 @@ void Dash::configView(QListView* view) {
     }
 
     view->setContextMenuPolicy(Qt::CustomContextMenu);
-
 }
 
 void Dash::build() {
@@ -477,6 +515,67 @@ void Dash::onApplicationsFolderChanged() {
     appListGenerator->generateCache();
     cleanApps();
     build();
+}
+
+void Dash::onShutdown() {
+    qDebug() << "shutdown now";
+    powerDialog(LxQt::Power::Action::PowerShutdown);
+}
+
+void Dash::onReboot() {
+    qDebug() << "reboot now";
+    powerDialog(LxQt::Power::Action::PowerReboot);
+}
+
+void Dash::onLogOut() {
+    qDebug() << "log out now";
+    powerDialog(LxQt::Power::Action::PowerLogout);
+}
+
+void Dash::onSuspend() {
+    qDebug() << "suspend out now";
+    powerDialog(LxQt::Power::Action::PowerSuspend);
+}
+
+void Dash::onHibernate() {
+    qDebug() << "log out now";
+    powerDialog(LxQt::Power::Action::PowerHibernate);
+}
+
+void Dash::powerDialog(LxQt::Power::Action action) {
+    this->hide();
+    QMessageBox * dialog = new QMessageBox(this);
+    if (action == LxQt::Power::Action::PowerSuspend) {
+        dialog->setText(tr("Do you want to suspend?"));
+    } else if (action == LxQt::Power::Action::PowerShutdown) {
+        dialog->setText(tr("Do you want to shutdown?"));
+    } else if (action == LxQt::Power::Action::PowerReboot) {
+        dialog->setText(tr("Do you want to reboot?"));
+    } else if (action == LxQt::Power::Action::PowerHibernate) {
+        dialog->setText(tr("Do you want to hibernate?"));
+    } else if (action == LxQt::Power::Action::PowerLogout) {
+        dialog->setText(tr("Do you want to log out?"));
+    }
+
+    dialog->addButton(tr("Yes"), QMessageBox::AcceptRole);
+    dialog->addButton(tr("No"), QMessageBox::RejectRole);
+    dialog->setIcon(QMessageBox::Question);
+    //0 para ok
+    //1 para cancel
+    //    qDebug() << "dialog result" << dialog->exec();
+    if (dialog->exec() == 0) {
+        if (action == LxQt::Power::Action::PowerSuspend) {
+            m_power->suspend();
+        } else if (action == LxQt::Power::Action::PowerShutdown) {
+            m_power->shutdown();
+        } else if (action == LxQt::Power::Action::PowerReboot) {
+            m_power->reboot();
+        } else if (action == LxQt::Power::Action::PowerHibernate) {
+            m_power->hibernate();
+        } else if (action == LxQt::Power::Action::PowerLogout) {
+            m_power->logout();
+        }
+    }
 }
 
 void Dash::searchEditChanged(QString asearch) {
