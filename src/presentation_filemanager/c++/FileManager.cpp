@@ -192,7 +192,8 @@ void FileManager::InitDetailsView() {
     tree->setEditTriggers(QAbstractItemView::EditKeyPressed |
             QAbstractItemView::SelectedClicked);
     tree->setModel(modelList);
-    connect(tree, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(DetailsItemDoubleClicked(QModelIndex)));
+//    connect(tree, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(DetailsItemDoubleClicked(QModelIndex)));
+    connect(tree, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(ListItemDoubleClicked(QModelIndex)));
 
 }
 
@@ -242,30 +243,30 @@ void FileManager::ListItemDoubleClicked(QModelIndex current) {
     }
 }
 
-void FileManager::DetailsItemDoubleClicked(QModelIndex current) {
-    QString child = modelList->fileName(current);
-    QString path = ui->lineEdit->text();
-    path.append("/").append(child);
-
-    QMimeDatabase database;
-    QString type = database.mimeTypeForFile(path).name();
-
-    if (type != "inode/directory") {
-        if (type == "application/x-desktop") {
-            //launch application here
-            XdgDesktopFile * xdg = XdgDesktopFileCache::getFile(path);
-            xdg->startDetached();
-        } else {
-            //only local files
-            QDesktopServices::openUrl(QUrl::fromLocalFile(path));
-        }
-    } else {
-
-        watcher.setFuture(m_BrowsingInstance.currentDir()->status());
-        modelList->setDirectory(m_BrowsingInstance.goTo(path));
-        ui->lineEdit->setText(m_BrowsingInstance.currentPath());
-    }
-}
+//void FileManager::DetailsItemDoubleClicked(QModelIndex current) {
+//    QString child = modelList->fileName(current);
+//    QString path = ui->lineEdit->text();
+//    path.append("/").append(child);
+//
+//    QMimeDatabase database;
+//    QString type = database.mimeTypeForFile(path).name();
+//
+//    if (type != "inode/directory") {
+//        if (type == "application/x-desktop") {
+//            //launch application here
+//            XdgDesktopFile * xdg = XdgDesktopFileCache::getFile(path);
+//            xdg->startDetached();
+//        } else {
+//            //only local files
+//            QDesktopServices::openUrl(QUrl::fromLocalFile(path));
+//        }
+//    } else {
+//
+//        watcher.setFuture(m_BrowsingInstance.currentDir()->status());
+//        modelList->setDirectory(m_BrowsingInstance.goTo(path));
+//        ui->lineEdit->setText(m_BrowsingInstance.currentPath());
+//    }
+//}
 
 void FileManager::HideBusyDialog() {
     busy->stop();

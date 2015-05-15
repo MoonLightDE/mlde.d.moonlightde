@@ -55,7 +55,7 @@ Q_SLOTS:
 
     void on_pushButton_icons_clicked();
     void ListItemDoubleClicked(QModelIndex);
-    void DetailsItemDoubleClicked(QModelIndex);
+//    void DetailsItemDoubleClicked(QModelIndex);
     void ShowBusyDialog();
     void HideBusyDialog();
 
