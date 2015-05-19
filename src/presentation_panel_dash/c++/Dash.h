@@ -46,7 +46,6 @@ class Dash : public QDialog {
 public: 
     Dash(QWidget * parent);
     virtual ~Dash();
-
     void build();
     void configView(QListView* view);
     void buildSearch(QString search);
@@ -104,6 +103,8 @@ private:
     
     void putFavorites(QList<GDesktopFile*> favAppList);
     void powerDialog(LxQt::Power::Action action); 
+    
+    
 
 };
 

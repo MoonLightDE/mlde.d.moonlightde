@@ -71,8 +71,7 @@ Dash::Dash(QWidget * parent) : QDialog(parent) {
 
     m_ui.setupUi(this);
 
-    setWindowFlags(Qt::Dialog | Qt::WindowStaysOnTopHint | Qt::CustomizeWindowHint | Qt::Popup | Qt::X11BypassWindowManagerHint);
-
+    setWindowFlags(Qt::FramelessWindowHint | Qt::Popup | Qt::X11BypassWindowManagerHint | Qt::WindowStaysOnTopHint |  Qt::CustomizeWindowHint);
     built = false;
 
     monitor = new QFileSystemWatcher();
@@ -215,6 +214,7 @@ void Dash::build() {
 }
 
 bool Dash::eventFilter(QObject *obj, QEvent *event) {
+    
     if (obj == m_ui.lineEdit) {
         if (event->type() == QEvent::KeyPress) {
             QKeyEvent *keyEvent = static_cast<QKeyEvent *> (event);
