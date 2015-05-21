@@ -21,17 +21,20 @@
  */
 
 #define QT_NO_KEYWORDS
+#include "Dash.h"
+#include "module_config.h"
 
 #include "GDesktopFile.h"
 #include "GDesktopFileCollection.h"
+#include "DashViewModel.h"
 #include "DashViewItemDelegate.h"
 
-#include "module_config.h"
-#include "Dash.h"
 #include "core/ModuleSettings.h"
 
 #include <qt5xdg/XdgDesktopFile>
 #include <qt5xdg/XdgIcon>
+
+#include <LXQt/Power>
 
 #include <usGetModuleContext.h>
 

@@ -20,13 +20,11 @@
 #ifndef DASHVIEWMODEL_H
 #define	DASHVIEWMODEL_H
 
-#define QT_NO_KEYWORDS
-#include "GDesktopFile.h"
 #include <QAbstractListModel>
 #include <QList>
 
-//
-//class GDesktopFile;
+
+class GDesktopFile;
 class DashViewModel : public QAbstractListModel  {
     Q_OBJECT
 

@@ -24,13 +24,10 @@
 #ifndef _DASH_H
 #define	_DASH_H
 
-
-//#include "GDesktopFileCollection.h"
-
-#include "DashViewModel.h"
 #include "ui_Dash.h"
-//#include <LXQt/Settings>
-#include "lxqtpower.h"
+
+#include <LXQt/Settings>
+#include <LXQt/Power>
 
 #include <QDialog>
 #include <QWidget>
@@ -38,8 +35,10 @@
 #include <QListView>
 
 
+
 class GDesktopFileCollection;
 class GDesktopFile;
+class DashViewModel;
 
 class Dash : public QDialog {
     Q_OBJECT

@@ -18,17 +18,18 @@
  * along with Moonlight Desktop Environment. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define QT_NO_KEYWORDS
 
 #include "DashViewModel.h"
+#include "GDesktopFile.h"
 
+#include <QUrl>
 #include <QList>
 #include <QString>
 #include <QMenu>
 #include <QStringListModel>
 #include <QMimeData>
 #include <QDebug>
-#include <qt5/QtCore/qurl.h>
-#include <qt5/QtCore/qlogging.h>
 
 DashViewModel::DashViewModel(const QList<GDesktopFile*>& appList,QObject* parent) : QAbstractListModel(parent) {
     appList_ = appList;
