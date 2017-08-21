@@ -4,6 +4,8 @@ MLDE: MoonLight Desktop Environment - Install/build
 Now archived, the modular-concept **M**oonlight its a **L**ightweight **D**esktop **E**nvironment for GNU/Linux systems, mai
 nly for those that runs in low performance devices but with modern qt5 tecnologies.
 
+![MoonlightDE](moonlightde-large.png)
+
 Return to main: [README.md](README.md)
 
 -----------------------------------------------------
