@@ -1,27 +1,33 @@
 MLDE: MoonLight Desktop Environment
 =======================================
 
-Now archived, the modular-concept **M**oonlight its a **L**ightweight **D**esktop **E**nvironment for GNU/Linux systems, mainly for those that runs in low performance devices but with modern qt5 tecnologies.
+Now archived, the modular-concept **M**oonlight its a **L**ightweight **D**esktop **E**nvironment for GNU/Linux systems, 
+mainly for those that runs in low performance devices but with modern qt5 tecnologies.
+
+![MoonlightDE](moonlightde-large.png)
 
 Desing, reason concepts and ohers similitudes
 -----------------------------------------------
 
-In MLDE, some core/cruzial apps must be join and integrated in the core session manager/loader to reduce  memory footprint, either LXQT desktop its concept it the "junction or many apps" so then each app must be light by itself.
+In MLDE, some core/cruzial apps must be join and integrated in the core session manager/loader to reduce  memory footprint, 
+either LXQT desktop its concept it the "junction or many apps" so then each app must be light by itself.
 
-It merges the basic desktop components into a single application in order to reduce the memory footprint and let you take the maximun from your devices.
+It merges the basic desktop components into a single application in order to reduce the memory footprint and let you take 
+the maximun from your devices.
 
-Know more at our [Wiki] (https://github.com/MoonLightDE/MoonLightDE/wiki).
+Know more at our wiki as [docs/README.md](docs/README.md) , for participate must clone and use git over docs directory.
 
 Start point
 ---------------
 
-* For install instructions:  [mlde-installbuildguide] (https://github.com/MoonLightDE/MoonLightDE/wiki/Building-instructions).
+* For install instructions:  [mlde-installbuildguide](docs/mlde-installbuildguide.md).
 * For development contribution: [mlde-contributionguidelines.md](docs/mlde-contributionguidelines.md)
 
 Status
 --------
 
-Currently project are **staled** and *need a mantainer*, currently only receive pull request for bugs, or complete code solutions. see our [CONTRIBUTION.md] guide file.
+Currently project are **staled** and *need a mantainer*, currently only receive pull request for bugs, 
+or complete code solutions. see [mlde-contributionguidelines.md](docs/mlde-contributionguidelines.md)
 
 Please for more info see the isssue #39
 
