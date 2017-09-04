@@ -1,21 +1,41 @@
-MoonLight Desktop Environment
+MLDE: MoonLight Desktop Environment
 =======================================
 
-A modular and lightweight desktop environment for GNU/Linux systems, mainly for those that runs in low performance devices.
-It merges the basic desktop components into a sinlge application in order to reduce the memory footprint and let you take the maximun from your devices.
+Now archived, the modular-concept **M**oonlight its a **L**ightweight **D**esktop **E**nvironment for GNU/Linux systems, 
+mainly for those that runs in low performance devices but with modern qt5 tecnologies.
 
-Know more at our [Wiki] (https://github.com/MoonLightDE/MoonLightDE/wiki).
+![MoonlightDE](moonlightde-large.png)
 
-## Start point
+Desing, reason concepts and ohers similitudes
+-----------------------------------------------
 
-We are under active development, please developers, use our mail list:
+In MLDE, some core/cruzial apps must be join and integrated in the core session manager/loader to reduce  memory footprint, 
+either LXQT desktop its concept it the "junction or many apps" so then each app must be light by itself.
 
-[ ![Mail List] (http://icons.iconarchive.com/icons/hopstarter/sleek-xp-basic/128/Mail-icon.png)] (https://groups.google.com/d/forum/moonlightde)
+It merges the basic desktop components into a single application in order to reduce the memory footprint and let you take 
+the maximun from your devices.
 
-**For code colaboration, see each brand an each separate repository***
+Know more at our wiki as [docs/README.md](docs/README.md) , for participate must clone and use git over docs directory.
+
+Start point
+---------------
+
+* For install instructions:  [mlde-installbuildguide](docs/mlde-installbuildguide.md).
+* For development contribution: [mlde-contributionguidelines.md](docs/mlde-contributionguidelines.md)
+
+Status
+--------
+
+Currently project are **staled** and *need a mantainer*, currently only receive pull request for bugs, 
+or complete code solutions. see [mlde-contributionguidelines.md](docs/mlde-contributionguidelines.md)
+
+Please for more info see the isssue #39
 
 ###Follow MoonLight at:
 
-[ ![Twitter] (http://icons.iconarchive.com/icons/danleech/simple/128/twitter-icon.png)] (https://twitter.com/moonlightDE)
-[ ![Google+] (http://icons.iconarchive.com/icons/dakirby309/windows-8-metro/128/Web-Google-plus-alt-Metro-icon.png) ] (https://plus.google.com/u/0/106073381586416542932)
-[ ![Facebook] (http://icons.iconarchive.com/icons/danleech/simple/128/facebook-icon.png) ] (https://www.facebook.com/moonlightDE)
+Currently project are staled but **if something are interesting, feel free to make a feedback**:
+
+* [Mail list] (https://groups.google.com/d/forum/moonlightde) Archived but still receive mails.
+* [ Twitter] (https://twitter.com/moonlightDE) Only used to report code pulls or changes bugs, but apreciated to follow it!
+* [ Google] (https://plus.google.com/u/0/106073381586416542932) Archived, but apreciated to follow it!
+* [ Facebook] (https://www.facebook.com/moonlightDE) Archived, but apreciated to follow/like!.
