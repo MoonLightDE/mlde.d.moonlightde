@@ -66,6 +66,8 @@ So event reinventing the well, lest get reuse it: (information used are deprecat
 
 3. Lxqt-session (see the lxqt build instructions)
 4. Lxqt-common (see the lxqt build instructions)
+5. qps ( https://github.com/QtDesktop/qps.git ) qt5 process manager
+6. qterminal (see the lxqt build instructions )
 
 To execute moonlight write the command: `moonlightDEcore`.
 
