@@ -20,10 +20,10 @@ its recommended try to search if there a ready to use package made for your dist
 2. Buiild tool:
    - CMake 2.8 or superior
 3. QT framework:
-   - Qt >> 5.2 with property set paths
+   - Qt5 >> 5.2 with property set paths
+   - Qt5Xdg
 4. External extension libs from LXQT project (deprecated version due project was staled)
-   - 1. [libqtxdg](lxde/libqtxdg@cbc22cc1808c526fdb877b2a5bb158f868ed49be) lxde/libqtxdg@cbc22cc1808c526fdb877b2a5bb158f868ed49be
-   - 2. [liblxqt](lxde/liblxqt@534c7cd9945fef25e59393366da21875fe799f02) lxde/liblxqt@534c7cd9945fef25e59393366da21875fe799f02
+   - liblxqt as https://github.com/MoonLightDE/mlde.l.libmlde.git :  lxde/liblxqt@534c7cd9945fef25e59393366da21875fe799f02
 
 Due makes use of C++11 features, the GCC and QT5, any version of OS distribution since 2016 have it, 
 for olders you must use backported packages or try to find a ready to use packages for your linux, 
@@ -48,19 +48,31 @@ a gcc with C++11 features its mandatory:
 
 More detailed instructions can be foun in [https://github.com/MoonLightDE/mlde.l.cppmicroservices/blob/master/README.md#requirements]
 
-### **2** Build Moonlight core
+### **2** Build Moonlight library
+
+The core Moonlight software start with a fork of the liblxqt library, now due staled status we have 
+our own fork of the library:
+
+   1. Download the sources: `git clone https://github.com/MoonLightDE/mlde.l.libmlde.git`
+   2. Create a "build" folder inside the folder containing the sources: `mkdir build; cd build`.
+   3. Configure it, the Qt5 and Qt5Xdg libraries must be instaled: `cmake ..`
+   4. Build: `make`
+   5. Install: `make install`
+   6. Now can build the 'moonligth-core' program 
+
+### **3** Build Moonlight core
 
 The core Moonlight software produced the start point to use the desktop, and coordinates the communication 
 between modules and the CppMicroServices have the registration of that modules
 
    1. Download the sources: `git clone https://github.com/MoonLightDE/mlde.d.moonlightde`
    2. Create a "build" folder inside the folder containing the sources: `mkdir build; cd build`.
-   3. Configure it, the CppMicroServices library must be preinstalled: `cmake ..`
+   3. Configure it, the QT5, Qt5Xdg, libmlde and CppMicroServices library must be preinstalled: `cmake ..`
    4. Build: `make`
    5. Install: `make install`
    6. Now the 'moonligth-core' program are installed to lauch
 
-### **3** Complementary software
+### **4** Complementary software
 
 Moonlight Desktop are based and inspired in the *pre LXQt*, the *RazorQT* desktop and the simplicity of LXDE, 
 so when get fissioned many modules comes usefully to MoonlightDE.
